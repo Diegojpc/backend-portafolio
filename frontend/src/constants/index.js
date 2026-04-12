@@ -6,18 +6,18 @@ import {
     linkedin,
   } from "../assets";
   
-  export const navLinks = [
+  export const getNavLinks = (t) => [
     {
       id: "about",
-      title: "About",
+      title: t("nav.about"),
     },
     {
       id: "projects",
-      title: "Projects",
+      title: t("nav.projects"),
     },
     {
       id: "contact",
-      title: "Contact",
+      title: t("nav.contact"),
     },
   ];
 
@@ -61,11 +61,10 @@ import {
     },
   ];
 
-  const projects = [
+  export const getProjects = (t) => [
     {
-      name: "Talk to the web (web Scraper)",
-      description:
-        "This project is a web scraper that extracts data from websites and presents it in a structured format. It utilizes web scraping supported with LLM models to gather information efficiently through natural languages queries.",
+      name: t('projectsData.p1.name'),
+      description: t('projectsData.p1.desc'),
       tags: [
         {
           name: "FastAPI",
@@ -88,9 +87,8 @@ import {
       source_code_link: "https://github.com/Diegojpc/Talk-to-the-web-web-scraper-",
     },
     {
-      name: "Rag Assistant",
-      description:
-        "This assistant is designed to support Evergreen farmers in making informed crop production decisions. It delivers precise recommendations generated through a large language model (LLM) that processes integrated data including field production history, weather conditions, soil characteristics, lunar phases, and production parameters.",
+      name: t('projectsData.p2.name'),
+      description: t('projectsData.p2.desc'),
       tags: [
         {
           name: "FastAPI",
@@ -109,9 +107,8 @@ import {
       source_code_link: "https://github.com/Diegojpc/evergreen_rag_assistant",
     },
     {
-      name: "Chat-Bot",
-      description:
-        "This project showcases a conversational assistant prototype built with LangchainJS. It is designed to respond to frequently asked questions by leveraging a set of text documents and conversational memory to deliver context-aware answers.",
+      name: t('projectsData.p3.name'),
+      description: t('projectsData.p3.desc'),
       tags: [
         {
           name: "langchainjs",
@@ -131,4 +128,4 @@ import {
     },
   ];
   
-  export { socialLinks, projects, techStackIcons };
+  export { socialLinks, techStackIcons };

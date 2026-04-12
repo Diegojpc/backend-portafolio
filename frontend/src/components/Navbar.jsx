@@ -3,13 +3,16 @@ import { Link } from 'react-router-dom';
 
 
 import { styles } from '../styles';
-import { navLinks } from '../constants';
+import { getNavLinks } from '../constants';
 import { logo, menu, close } from '../assets';
 import { LocalAudioPlayer } from './canvas';
+import { useLanguage } from '../context/LanguageContext';
 
 const Navbar = memo(({ setAudioElement }) => {
   const [active, setActive] = useState('');
   const [toggle, setToggle] = useState(false);
+  const { t, language, toggleLanguage } = useLanguage();
+  const navLinks = getNavLinks(t);
   
   return (
     <nav
@@ -28,7 +31,14 @@ const Navbar = memo(({ setAudioElement }) => {
           <p className='text-white text-[18px] font-bold cursor-pointer md:block hidden'>Diego J. Peña C.</p>
         </Link>
 
-        <div className="flex mx-auto justify-center items-center mt-[-10px]">
+        <div className="flex mx-auto justify-center items-center mt-[-10px] gap-6">
+          <button 
+            onClick={toggleLanguage}
+            className="flex items-center justify-center font-bold text-[14px] px-2 py-1 border border-white/20 rounded hover:bg-white/10 transition-colors text-white"
+            title="Toggle Language"
+          >
+            {language === 'en' ? 'ES' : 'EN'}
+          </button>
           <LocalAudioPlayer setAudioElement={setAudioElement} />
         </div>
 

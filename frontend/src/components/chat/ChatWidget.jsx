@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { useLanguage } from "../../context/LanguageContext";
 
 const ChatWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,6 +14,7 @@ const ChatWidget = () => {
   const [conversationId, setConversationId] = useState(null);
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
+  const { t } = useLanguage();
 
   // Auto-scroll to bottom of messages
   const scrollToBottom = () => {
@@ -26,7 +28,7 @@ const ChatWidget = () => {
   useEffect(() => {
     if (messages.length === 0) {
       setMessages([
-        { role: "assistant", content: "Hi! I am Diego's AI Assistant. How can I help you today?" }
+        { role: "assistant", content: t('chat.welcome') }
       ]);
     }
   }, [messages.length]);
@@ -98,7 +100,7 @@ const ChatWidget = () => {
       console.error("Chat error:", error);
       setMessages((prev) => {
         const newMessages = [...prev];
-        newMessages[newMessages.length - 1].content = "Sorry, I am having trouble connecting to my server. Please try again later.";
+        newMessages[newMessages.length - 1].content = t('chat.fallbackError');
         return newMessages;
       });
     } finally {
@@ -112,7 +114,7 @@ const ChatWidget = () => {
 
     setIsUploading(true);
     // Optimistic UI for User file interaction
-    setMessages((prev) => [...prev, { role: "user", content: `📎 Uploading document: ${file.name}...` }]);
+    setMessages((prev) => [...prev, { role: "user", content: `📎 ${t('chat.uploading')} ${file.name}...` }]);
 
     const formData = new FormData();
     formData.append("file", file);
@@ -130,13 +132,13 @@ const ChatWidget = () => {
       
       setMessages((prev) => [...prev, { 
         role: "assistant", 
-        content: `I have successfully read the document **${file.name}**. What would you like to know about it?` 
+        content: `${t('chat.successParse')} **${file.name}**. ${t('chat.successMsg')}` 
       }]);
     } catch (error) {
       console.error("Upload Error:", error);
       setMessages((prev) => [...prev, { 
         role: "assistant", 
-        content: `Sorry, I couldn't process ${file.name}. Error: ${error.message}` 
+        content: `${t('chat.errorParse')} ${file.name}. Error: ${error.message}` 
       }]);
     } finally {
       setIsUploading(false);
@@ -161,20 +163,20 @@ const ChatWidget = () => {
               <div className="flex items-center gap-2">
                 <div className={`w-2.5 h-2.5 rounded-full shadow-[0_0_10px_currentColor] transition-colors ${isLocalMode ? 'text-amber-500 bg-amber-500' : 'text-[#915EFF] bg-[#915EFF]'}`}></div>
                 <h3 className="font-bold text-[17px]">
-                   Virtual Assistant 
+                   {t('chat.title')} 
                 </h3>
               </div>
               
               <div className="flex items-center gap-4">
                   {/* Mode Toggle Switch */}
                   <label className="flex items-center cursor-pointer gap-2" title="Toggle between Local CPU (Private, Slower) and Gemini Cloud (Fast, Live Web Scraping)">
-                     <span className={`text-xs ${!isLocalMode ? "text-[#915EFF] font-bold" : "text-gray-400"}`}>Cloud</span>
+                     <span className={`text-xs ${!isLocalMode ? "text-[#915EFF] font-bold" : "text-gray-400"}`}>{t('chat.cloud')}</span>
                      <div className="relative">
                         <input type="checkbox" className="hidden" checked={isLocalMode} onChange={() => setIsLocalMode(!isLocalMode)} />
                         <div className="w-8 h-4 bg-gray-700 rounded-full shadow-inner"></div>
                         <div className={`absolute w-4 h-4 bg-white rounded-full shadow inset-y-0 left-0 transition-transform ${isLocalMode ? 'transform translate-x-100 bg-amber-500 translate-x-4' : 'bg-white'}`}></div>
                      </div>
-                     <span className={`text-xs ${isLocalMode ? "text-amber-500 font-bold" : "text-gray-400"}`}>Local CPU</span>
+                     <span className={`text-xs ${isLocalMode ? "text-amber-500 font-bold" : "text-gray-400"}`}>{t('chat.local')}</span>
                   </label>
                   
                   <button 
@@ -256,7 +258,7 @@ const ChatWidget = () => {
                     type="text"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    placeholder="Ask me anything..."
+                    placeholder={t('chat.placeholder')}
                     className="w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-full text-[#aaa6c3] px-4 py-3 pr-12 focus:outline-none focus:border-[#915EFF] transition-colors text-[14px]"
                     disabled={isLoading || isUploading}
                   />

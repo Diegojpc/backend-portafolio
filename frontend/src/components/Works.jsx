@@ -4,8 +4,9 @@ import { motion } from 'framer-motion';
 import { styles } from '../styles';
 import { github } from '../assets';
 import { SectionWrapper } from '../hoc';
-import { projects } from "../constants";
+import { getProjects } from "../constants";
 import { fadeIn, textVariant } from '../utils/motion';
+import { useLanguage } from '../context/LanguageContext';
 
 const ProjectCard = ({ index, name, description, tags, image, source_code_link }) => {
   return (
@@ -59,11 +60,13 @@ const ProjectCard = ({ index, name, description, tags, image, source_code_link }
 }
 
 const Works = () => {
+  const { t } = useLanguage();
+  const projects = getProjects(t);
   return (
     <>
       <motion.div variants={textVariant()}>
-        <p className={styles.sectionSubText}>My work</p>
-        <h2 className={styles.sectionHeadText}>Projects.</h2>
+        <p className={styles.sectionSubText}>{t('projects.subtitle')}</p>
+        <h2 className={styles.sectionHeadText}>{t('projects.title')}</h2>
       </motion.div>
 
       <div className='w-full flex'>
@@ -72,23 +75,17 @@ const Works = () => {
           className='mt-3 text-white text-[17px] max-w-3xl leading-[30px] text-justify'
         >
           <p>
-          My portfolio is a curated collection of projects at the intersection of <strong>Artificial Intelligence</strong>, <strong>Data Science</strong>, and <strong>Full-Stack Development</strong>. Here, you will see how I translate complex technical challenges into practical, high-impact solutions.
-          <br /><br />
-          The projects showcase:
+            <span dangerouslySetInnerHTML={{ __html: t('projects.text1') }} />
+            <br /><br />
+            {t('projects.text2')}
           </p>
           <ul className='list-disc ml-5 mt-2'>
-            <li>
-              <strong>Generative AI & LLMs</strong>: Applications built with cutting-edge tools like <strong>LangChain</strong> to create sophisticated Retrieval-Augmented Generation (RAG) systems and intelligent conversational AI.
-            </li>
-            <li>
-              <strong>Data Science & Machine Learning</strong>: From predictive models built with <strong>Scikit-learn</strong> and <strong>TensorFlow</strong> to data automation scripts that streamline complex statistical processes in <strong>Python</strong>.
-            </li>
-            <li>
-              <strong>Business Intelligence & Visualization</strong>: Dynamic dashboards developed in <strong>Power BI</strong> that transform raw data into clear, strategic insights for decision-making.
-            </li>
+            <li dangerouslySetInnerHTML={{ __html: t('projects.li1') }} />
+            <li className="mt-2" dangerouslySetInnerHTML={{ __html: t('projects.li2') }} />
+            <li className="mt-2" dangerouslySetInnerHTML={{ __html: t('projects.li3') }} />
           </ul>
           <br />
-          Each project reflects my commitment to building robust, scalable, and efficient technology that delivers tangible results. Dive in to explore my work.
+          <p dangerouslySetInnerHTML={{ __html: t('projects.text3') }} />
         </motion.div>
       </div>
 
