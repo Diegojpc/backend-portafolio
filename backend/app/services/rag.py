@@ -68,12 +68,23 @@ def load_models() -> None:
     except Exception as e:
         logger.error(f"[RAG] Error verifying Gemini connectivity. Check API Key: {e}")
 
+class SafeGeminiEmbedder:
+    def __call__(self, input_texts: list[str]) -> list[list[float]]:
+        clean_model = settings.embedding_model.strip().replace('"', '').replace("'", "")
+        try:
+            response = genai.embed_content(
+                model=clean_model,
+                content=input_texts,
+                task_type="retrieval_document"
+            )
+            return response['embedding']
+        except Exception as e:
+            logger.error(f"[Embedder] Gemini API EmbedContent Failed. Stripped Model was '{clean_model}'. Error: {e}")
+            raise
+
 def get_base_embedding_fn():
-    """Universal persistent Cloud Embedder."""
-    return embedding_functions.GoogleGenerativeAiEmbeddingFunction(
-        api_key=settings.gemini_api_key,
-        model_name=settings.embedding_model
-    )
+    """Universal Defensively-Stripped Cloud Embedder."""
+    return SafeGeminiEmbedder()
 
 def ingest_documents() -> None:
     """Load standard documents establishing context over local Universal Embeddings."""
