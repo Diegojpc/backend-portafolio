@@ -146,7 +146,7 @@ async def chat(
         ):
             full_response.append(chunk)
             yield chunk
-            await asyncio.sleep(0.01)  # Give the event loop breathing room
+            await asyncio.sleep(0)  # Yield explicitly to event-loop eliminating any arbitrary sleep delay queue bottleneck.
 
         # Save complete interaction
         final_text = "".join(full_response)

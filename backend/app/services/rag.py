@@ -163,13 +163,15 @@ def inject_dynamic_document_chunk(filename: str, content: str) -> int:
     collection.add(ids=all_ids, documents=all_chunks, metadatas=all_meta)
     return len(all_chunks)
 
-def query_context(query: str, top_k: int = 3) -> str:
+def query_context(query: str, top_k: int = 8) -> str:
     collection = _state.get("chroma_collection")
     if not collection: return ""
     try:
         results = collection.query(query_texts=[query], n_results=top_k)
         if results and results["documents"]:
-            return "\n\n---\n\n".join(results["documents"][0])
+            extracted_context = "\n\n---\n\n".join(results["documents"][0])
+            logger.info(f"[RAG] Context Engine Retrieved {len(results['documents'][0])} matched chunks for query.")
+            return extracted_context
     except Exception as e:
         logger.error(f"[RAG] Context Retrieval Failure: {e}")
     return ""
@@ -232,7 +234,10 @@ def stream_response(prompt: str, conversation_history: list[dict] | None = None,
     )
 
     formatted_history = _format_history_to_gemini(conversation_history[-10:] if conversation_history else None)
-    chat_session = model.start_chat(history=formatted_history)
+    chat_session = model.start_chat(
+        enable_automatic_function_calling=True, 
+        history=formatted_history
+    )
 
     try:
         response = chat_session.send_message(prompt, stream=True)
