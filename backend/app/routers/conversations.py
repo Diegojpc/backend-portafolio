@@ -138,8 +138,12 @@ async def chat(
         # Get conversation history for memory
         history = await service.get_conversation_history(conversation.id, limit=10)
 
-        # Stream from RAG pipeline (runs LLM in a thread)
-        for chunk in stream_response(chat_request.prompt, conversation_history=history):
+        # Stream from RAG pipeline (runs LLM in a thread if local, or hits Gemini if API)
+        for chunk in stream_response(
+            prompt=chat_request.prompt, 
+            conversation_history=history, 
+            use_local_model=chat_request.use_local_model
+        ):
             full_response.append(chunk)
             yield chunk
             await asyncio.sleep(0.01)  # Give the event loop breathing room

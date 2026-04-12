@@ -7,6 +7,7 @@ const ChatWidget = () => {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isLocalMode, setIsLocalMode] = useState(false);
   const [conversationId, setConversationId] = useState(null);
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -65,7 +66,7 @@ const ChatWidget = () => {
       const response = await fetch(`http://localhost:8000/conversations/${currentConvId}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: userText })
+        body: JSON.stringify({ prompt: userText, use_local_model: isLocalMode })
       });
 
       if (!response.ok) throw new Error("Failed to communicate with AI server");
@@ -156,16 +157,32 @@ const ChatWidget = () => {
             {/* Header */}
             <div className="bg-[#151030] border-b border-[rgba(255,255,255,0.1)] p-4 flex justify-between items-center text-white">
               <div className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 rounded-full bg-[#915EFF] shadow-[0_0_10px_#915EFF]"></div>
-                <h3 className="font-bold text-[17px]">Virtual Assistant</h3>
+                <div className={`w-2.5 h-2.5 rounded-full shadow-[0_0_10px_currentColor] transition-colors ${isLocalMode ? 'text-amber-500 bg-amber-500' : 'text-[#915EFF] bg-[#915EFF]'}`}></div>
+                <h3 className="font-bold text-[17px]">
+                   Virtual Assistant 
+                </h3>
               </div>
-              <button 
-                onClick={toggleChat}
-                className="text-white/60 hover:text-white transition-colors"
-                title="Close chat"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-              </button>
+              
+              <div className="flex items-center gap-4">
+                  {/* Mode Toggle Switch */}
+                  <label className="flex items-center cursor-pointer gap-2" title="Toggle between Local CPU (Private, Slower) and Gemini Cloud (Fast, Live Web Scraping)">
+                     <span className={`text-xs ${!isLocalMode ? "text-[#915EFF] font-bold" : "text-gray-400"}`}>Cloud</span>
+                     <div className="relative">
+                        <input type="checkbox" className="hidden" checked={isLocalMode} onChange={() => setIsLocalMode(!isLocalMode)} />
+                        <div className="w-8 h-4 bg-gray-700 rounded-full shadow-inner"></div>
+                        <div className={`absolute w-4 h-4 bg-white rounded-full shadow inset-y-0 left-0 transition-transform ${isLocalMode ? 'transform translate-x-100 bg-amber-500 translate-x-4' : 'bg-white'}`}></div>
+                     </div>
+                     <span className={`text-xs ${isLocalMode ? "text-amber-500 font-bold" : "text-gray-400"}`}>Local CPU</span>
+                  </label>
+                  
+                  <button 
+                    onClick={toggleChat}
+                    className="text-white/60 hover:text-white transition-colors ml-2"
+                    title="Close chat"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                  </button>
+              </div>
             </div>
 
             {/* Messages Area */}
