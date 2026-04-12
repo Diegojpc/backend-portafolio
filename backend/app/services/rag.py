@@ -71,7 +71,8 @@ def load_models() -> None:
 def get_base_embedding_fn():
     """Universal persistent Cloud Embedder."""
     return embedding_functions.GoogleGenerativeAiEmbeddingFunction(
-        api_key=settings.gemini_api_key
+        api_key=settings.gemini_api_key,
+        model_name=settings.embedding_model
     )
 
 def ingest_documents() -> None:
