@@ -3,10 +3,9 @@
 import os
 import glob
 import threading
-import torch
+import threading
 import chromadb
 from chromadb.utils import embedding_functions
-from transformers import pipeline, TextIteratorStreamer, GenerationConfig, AutoTokenizer, AutoModelForCausalLM
 import google.generativeai as genai
 from loguru import logger
 
@@ -61,7 +60,7 @@ def chunk_text(text: str, chunk_size: int = 500, overlap: int = 100) -> list[str
     return chunks
 
 def load_models() -> None:
-    """Pre-flights Gemini APIs and loads Local PyTorch models."""
+    """Pre-flights Gemini APIs."""
     # 1. Cloud
     try:
         genai.get_model(f"models/{settings.model_name}")
@@ -69,26 +68,10 @@ def load_models() -> None:
     except Exception as e:
         logger.error(f"[RAG] Error verifying Gemini connectivity. Check API Key: {e}")
 
-    # 2. Local fallback
-    try:
-        logger.info(f"[RAG] Loading local fallback CPU model: TinyLlama-1.1B...")
-        tokenizer = AutoTokenizer.from_pretrained("TinyLlama/TinyLlama-1.1B-Chat-v1.0")
-        model = AutoModelForCausalLM.from_pretrained("TinyLlama/TinyLlama-1.1B-Chat-v1.0")
-        _state["local_llm_pipe"] = pipeline(
-            "text-generation", 
-            model=model, 
-            tokenizer=tokenizer, 
-            device="cpu",
-            torch_dtype=torch.float32 
-        )
-        logger.info("[RAG] Local fallback model loaded successfully to CPU RAM.")
-    except Exception as e:
-        logger.error(f"[RAG] Failed to load local Fallback model: {e}")
-
 def get_base_embedding_fn():
-    """Universal persistent Local Embedder."""
-    return embedding_functions.SentenceTransformerEmbeddingFunction(
-        model_name="all-MiniLM-L6-v2"
+    """Universal persistent Cloud Embedder."""
+    return embedding_functions.GoogleGenerativeAiEmbeddingFunction(
+        api_key=settings.gemini_api_key
     )
 
 def ingest_documents() -> None:
@@ -200,27 +183,8 @@ def stream_response(prompt: str, conversation_history: list[dict] | None = None,
     
     # ---------------- LOCAL PIPELINE PATH ---------------- #
     if use_local_model:
-        logger.info(f"[RAG] Routing prompt purely to LOCAL PyTorch sequence: {prompt[:30]}...")
-        llm_pipe = _state["local_llm_pipe"]
-        if not llm_pipe: 
-            yield "[Error] Engine offline. CPU PyTorch limits breached."
-            return
-
-        system_instruction = SYSTEM_PROMPT + (f"\n\nCONTEXT:\n{context}" if context else "")
-        messages = [{"role": "system", "content": system_instruction}] + _format_history_to_local(conversation_history[-3:] if conversation_history else None) + [{"role": "user", "content": prompt}]
-        
-        formatted_prompt = llm_pipe.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-
-        streamer = TextIteratorStreamer(llm_pipe.tokenizer, skip_prompt=True, skip_special_tokens=True)
-        gen_config = GenerationConfig(max_new_tokens=256, do_sample=True, temperature=0.7, top_k=50, top_p=0.95, eos_token_id=llm_pipe.tokenizer.eos_token_id, pad_token_id=llm_pipe.tokenizer.pad_token_id)
-        
-        generation_kwargs = {"text_inputs": formatted_prompt, "streamer": streamer, "generation_config": gen_config}
-        
-        thread = threading.Thread(target=llm_pipe, kwargs=generation_kwargs)
-        thread.start()
-        
-        for new_text in streamer:
-            yield new_text
+        logger.warning(f"[RAG] Intercepted locked Local CPU call.")
+        yield "Local Engine offline. PyTorch modules were stripped from this Free-Tier Production deployment to optimize memory. Please toggle switch to 'Cloud' mode to resume."
         return
 
     # ---------------- CLOUD / AGENTIC PIPELINE PATH ---------------- #
