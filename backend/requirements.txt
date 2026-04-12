@@ -1,0 +1,23 @@
+# Backend Dependencies — Portfolio AI Chatbot
+# Core
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-dotenv==1.0.1
+pydantic==2.10.4
+pydantic-settings==2.7.1
+loguru==0.7.3
+
+# Database
+sqlalchemy==2.0.37
+aiosqlite==0.20.0
+
+# AI / LLM
+torch==2.5.1
+transformers==4.48.0
+
+# RAG
+chromadb==0.6.3
+sentence-transformers==3.4.1
+
+# Utilities
+python-multipart==0.0.20
