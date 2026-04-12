@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 const ChatWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -195,14 +197,24 @@ const ChatWidget = () => {
                   className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                 >
                   <div 
-                    className={`max-w-[85%] rounded-2xl p-3 text-[14px] leading-relaxed ${
+                    className={`max-w-[85%] rounded-2xl p-3 text-[14px] leading-relaxed overflow-hidden ${
                       msg.role === "user" 
                         ? "bg-[#915EFF] text-white rounded-tr-sm" 
-                        : "bg-[rgba(255,255,255,0.05)] text-[#aaa6c3] border border-[rgba(255,255,255,0.05)] rounded-tl-sm"
+                        : "bg-[rgba(255,255,255,0.05)] text-[#aaa6c3] border border-[rgba(255,255,255,0.05)] rounded-tl-sm shadow-sm"
                     }`}
                   >
-                    {msg.content || (isLoading && idx === messages.length - 1 ? (
-                       <span className="flex items-center gap-1">
+                    {msg.content ? (
+                      msg.role === "assistant" ? (
+                        <div className="flex flex-col gap-2 [&>p]:m-0 [&>ul]:list-disc [&>ul]:ml-4 [&>ol]:list-decimal [&>ol]:ml-4 [&_a]:text-[#915EFF] [&_a]:underline [&_strong]:text-white [&_code]:bg-[rgba(255,255,255,0.1)] [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded">
+                           <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                             {msg.content}
+                           </ReactMarkdown>
+                        </div>
+                      ) : (
+                        msg.content
+                      )
+                    ) : (isLoading && idx === messages.length - 1 ? (
+                       <span className="flex items-center gap-1 h-5">
                           <span className="animate-bounce inline-block w-1.5 h-1.5 rounded-full bg-white/60"></span>
                           <span className="animate-bounce inline-block w-1.5 h-1.5 rounded-full bg-white/60 delay-75"></span>
                           <span className="animate-bounce inline-block w-1.5 h-1.5 rounded-full bg-white/60 delay-150"></span>

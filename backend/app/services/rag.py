@@ -237,7 +237,12 @@ def stream_response(prompt: str, conversation_history: list[dict] | None = None,
     try:
         response = chat_session.send_message(prompt, stream=True)
         for chunk in response:
-            if chunk.text: yield chunk.text
+            if chunk.text: 
+                # Gemini outputs massive blocks instantly. We fragment them mathematically
+                # to sustain a typing visual effect on the Chat SSE receiver client.
+                words = chunk.text.split(" ")
+                for i, word in enumerate(words):
+                    yield word + (" " if i < len(words) - 1 else "")
     except Exception as e:
         yield f" Sorry, connection to external Cognitive APIs failed: {str(e)}"
 
