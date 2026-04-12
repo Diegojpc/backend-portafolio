@@ -219,6 +219,8 @@ def stream_response(prompt: str, conversation_history: list[dict] | None = None)
         messages, tokenize=False, add_generation_prompt=True
     )
 
+    from transformers import GenerationConfig
+
     # 4. Stream with TextIteratorStreamer
     streamer = TextIteratorStreamer(
         llm_pipe.tokenizer,
@@ -226,14 +228,21 @@ def stream_response(prompt: str, conversation_history: list[dict] | None = None)
         skip_special_tokens=True,
     )
 
+    # Use GenerationConfig to avoid deprecation warnings
+    gen_config = GenerationConfig(
+        max_new_tokens=256,
+        do_sample=True,
+        temperature=0.7,
+        top_k=50,
+        top_p=0.95,
+        eos_token_id=llm_pipe.tokenizer.eos_token_id,
+        pad_token_id=llm_pipe.tokenizer.pad_token_id,
+    )
+
     generation_kwargs = {
         "text_inputs": formatted_prompt,
         "streamer": streamer,
-        "max_new_tokens": 256,
-        "do_sample": True,
-        "temperature": 0.7,
-        "top_k": 50,
-        "top_p": 0.95,
+        "generation_config": gen_config,
     }
 
     # 5. Run generation in a separate thread (non-blocking)
