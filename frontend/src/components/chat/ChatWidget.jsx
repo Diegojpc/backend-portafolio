@@ -6,8 +6,10 @@ const ChatWidget = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [conversationId, setConversationId] = useState(null);
   const messagesEndRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   // Auto-scroll to bottom of messages
   const scrollToBottom = () => {
@@ -101,6 +103,45 @@ const ChatWidget = () => {
     }
   };
 
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    // Optimistic UI for User file interaction
+    setMessages((prev) => [...prev, { role: "user", content: `📎 Uploading document: ${file.name}...` }]);
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await fetch("http://localhost:8000/documents/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+         const errorData = await response.json();
+         throw new Error(errorData.detail || "Upload failed");
+      }
+      
+      setMessages((prev) => [...prev, { 
+        role: "assistant", 
+        content: `I have successfully read the document **${file.name}**. What would you like to know about it?` 
+      }]);
+    } catch (error) {
+      console.error("Upload Error:", error);
+      setMessages((prev) => [...prev, { 
+        role: "assistant", 
+        content: `Sorry, I couldn't process ${file.name}. Error: ${error.message}` 
+      }]);
+    } finally {
+      setIsUploading(false);
+      // Reset DOM element gracefully
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
   return (
     <div className="fixed bottom-6 right-6 z-[100] flex flex-col items-end">
       {/* Expanded Chat Window */}
@@ -158,22 +199,46 @@ const ChatWidget = () => {
 
             {/* Input Area */}
             <form onSubmit={sendMessage} className="p-4 bg-[rgba(0,0,0,0.3)] border-t border-[rgba(255,255,255,0.05)]">
-              <div className="relative flex items-center">
-                <input
-                  type="text"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder="Ask me anything..."
-                  className="w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-full text-[#aaa6c3] px-4 py-3 pr-12 focus:outline-none focus:border-[#915EFF] transition-colors text-[14px]"
-                  disabled={isLoading}
+              <div className="relative flex items-center gap-2">
+                
+                {/* Hidden File Input */}
+                <input 
+                  type="file" 
+                  accept=".txt,.md,.pdf" 
+                  ref={fileInputRef} 
+                  onChange={handleFileUpload} 
+                  className="hidden" 
                 />
+                
+                {/* Attachment Button */}
                 <button
-                  type="submit"
-                  disabled={!input.trim() || isLoading}
-                  className="absolute right-2 p-2 bg-[#915EFF] hover:bg-[#804dee] text-white rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploading || isLoading}
+                  className="p-2 text-[#aaa6c3] hover:text-white bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.1)] rounded-full transition-colors disabled:opacity-50"
+                  title="Upload Document (.pdf, .txt, .md)"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
                 </button>
+
+                {/* Text Field */}
+                <div className="relative flex-1 flex items-center">
+                  <input
+                    type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder="Ask me anything..."
+                    className="w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-full text-[#aaa6c3] px-4 py-3 pr-12 focus:outline-none focus:border-[#915EFF] transition-colors text-[14px]"
+                    disabled={isLoading || isUploading}
+                  />
+                  <button
+                    type="submit"
+                    disabled={!input.trim() || isLoading || isUploading}
+                    className="absolute right-2 p-2 bg-[#915EFF] hover:bg-[#804dee] text-white rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                  </button>
+                </div>
               </div>
             </form>
           </motion.div>

@@ -1,4 +1,5 @@
-# Backend Dependencies — Portfolio AI Chatbot
+# Backend Dependencies — Agentic Platform Chatbot
+
 # Core
 fastapi==0.115.6
 uvicorn[standard]==0.34.0
@@ -11,13 +12,14 @@ loguru==0.7.3
 sqlalchemy==2.0.37
 aiosqlite==0.20.0
 
-# AI / LLM
-torch==2.5.1
-transformers==4.48.0
-
-# RAG
+# AI / Agentic Core
+google-generativeai==0.8.4
 chromadb==0.6.3
-sentence-transformers==3.4.1
 
-# Utilities
+# Agent Tools & Web Scraping
+beautifulsoup4==4.13.3
+httpx==0.28.1
+
+# Document Processing
+PyPDF2==3.0.1
 python-multipart==0.0.20

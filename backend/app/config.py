@@ -30,12 +30,15 @@ class AppSettings(BaseSettings):
     # AI Models
     model_name: Annotated[str, Field(
         alias="MODEL_NAME",
-        default="TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+        default="gemini-1.5-flash"
     )]
     embedding_model: Annotated[str, Field(
         alias="EMBEDDING_MODEL",
-        default="all-MiniLM-L6-v2"
+        default="models/text-embedding-004"
     )]
+    
+    # Provider Secrets
+    gemini_api_key: Annotated[str, Field(alias="GEMINI_API_KEY")]
 
     @property
     def cors_origins_list(self) -> list[str]:
@@ -50,7 +53,7 @@ def get_settings() -> AppSettings:
         logger.info(f"[Config] Database URL: {settings.database_url}")
         logger.info(f"[Config] CORS origins: {settings.cors_origins_list}")
         logger.info(f"[Config] LLM model: {settings.model_name}")
-        logger.info(f"[Config] Embedding model: {settings.embedding_model}")
+        logger.info(f"[Config] Gemini API Key configured: {'Yes' if settings.gemini_api_key else 'No'}")
         return settings
     except Exception as e:
         logger.critical(f"[Config] Failed to load settings: {e}")

@@ -9,6 +9,7 @@ from loguru import logger
 from app.config import settings
 from app.database import engine, init_db
 from app.routers.conversations import router as conversations_router
+from app.routers.documents import router as documents_router
 
 
 @asynccontextmanager
@@ -56,6 +57,7 @@ app.add_middleware(
 
 # Register routers
 app.include_router(conversations_router)
+app.include_router(documents_router)
 
 
 @app.get("/", tags=["Health"])
