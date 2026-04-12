@@ -85,6 +85,18 @@ const Navbar = memo(({ setAudioElement }) => {
                   <a href={`#${link.id}`}>{link.title}</a>
                 </li>
               ))}
+              <li className="w-full mt-2">
+                <button 
+                  onClick={() => {
+                    toggleLanguage();
+                    setToggle(false);
+                  }}
+                  className="flex items-center justify-center font-bold text-[14px] px-4 py-2 border border-white/20 rounded hover:bg-white/10 transition-colors text-white w-full"
+                  title="Toggle Language"
+                >
+                  {language === 'en' ? 'ESPAÑOL' : 'ENGLISH'}
+                </button>
+              </li>
             </ul>
           </div>
         </div>

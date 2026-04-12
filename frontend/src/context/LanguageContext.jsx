@@ -9,8 +9,7 @@ export const LanguageProvider = ({ children }) => {
   const [language, setLanguage] = useState(() => {
     const saved = localStorage.getItem('portfolio_lang');
     if (saved) return saved;
-    const userLang = navigator.language || navigator.userLanguage;
-    return userLang.startsWith('es') ? 'es' : 'en';
+    return 'es';
   });
 
   const translations = { en, es };
