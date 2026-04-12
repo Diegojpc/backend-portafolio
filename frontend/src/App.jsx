@@ -4,6 +4,8 @@ import { BrowserRouter } from "react-router-dom";
 import { useState, Suspense, lazy } from 'react';
 import { About, Contact, Footer, Hero, Navbar, Tech, Works } from './components';
 
+import ChatWidget from './components/chat/ChatWidget';
+
 const WaveCanvas = lazy(() => import("./components/canvas/Waves"));
 const StarsCanvas = lazy(() => import("./components/canvas/Stars"));
 
@@ -35,6 +37,7 @@ const App = () => {
           </Suspense>
         </div>
       </div>
+      <ChatWidget />
     </BrowserRouter>
   )
 }
