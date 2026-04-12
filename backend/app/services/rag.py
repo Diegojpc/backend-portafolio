@@ -8,6 +8,7 @@ import chromadb
 from chromadb.utils import embedding_functions
 import google.generativeai as genai
 from loguru import logger
+import PyPDF2
 
 from app.config import settings
 from app.services.tools import fetch_url
@@ -69,12 +70,12 @@ def load_models() -> None:
         logger.error(f"[RAG] Error verifying Gemini connectivity. Check API Key: {e}")
 
 class SafeGeminiEmbedder:
-    def __call__(self, input_texts: list[str]) -> list[list[float]]:
+    def __call__(self, input: list[str]) -> list[list[float]]:
         clean_model = settings.embedding_model.strip().replace('"', '').replace("'", "")
         try:
             response = genai.embed_content(
                 model=clean_model,
-                content=input_texts,
+                content=input,
                 task_type="retrieval_document"
             )
             return response['embedding']
@@ -85,6 +86,15 @@ class SafeGeminiEmbedder:
 def get_base_embedding_fn():
     """Universal Defensively-Stripped Cloud Embedder."""
     return SafeGeminiEmbedder()
+
+def extract_text_from_file(filepath: str) -> str:
+    if filepath.lower().endswith('.pdf'):
+        with open(filepath, "rb") as f:
+            reader = PyPDF2.PdfReader(f)
+            return "\n".join([page.extract_text() for page in reader.pages if page.extract_text()])
+    else:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return f.read()
 
 def ingest_documents() -> None:
     """Load standard documents establishing context over local Universal Embeddings."""
@@ -109,7 +119,7 @@ def ingest_documents() -> None:
             _state["is_ready"] = True
             return
 
-        doc_files = glob.glob(os.path.join(data_dir, "*.md")) + glob.glob(os.path.join(data_dir, "*.txt"))
+        doc_files = glob.glob(os.path.join(data_dir, "*.md")) + glob.glob(os.path.join(data_dir, "*.txt")) + glob.glob(os.path.join(data_dir, "*.pdf"))
         if not doc_files:
             logger.warning(f"[RAG] No base documents found.")
             _state["is_ready"] = True 
@@ -121,8 +131,11 @@ def ingest_documents() -> None:
 
         for filepath in doc_files:
             filename = os.path.basename(filepath)
-            with open(filepath, "r", encoding="utf-8") as f:
-                content = f.read()
+            try:
+                content = extract_text_from_file(filepath)
+            except Exception as e:
+                logger.error(f"[RAG] Failed to parse document {filename}: {e}")
+                continue
 
             chunks = chunk_text(content)
             for i, chunk in enumerate(chunks):

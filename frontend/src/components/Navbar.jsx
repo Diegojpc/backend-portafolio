@@ -32,6 +32,26 @@ const Navbar = memo(({ setAudioElement }) => {
         </Link>
 
         <div className="flex mx-auto justify-center items-center mt-[-10px] gap-6">
+          <LocalAudioPlayer setAudioElement={setAudioElement} />
+        </div>
+
+        <div className="hidden sm:flex flex-row items-center gap-10">
+          <ul className='list-none flex flex-row gap-10'>
+            {navLinks.map((link) => (
+              <li
+                key={link.id}
+                className={`${
+                  active === link.title
+                  ? "text-secondary"
+                  : "text-white"
+                } hover:text-secondary text-[18px] font-medium cursor-pointer`}
+                onClick={() => setActive(link.title)}
+              >
+                <a href={`#${link.id}`}>{link.title}</a>
+              </li>
+            ))}
+          </ul>
+          
           <button 
             onClick={toggleLanguage}
             className="flex items-center justify-center font-bold text-[14px] px-2 py-1 border border-white/20 rounded hover:bg-white/10 transition-colors text-white"
@@ -39,25 +59,8 @@ const Navbar = memo(({ setAudioElement }) => {
           >
             {language === 'en' ? 'ES' : 'EN'}
           </button>
-          <LocalAudioPlayer setAudioElement={setAudioElement} />
         </div>
-
-        <ul className='list-none hidden sm:flex flex-row gap-10'>
-          {navLinks.map((link) => (
-            <li
-              key={link.id}
-              className={`${
-                active === link.title
-                ? "text-secondary"
-                : "text-white"
-              } hover:text-secondary text-[18px] font-medium cursor-pointer`}
-              onClick={() => setActive(link.title)}
-            >
-              <a href={`#${link.id}`}>{link.title}</a>
-            </li>
-          ))}
-        </ul>
-        <div className='sm:hidden flex flex-1 justify-end items-center'>
+        <div className='sm:hidden flex flex-1 justify-end items-center gap-4'>
           <img
             src={toggle ? close : menu}
             alt="menu"
