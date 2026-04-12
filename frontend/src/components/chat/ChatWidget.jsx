@@ -54,7 +54,7 @@ const ChatWidget = () => {
 
       // 1. Create conversation if it doesn't exist
       if (!currentConvId) {
-        const createRes = await fetch("http://www.diegojpc.com/conversations", {
+        const createRes = await fetch("https://backend-portafolio-pa3u.onrender.com/conversations", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ title: "Portfolio Chat" })
@@ -67,7 +67,7 @@ const ChatWidget = () => {
       }
 
       // 2. Fetch Chat Stream using native fetch Reader (SSE)
-      const response = await fetch(`http://www.diegojpc.com/conversations/${currentConvId}/chat`, {
+      const response = await fetch(`https://backend-portafolio-pa3u.onrender.com/conversations/${currentConvId}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt: userText, use_local_model: isLocalMode })
@@ -120,7 +120,7 @@ const ChatWidget = () => {
     formData.append("file", file);
 
     try {
-      const response = await fetch("http://www.diegojpc.com/documents/upload", {
+      const response = await fetch("https://backend-portafolio-pa3u.onrender.com/documents/upload", {
         method: "POST",
         body: formData,
       });
