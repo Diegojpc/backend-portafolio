@@ -16,7 +16,6 @@ aiosqlite==0.20.0
 
 # AI / Agentic Core
 google-generativeai==0.8.4
-chromadb==0.6.3
 
 
 

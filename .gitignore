@@ -7,7 +7,6 @@ frontend/dist/
 
 # Large static assets (deploy separately)
 frontend/public/music/
-*.pdf
 
 # Environment
 .env

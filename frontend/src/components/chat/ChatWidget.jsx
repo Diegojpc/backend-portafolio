@@ -148,7 +148,7 @@ const ChatWidget = () => {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-[100] flex flex-col items-end">
+    <div className="fixed bottom-0 right-0 sm:bottom-6 sm:right-6 z-[100] flex flex-col items-end">
       {/* Expanded Chat Window */}
       <AnimatePresence>
         {isOpen && (
@@ -156,7 +156,7 @@ const ChatWidget = () => {
             initial={{ opacity: 0, y: 50, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 50, scale: 0.9 }}
-            className="mb-4 w-80 sm:w-96 overflow-hidden rounded-2xl bg-black/60 shadow-[0_0_20px_rgba(145,94,255,0.2)] backdrop-blur-md border border-[rgba(255,255,255,0.1)] flex flex-col h-[500px] max-h-[80vh]"
+            className="fixed inset-0 sm:inset-auto sm:mb-4 sm:w-96 overflow-hidden sm:rounded-2xl bg-black/95 sm:bg-black/60 shadow-[0_0_30px_rgba(145,94,255,0.3)] backdrop-blur-xl sm:backdrop-blur-md border border-[rgba(255,255,255,0.1)] flex flex-col h-[100dvh] sm:h-[600px] sm:max-h-[80vh] z-[101]"
           >
             {/* Header */}
             <div className="bg-[#151030] border-b border-[rgba(255,255,255,0.1)] p-4 flex justify-between items-center text-white">
@@ -291,7 +291,7 @@ const ChatWidget = () => {
         onClick={toggleChat}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className={`w-14 h-14 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(145,94,255,0.4)] transition-colors ${isOpen ? 'bg-[#151030] text-white' : 'bg-[#915EFF] text-white'}`}
+        className={`fixed bottom-6 right-6 w-14 h-14 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(145,94,255,0.4)] transition-colors z-[102] ${isOpen ? 'bg-[#151030] text-white hidden sm:flex' : 'bg-[#915EFF] text-white flex'}`}
       >
         {isOpen ? (
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
