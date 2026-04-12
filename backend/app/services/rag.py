@@ -111,7 +111,6 @@ def stream_response(prompt: str, conversation_history: list[dict] | None = None,
 
     formatted_history = _format_history_to_gemini(conversation_history[-10:] if conversation_history else None)
     chat_session = model.start_chat(
-        enable_automatic_function_calling=True, 
         history=formatted_history
     )
 
