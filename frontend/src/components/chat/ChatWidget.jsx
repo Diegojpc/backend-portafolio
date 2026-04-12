@@ -148,7 +148,7 @@ const ChatWidget = () => {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-[100] flex flex-col items-end">
+    <div className="fixed z-[100] flex flex-col items-end bottom-4 right-4 sm:bottom-6 sm:right-6">
       {/* Expanded Chat Window */}
       <AnimatePresence>
         {isOpen && (
@@ -156,7 +156,7 @@ const ChatWidget = () => {
             initial={{ opacity: 0, y: 50, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 50, scale: 0.9 }}
-            className="mb-4 w-80 sm:w-96 overflow-hidden rounded-2xl bg-black/60 shadow-[0_0_20px_rgba(145,94,255,0.2)] backdrop-blur-md border border-[rgba(255,255,255,0.1)] flex flex-col h-[500px] max-h-[80vh]"
+            className="mb-4 w-[calc(100vw-32px)] sm:w-96 overflow-hidden rounded-2xl bg-black/85 sm:bg-black/60 shadow-[0_0_25px_rgba(145,94,255,0.3)] backdrop-blur-xl sm:backdrop-blur-md border border-[rgba(255,255,255,0.1)] flex flex-col h-[78dvh] sm:h-[500px] max-h-[85vh] sm:max-h-[80vh]"
           >
             {/* Header */}
             <div className="bg-[#151030] border-b border-[rgba(255,255,255,0.1)] p-4 flex justify-between items-center text-white">
