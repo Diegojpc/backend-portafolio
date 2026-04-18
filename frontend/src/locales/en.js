@@ -64,6 +64,7 @@ export const en = {
     successMsg: "What would you like to know about it?",
     fetchError: "Failed to communicate with AI server",
     fallbackError: "Sorry, I am having trouble connecting to my server. Please try again later.",
-    welcome: "Hi! I am Diego's AI Assistant. How can I help you today?"
+    welcome: "Hi! I am Diego's AI Assistant. How can I help you today?",
+    warming: "warming up..."
   }
 };

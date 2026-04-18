@@ -64,6 +64,7 @@ export const es = {
     successMsg: "¿Qué deseas saber acerca del mismo?",
     fetchError: "Fallo en la comunicación con el servidor central",
     fallbackError: "Disculpa, estoy experimentando fallos de conexión al cerebro de la IA. Por favor, intenta de nuevo.",
-    welcome: "¡Hola! Soy el Asistente Inteligente de Diego. ¿Hay algo en lo que te pueda ayudar?"
+    welcome: "¡Hola! Soy el Asistente Inteligente de Diego. ¿Hay algo en lo que te pueda ayudar?",
+    warming: "iniciando servidor..."
   }
 };

@@ -4,6 +4,8 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useLanguage } from "../../context/LanguageContext";
 
+const BACKEND_URL = "https://backend-portafolio-pa3u.onrender.com";
+
 const ChatWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
@@ -12,9 +14,24 @@ const ChatWidget = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [isLocalMode, setIsLocalMode] = useState(false);
   const [conversationId, setConversationId] = useState(null);
+  // "warming" | "ready" | "error"
+  const [serverStatus, setServerStatus] = useState("warming");
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
   const { t } = useLanguage();
+
+  // Warm-up ping: fires on page load so the server is ready before the user opens chat
+  useEffect(() => {
+    const warmUp = async () => {
+      try {
+        const res = await fetch(`${BACKEND_URL}/health`, { signal: AbortSignal.timeout(60_000) });
+        setServerStatus(res.ok ? "ready" : "error");
+      } catch {
+        setServerStatus("error");
+      }
+    };
+    warmUp();
+  }, []);
 
   // Auto-scroll to bottom of messages
   const scrollToBottom = () => {
@@ -54,7 +71,7 @@ const ChatWidget = () => {
 
       // 1. Create conversation if it doesn't exist
       if (!currentConvId) {
-        const createRes = await fetch("https://backend-portafolio-pa3u.onrender.com/conversations", {
+        const createRes = await fetch(`${BACKEND_URL}/conversations`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ title: "Portfolio Chat" })
@@ -67,7 +84,7 @@ const ChatWidget = () => {
       }
 
       // 2. Fetch Chat Stream using native fetch Reader (SSE)
-      const response = await fetch(`https://backend-portafolio-pa3u.onrender.com/conversations/${currentConvId}/chat`, {
+      const response = await fetch(`${BACKEND_URL}/conversations/${currentConvId}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt: userText, use_local_model: isLocalMode })
@@ -120,7 +137,7 @@ const ChatWidget = () => {
     formData.append("file", file);
 
     try {
-      const response = await fetch("https://backend-portafolio-pa3u.onrender.com/documents/upload", {
+      const response = await fetch(`${BACKEND_URL}/documents/upload`, {
         method: "POST",
         body: formData,
       });
@@ -161,10 +178,16 @@ const ChatWidget = () => {
             {/* Header */}
             <div className="bg-[#151030] border-b border-[rgba(255,255,255,0.1)] p-4 flex justify-between items-center text-white">
               <div className="flex items-center gap-2">
-                <div className={`w-2.5 h-2.5 rounded-full shadow-[0_0_10px_currentColor] transition-colors ${isLocalMode ? 'text-amber-500 bg-amber-500' : 'text-[#915EFF] bg-[#915EFF]'}`}></div>
-                <h3 className="font-bold text-[17px]">
-                  {t('chat.title')}
-                </h3>
+                <div className={`w-2.5 h-2.5 rounded-full shadow-[0_0_10px_currentColor] transition-colors ${
+                  serverStatus === "warming" ? "bg-yellow-400 text-yellow-400 animate-pulse" :
+                  serverStatus === "error"   ? "bg-red-500 text-red-500" :
+                  isLocalMode               ? "bg-amber-500 text-amber-500" :
+                                              "bg-[#915EFF] text-[#915EFF]"
+                }`}></div>
+                <h3 className="font-bold text-[17px]">{t('chat.title')}</h3>
+                {serverStatus === "warming" && (
+                  <span className="text-[10px] text-yellow-400/80 font-normal">{t('chat.warming')}</span>
+                )}
               </div>
 
               <div className="flex items-center gap-4">
@@ -291,8 +314,12 @@ const ChatWidget = () => {
         onClick={toggleChat}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className={`w-14 h-14 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(145,94,255,0.4)] transition-colors ${isOpen ? 'bg-[#151030] text-white' : 'bg-[#915EFF] text-white'}`}
+        className={`relative w-14 h-14 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(145,94,255,0.4)] transition-colors ${isOpen ? 'bg-[#151030] text-white' : 'bg-[#915EFF] text-white'}`}
       >
+        {/* Warm-up ring: pulsates while server is waking up */}
+        {serverStatus === "warming" && !isOpen && (
+          <span className="absolute inset-0 rounded-full animate-ping bg-[#915EFF] opacity-40 pointer-events-none" />
+        )}
         {isOpen ? (
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
         ) : (
