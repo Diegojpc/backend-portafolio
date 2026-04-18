@@ -13,7 +13,7 @@ const Navbar = memo(({ setAudioElement }) => {
   const [toggle, setToggle] = useState(false);
   const { t, language, toggleLanguage } = useLanguage();
   const navLinks = getNavLinks(t);
-  
+
   return (
     <nav
       className={`${styles.paddingX} w-full flex items-center py-5 fixed top-0 z-20 bg-navbar-gradient`}
@@ -35,24 +35,23 @@ const Navbar = memo(({ setAudioElement }) => {
           <LocalAudioPlayer setAudioElement={setAudioElement} />
         </div>
 
-        <div className="hidden lg:flex flex-row items-center gap-10">
+        <div className="hidden xl:flex flex-row items-center gap-10">
           <ul className='list-none flex flex-row gap-10'>
             {navLinks.map((link) => (
               <li
                 key={link.id}
-                className={`${
-                  active === link.title
-                  ? "text-secondary"
-                  : "text-white"
-                } hover:text-secondary text-[18px] font-medium cursor-pointer`}
+                className={`${active === link.title
+                    ? "text-secondary"
+                    : "text-white"
+                  } hover:text-secondary text-[18px] font-medium cursor-pointer`}
                 onClick={() => setActive(link.title)}
               >
                 <a href={`#${link.id}`}>{link.title}</a>
               </li>
             ))}
           </ul>
-          
-          <button 
+
+          <button
             onClick={toggleLanguage}
             className="flex items-center justify-center font-bold text-[14px] px-2 py-1 border border-white/20 rounded hover:bg-white/10 transition-colors text-white"
             title="Toggle Language"
@@ -60,23 +59,22 @@ const Navbar = memo(({ setAudioElement }) => {
             {language === 'en' ? 'ES' : 'EN'}
           </button>
         </div>
-        <div className='lg:hidden relative flex flex-1 justify-end items-center gap-4'>
+        <div className='xl:hidden relative flex flex-1 justify-end items-center gap-4'>
           <img
             src={toggle ? close : menu}
             alt="menu"
             className='w-[28px] h-[28px] object-contain cursor-pointer'
             onClick={() => setToggle(!toggle)}
           />
-          <div className={`${!toggle ? 'hidden' : 'flex' } p-6 bg-black absolute top-full right-0 mt-2 min-w-[140px] z-10 rounded-xl shadow-lg`}>
+          <div className={`${!toggle ? 'hidden' : 'flex'} p-6 bg-black absolute top-full right-0 mt-2 min-w-[140px] z-10 rounded-xl shadow-lg`}>
             <ul className='list-none flex justify-end items-start flex-col gap-4'>
               {navLinks.map((link) => (
                 <li
                   key={link.id}
-                  className={`${
-                    active === link.title
-                    ? "text-secondary"
-                    : "text-white"
-                  } hover:text-secondary font-poppins font-medium cursor-pointer text-[16px]`}
+                  className={`${active === link.title
+                      ? "text-secondary"
+                      : "text-white"
+                    } hover:text-secondary font-poppins font-medium cursor-pointer text-[16px]`}
                   onClick={() => {
                     setToggle(!toggle)
                     setActive(link.title)
@@ -86,7 +84,7 @@ const Navbar = memo(({ setAudioElement }) => {
                 </li>
               ))}
               <li className="w-full mt-2">
-                <button 
+                <button
                   onClick={() => {
                     toggleLanguage();
                     setToggle(false);
