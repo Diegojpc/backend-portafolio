@@ -97,9 +97,19 @@ const Waves = ({ size, isMobile }) => (
   </group>
 );
 
+// Forces shader compilation before the first visible frame
+const ShaderPrecompiler = () => {
+  const { gl, scene, camera } = useThree();
+  useEffect(() => {
+    gl.compile(scene, camera);
+  }, [gl, scene, camera]);
+  return null;
+};
+
 const WavesCanvas = () => {
   const [size, setSize] = useState(window.innerWidth);
   const [mobile, setMobile] = useState(isMobileDevice);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -110,19 +120,27 @@ const WavesCanvas = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // On mobile skip the canvas entirely — saves one WebGL context + all vertex computation
+  // Delay visibility until shaders are compiled and first frames rendered
+  useEffect(() => {
+    const id = setTimeout(() => setVisible(true), 350);
+    return () => clearTimeout(id);
+  }, []);
+
   if (mobile) return null;
 
   return (
-    <Canvas
-      dpr={[1, 1.5]}
-      camera={{ near: 0.01, far: 1200, position: [0, 0, 0] }}
-      gl={{ antialias: false }}
-    >
-      <ambientLight intensity={1.2} />
-      <Waves size={size} isMobile={false} />
-      <Preload all />
-    </Canvas>
+    <div style={{ opacity: visible ? 1 : 0, transition: "opacity 0.4s ease", width: "100%", height: "100%" }}>
+      <Canvas
+        dpr={[1, 1.5]}
+        camera={{ near: 0.01, far: 1200, position: [0, 0, 0] }}
+        gl={{ antialias: false }}
+      >
+        <ambientLight intensity={1.2} />
+        <Waves size={size} isMobile={false} />
+        <ShaderPrecompiler />
+        <Preload all />
+      </Canvas>
+    </div>
   );
 };
 
