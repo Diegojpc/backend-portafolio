@@ -271,14 +271,12 @@ const LocalAudioPlayer = ({ setAudioElement }) => {
         </div>
       )}
 
-      {/* Song title marquee */}
-      {!isSmallScreen && (
-        <div className="text-white text-center mt-1 overflow-hidden">
-          <div className="animate-marquee whitespace-nowrap text-xs">
-            {currentSongTitle}
-          </div>
+      {/* Song title marquee — always visible, contained within player width */}
+      <div className="w-full overflow-hidden mt-1">
+        <div className="animate-marquee whitespace-nowrap text-white text-xs text-center">
+          {currentSongTitle}
         </div>
-      )}
+      </div>
     </div>
   );
 };
