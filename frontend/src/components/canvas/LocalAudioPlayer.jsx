@@ -168,7 +168,12 @@ const LocalAudioPlayer = ({ setAudioElement }) => {
   };
 
   useEffect(() => {
-    const handleResize = () => setIsSmallScreen(window.innerWidth < 1000);
+    const handleResize = () => {
+      setIsSmallScreen(window.innerWidth < 1000);
+      // Close open panels on orientation change to avoid layout mess
+      setShowProgress(false);
+      setShowVolumeControl(false);
+    };
     window.addEventListener('resize', handleResize);
     handleResize();
     return () => window.removeEventListener('resize', handleResize);
@@ -187,7 +192,7 @@ const LocalAudioPlayer = ({ setAudioElement }) => {
   };
 
   return (
-    <div className="px-2 sm:px-4 w-full max-w-3xl mx-auto relative">
+    <div className="px-2 sm:px-4 w-full max-w-3xl mx-auto">
       <audio ref={audioRef} src={songs[currentSongIndex]} preload="none" />
       <div className="flex items-center space-x-2 sm:space-x-4 mx-auto">
         <button onClick={handlePrev} className="text-white hover:text-gray-400 text-xs sm:text-base shrink-0">
@@ -252,7 +257,7 @@ const LocalAudioPlayer = ({ setAudioElement }) => {
       </div>
 
       {isSmallScreen && showProgress && (
-        <div className="fixed top-[72px] left-0 w-full px-4 py-2 bg-black/80 backdrop-blur-sm z-50 flex items-center gap-3">
+        <div className="flex items-center gap-2 mt-1">
           <input
             type="range"
             min="0"
@@ -261,18 +266,18 @@ const LocalAudioPlayer = ({ setAudioElement }) => {
             onChange={handleProgressChange}
             className="flex-1 h-2 bg-gray-200 accent-white rounded-lg focus:outline-none"
           />
-          <span className="text-white font-bold text-xs tabular-nums shrink-0">{formatTime(currentTime)}</span>
+          <span className="text-white font-bold text-xs tabular-nums shrink-0 w-8 text-right">{formatTime(currentTime)}</span>
         </div>
       )}
 
-      {/* Replaced deprecated <marquee> with CSS animation */}
-      <div className="text-white text-center mt-1 overflow-hidden">
-        <div className={`mx-auto absolute ${isSmallScreen ? 'w-40' : ''}`}>
-          <div className="animate-marquee whitespace-nowrap">
+      {/* Song title marquee */}
+      {!isSmallScreen && (
+        <div className="text-white text-center mt-1 overflow-hidden">
+          <div className="animate-marquee whitespace-nowrap text-xs">
             {currentSongTitle}
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
