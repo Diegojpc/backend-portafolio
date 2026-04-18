@@ -80,11 +80,18 @@ const Sphere = ({ analyser }) => {
   };
 
   useFrame(() => {
-    if (!meshRef.current || !analyser || !isAudioConnected) return;
+    if (!meshRef.current) return;
+
+    // Always rotate
+    meshRef.current.rotation.x += 0.001;
+    meshRef.current.rotation.y += 0.003;
+    meshRef.current.rotation.z += 0.005;
+
+    // Frequency-driven deformation and color only when audio is active
+    if (!analyser || !isAudioConnected) return;
 
     const bufferLength = analyser.frequencyBinCount;
 
-    // FIX: Reuse Uint8Array instead of allocating per frame
     if (!dataArrayRef.current || dataArrayRef.current.length !== bufferLength) {
       dataArrayRef.current = new Uint8Array(bufferLength);
     }
@@ -95,33 +102,22 @@ const Sphere = ({ analyser }) => {
     const midRange = dataArray.slice(bufferLength / 4, (bufferLength / 4) * 3);
     const upperHalf = dataArray.slice((bufferLength / 4) * 3, bufferLength);
 
-    const lowerMax = max(lowerHalf);
-    const midAvg = avg(midRange);
-    const upperAvg = avg(upperHalf);
-
-    const lowerMaxFr = lowerMax / lowerHalf.length;
-    const midAvgFr = midAvg / midRange.length;
-    const upperAvgFr = upperAvg / upperHalf.length;
+    const lowerMaxFr = max(lowerHalf) / lowerHalf.length;
+    const midAvgFr   = avg(midRange)  / midRange.length;
+    const upperAvgFr = avg(upperHalf) / upperHalf.length;
 
     const time = clock.getElapsedTime() * 0.1;
     const colorIndex1 = Math.floor(time % retroWaveColors.length);
     const colorIndex2 = (colorIndex1 + 1) % retroWaveColors.length;
-    const t = time % 1;
 
-    const color = interpolateColor(retroWaveColors[colorIndex1], retroWaveColors[colorIndex2], t);
-    if (materialRef.current) {
-      materialRef.current.color = color;
-    }
-
-    meshRef.current.rotation.x += 0.001;
-    meshRef.current.rotation.y += 0.003;
-    meshRef.current.rotation.z += 0.005;
+    const color = interpolateColor(retroWaveColors[colorIndex1], retroWaveColors[colorIndex2], time % 1);
+    if (materialRef.current) materialRef.current.color = color;
 
     warpSphere(
       meshRef.current,
-      modulate(lowerMaxFr*2, 0, 1, 0, 5),
-      modulate(midAvgFr*1.6, 0, 1, 0, 4),
-      modulate(upperAvgFr*1.4, 0, 1, 0, 3)
+      modulate(lowerMaxFr * 2, 0, 1, 0, 5),
+      modulate(midAvgFr   * 1.6, 0, 1, 0, 4),
+      modulate(upperAvgFr * 1.4, 0, 1, 0, 3)
     );
   });
 
@@ -232,7 +228,7 @@ export const AudioVisualizer = ({ audioElement }) => {
     >
       <ambientLight intensity={0.8} />
       <directionalLight position={[0, 50, 100]} intensity={0.8} />
-      {isAudioReady && <Sphere analyser={analyserRef.current} />}
+      <Sphere analyser={isAudioReady ? analyserRef.current : null} />
       <Preload all />
     </Canvas>
   );
