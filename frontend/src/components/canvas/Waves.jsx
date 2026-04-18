@@ -24,8 +24,8 @@ const WaveMesh = ({ position, rotation, factor, speed, scale, size, isMobile }) 
   const { clock } = useThree();
 
   // Reduce geometry resolution on mobile: fewer vertices = less CPU/GPU per frame
-  const segmentsX = isMobile ? 60 : 120;
-  const segmentsY = isMobile ? 30 : 60;
+  const segmentsX = isMobile ? 60 : 180;
+  const segmentsY = isMobile ? 30 : 90;
 
   useFrame(() => {
     const cycle = clock.elapsedTime * speed;
@@ -131,7 +131,7 @@ const WavesCanvas = () => {
   return (
     <div style={{ opacity: visible ? 1 : 0, transition: "opacity 0.4s ease", width: "100%", height: "100%" }}>
       <Canvas
-        dpr={[1, 1.5]}
+        dpr={[1, 2]}
         camera={{ near: 0.01, far: 1200, position: [0, 0, 0] }}
         gl={{ antialias: false }}
       >
