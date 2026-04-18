@@ -219,7 +219,9 @@ const LocalAudioPlayer = ({ setAudioElement }) => {
           </div>
         )}
 
-        <span className="text-white font-bold text-xs sm:text-sm w-8 sm:w-12 text-center tabular-nums shrink-0">{formatTime(currentTime)}</span>
+        {!isSmallScreen && (
+          <span className="text-white font-bold text-sm w-12 text-center tabular-nums shrink-0">{formatTime(currentTime)}</span>
+        )}
 
         <div className="relative shrink-0">
           <FontAwesomeIcon
@@ -250,15 +252,16 @@ const LocalAudioPlayer = ({ setAudioElement }) => {
       </div>
 
       {isSmallScreen && showProgress && (
-        <div className="fixed top-[72px] left-0 w-full px-4 py-2 bg-black/80 backdrop-blur-sm z-50">
+        <div className="fixed top-[72px] left-0 w-full px-4 py-2 bg-black/80 backdrop-blur-sm z-50 flex items-center gap-3">
           <input
             type="range"
             min="0"
             max={duration || 1}
             value={currentTime}
             onChange={handleProgressChange}
-            className="w-full h-2 bg-gray-200 accent-white rounded-lg focus:outline-none"
+            className="flex-1 h-2 bg-gray-200 accent-white rounded-lg focus:outline-none"
           />
+          <span className="text-white font-bold text-xs tabular-nums shrink-0">{formatTime(currentTime)}</span>
         </div>
       )}
 
