@@ -122,7 +122,7 @@ const Sphere = ({ analyser }) => {
 
   return (
     <mesh ref={meshRef}>
-      <icosahedronGeometry args={[20, 8]} />
+      <icosahedronGeometry args={[20, 12]} />
       <meshBasicMaterial
         ref={materialRef}
         wireframe={true}
@@ -221,9 +221,8 @@ export const AudioVisualizer = ({ audioElement }) => {
         position: [0, 0, 100],
         fov: isMobile ? 65 : 80,
       }}
-      gl={{
-        antialias: true,
-      }}
+      dpr={[1, 2]}
+      gl={{ antialias: true }}
     >
       <ambientLight intensity={0.8} />
       <directionalLight position={[0, 50, 100]} intensity={0.8} />
