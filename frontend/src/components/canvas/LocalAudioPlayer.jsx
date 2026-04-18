@@ -79,14 +79,6 @@ const LocalAudioPlayer = ({ setAudioElement }) => {
 
     const handleLoaded = () => setAudioElement(audio);
     audio.addEventListener('loadeddata', handleLoaded);
-    
-    // Attempt autoplay immediately
-    audio.play().then(() => {
-      setIsPlaying(true);
-    }).catch(err => {
-      console.warn("[LocalAudioPlayer] Autoplay blocked by browser. User interaction required.", err);
-    });
-
     return () => audio.removeEventListener('loadeddata', handleLoaded);
   }, [setAudioElement]);
 
@@ -196,7 +188,7 @@ const LocalAudioPlayer = ({ setAudioElement }) => {
 
   return (
     <div className="p-4 max-w-3xl mx-auto relative">
-      <audio ref={audioRef} src={songs[currentSongIndex]} autoPlay />
+      <audio ref={audioRef} src={songs[currentSongIndex]} />
       <div className="flex items-center space-x-4 mx-auto">
         <button onClick={handlePrev} className="text-white hover:text-gray-400">
           <FontAwesomeIcon icon={faBackward} />
