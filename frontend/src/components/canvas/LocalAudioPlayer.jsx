@@ -169,7 +169,7 @@ const LocalAudioPlayer = ({ setAudioElement }) => {
 
   useEffect(() => {
     const handleResize = () => {
-      setIsSmallScreen(window.innerWidth < 1000);
+      setIsSmallScreen(window.innerWidth < 1280);
       // Close open panels on orientation change to avoid layout mess
       setShowProgress(false);
       setShowVolumeControl(false);

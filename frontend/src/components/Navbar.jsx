@@ -59,7 +59,7 @@ const Navbar = memo(({ setAudioElement }) => {
             {language === 'en' ? 'ES' : 'EN'}
           </button>
         </div>
-        <div className='xl:hidden relative flex flex-1 justify-end items-center gap-4'>
+        <div className='xl:hidden relative flex shrink-0 justify-end items-center gap-4'>
           <img
             src={toggle ? close : menu}
             alt="menu"
