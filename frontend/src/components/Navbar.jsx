@@ -60,14 +60,14 @@ const Navbar = memo(({ setAudioElement }) => {
             {language === 'en' ? 'ES' : 'EN'}
           </button>
         </div>
-        <div className='sm:hidden flex flex-1 justify-end items-center gap-4'>
+        <div className='sm:hidden relative flex flex-1 justify-end items-center gap-4'>
           <img
             src={toggle ? close : menu}
             alt="menu"
             className='w-[28px] h-[28px] object-contain cursor-pointer'
             onClick={() => setToggle(!toggle)}
           />
-          <div className={`${!toggle ? 'hidden' : 'flex' } p-6 bg-black from-black to-secondary absolute top-20 right-0 mx-4 my-2 min-w-[140px] z-10 rounded-xl`}>
+          <div className={`${!toggle ? 'hidden' : 'flex' } p-6 bg-black absolute top-full right-0 mt-2 min-w-[140px] z-10 rounded-xl shadow-lg`}>
             <ul className='list-none flex justify-end items-start flex-col gap-4'>
               {navLinks.map((link) => (
                 <li

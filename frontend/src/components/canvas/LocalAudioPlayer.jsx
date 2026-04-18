@@ -189,20 +189,20 @@ const LocalAudioPlayer = ({ setAudioElement }) => {
   return (
     <div className="px-2 sm:px-4 w-full max-w-3xl mx-auto relative">
       <audio ref={audioRef} src={songs[currentSongIndex]} preload="none" />
-      <div className="flex items-center space-x-4 mx-auto">
-        <button onClick={handlePrev} className="text-white hover:text-gray-400">
+      <div className="flex items-center space-x-2 sm:space-x-4 mx-auto">
+        <button onClick={handlePrev} className="text-white hover:text-gray-400 text-xs sm:text-base shrink-0">
           <FontAwesomeIcon icon={faBackward} />
         </button>
         <button
           onClick={isPlaying ? handlePause : handlePlay}
-          className="text-white hover:text-gray-400"
+          className="text-white hover:text-gray-400 text-xs sm:text-base shrink-0"
         >
           <FontAwesomeIcon icon={isPlaying ? faPause : faPlay} />
         </button>
-        <button onClick={handleStop} className="text-white hover:text-gray-400">
+        <button onClick={handleStop} className="text-white hover:text-gray-400 text-xs sm:text-base shrink-0">
           <FontAwesomeIcon icon={faStop} />
         </button>
-        <button onClick={handleNext} className="text-white hover:text-gray-400">
+        <button onClick={handleNext} className="text-white hover:text-gray-400 text-xs sm:text-base shrink-0">
           <FontAwesomeIcon icon={faForward} />
         </button>
 
@@ -219,13 +219,13 @@ const LocalAudioPlayer = ({ setAudioElement }) => {
           </div>
         )}
 
-        <span className="text-white font-bold text-sm w-12 text-center tabular-nums shrink-0">{formatTime(currentTime)}</span>
+        <span className="text-white font-bold text-xs sm:text-sm w-8 sm:w-12 text-center tabular-nums shrink-0">{formatTime(currentTime)}</span>
 
-        <div className="relative">
+        <div className="relative shrink-0">
           <FontAwesomeIcon
             icon={faVolumeUp}
             onClick={handleVolumeClick}
-            className="text-white hover:text-gray-400 cursor-pointer"
+            className="text-white hover:text-gray-400 cursor-pointer text-xs sm:text-base"
           />
           {showVolumeControl && (
             <input
