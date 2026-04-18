@@ -156,10 +156,6 @@ async def chat(
             response=final_text,
         )
 
-        # Auto-title new conversations
-        if conversation.title == "New Chat":
-            short_title = chat_request.prompt[:40] + ("..." if len(chat_request.prompt) > 40 else "")
-            await service.update_title(conversation.id, short_title)
 
     return StreamingResponse(
         rag_stream(),

@@ -117,12 +117,18 @@ def stream_response(prompt: str, conversation_history: list[dict] | None = None,
     try:
         response = chat_session.send_message(prompt, stream=True)
         for chunk in response:
-            if chunk.text: 
+            if chunk.text:
                 words = chunk.text.split(" ")
                 for i, word in enumerate(words):
                     yield word + (" " if i < len(words) - 1 else "")
     except Exception as e:
-        yield f" Sorry, connection to external Cognitive APIs failed: {str(e)}"
+        error_str = str(e)
+        if "429" in error_str or "quota" in error_str.lower() or "RESOURCE_EXHAUSTED" in error_str:
+            logger.warning("[RAG] Gemini API quota exceeded.")
+            yield "Lo siento, el asistente ha alcanzado el límite de solicitudes gratuitas por hoy. Por favor, vuelve a intentarlo mañana. 🙏"
+        else:
+            logger.error(f"[RAG] Gemini stream error: {e}")
+            yield "Lo siento, ocurrió un error al conectarme con el servidor de IA. Por favor, intenta de nuevo en unos momentos."
 
 def is_ready() -> bool:
     return _state["is_ready"]
