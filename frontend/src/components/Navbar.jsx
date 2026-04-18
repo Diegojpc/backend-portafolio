@@ -31,7 +31,7 @@ const Navbar = memo(({ setAudioElement }) => {
           <p className='text-white text-[18px] font-bold cursor-pointer md:block hidden'>Diego J. Peña C.</p>
         </Link>
 
-        <div className="flex min-w-0 flex-1 justify-center items-center mt-[-10px] mx-2 sm:mx-6 overflow-hidden">
+        <div className="flex min-w-0 flex-1 justify-center items-center mt-[-10px] mx-2 sm:mx-6">
           <LocalAudioPlayer setAudioElement={setAudioElement} />
         </div>
 

@@ -234,7 +234,7 @@ const LocalAudioPlayer = ({ setAudioElement }) => {
               max="100"
               value={volume}
               onChange={handleVolumeChange}
-              className={`absolute w-24 bottom-[5px] left-[30px] bg-gray-200 accent-white rounded-lg focus:outline-none ${isSmallScreen ? '-rotate-90 translate-y-[65px] translate-x-[-70px]' : 'none'}`}
+              className="absolute w-20 sm:w-24 top-6 left-1/2 -translate-x-1/2 bg-gray-200 accent-white rounded-lg focus:outline-none z-50"
               onClick={(e) => e.stopPropagation()}
             />
           )}
@@ -244,13 +244,13 @@ const LocalAudioPlayer = ({ setAudioElement }) => {
           <FontAwesomeIcon
             icon={faChevronDown}
             onClick={handleProgressClick}
-            className="text-white hover:text-gray-400 cursor-pointer"
+            className="text-white hover:text-gray-400 cursor-pointer text-xs sm:text-base shrink-0"
           />
         )}
       </div>
 
       {isSmallScreen && showProgress && (
-        <div className="absolute top-12 left-0 w-full bg-transparent p-5 progress-container">
+        <div className="fixed top-[72px] left-0 w-full px-4 py-2 bg-black/80 backdrop-blur-sm z-50">
           <input
             type="range"
             min="0"
