@@ -35,7 +35,7 @@ const Navbar = memo(({ setAudioElement }) => {
           <LocalAudioPlayer setAudioElement={setAudioElement} />
         </div>
 
-        <div className="hidden sm:flex flex-row items-center gap-10">
+        <div className="hidden lg:flex flex-row items-center gap-10">
           <ul className='list-none flex flex-row gap-10'>
             {navLinks.map((link) => (
               <li
@@ -60,7 +60,7 @@ const Navbar = memo(({ setAudioElement }) => {
             {language === 'en' ? 'ES' : 'EN'}
           </button>
         </div>
-        <div className='sm:hidden relative flex flex-1 justify-end items-center gap-4'>
+        <div className='lg:hidden relative flex flex-1 justify-end items-center gap-4'>
           <img
             src={toggle ? close : menu}
             alt="menu"
