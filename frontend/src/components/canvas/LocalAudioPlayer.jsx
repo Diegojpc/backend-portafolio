@@ -195,19 +195,19 @@ const LocalAudioPlayer = ({ setAudioElement }) => {
     <div className="px-2 sm:px-4 w-full max-w-3xl mx-auto">
       <audio ref={audioRef} src={songs[currentSongIndex]} preload="none" />
       <div className="flex items-center space-x-2 sm:space-x-4 mx-auto">
-        <button onClick={handlePrev} className="text-white hover:text-gray-400 text-xs sm:text-base shrink-0">
+        <button onClick={handlePrev} className="text-white hover:opacity-60 active:opacity-60 transition-opacity text-xs sm:text-base shrink-0">
           <FontAwesomeIcon icon={faBackward} />
         </button>
         <button
           onClick={isPlaying ? handlePause : handlePlay}
-          className="text-white hover:text-gray-400 text-xs sm:text-base shrink-0"
+          className="text-white hover:opacity-60 active:opacity-60 transition-opacity text-xs sm:text-base shrink-0"
         >
           <FontAwesomeIcon icon={isPlaying ? faPause : faPlay} />
         </button>
-        <button onClick={handleStop} className="text-white hover:text-gray-400 text-xs sm:text-base shrink-0">
+        <button onClick={handleStop} className="text-white hover:opacity-60 active:opacity-60 transition-opacity text-xs sm:text-base shrink-0">
           <FontAwesomeIcon icon={faStop} />
         </button>
-        <button onClick={handleNext} className="text-white hover:text-gray-400 text-xs sm:text-base shrink-0">
+        <button onClick={handleNext} className="text-white hover:opacity-60 active:opacity-60 transition-opacity text-xs sm:text-base shrink-0">
           <FontAwesomeIcon icon={faForward} />
         </button>
 
@@ -232,7 +232,7 @@ const LocalAudioPlayer = ({ setAudioElement }) => {
           <FontAwesomeIcon
             icon={faVolumeUp}
             onClick={handleVolumeClick}
-            className="text-white hover:text-gray-400 cursor-pointer text-xs sm:text-base"
+            className="text-white hover:opacity-60 active:opacity-60 transition-opacity cursor-pointer text-xs sm:text-base"
           />
           {showVolumeControl && (
             <input
@@ -248,11 +248,12 @@ const LocalAudioPlayer = ({ setAudioElement }) => {
         </div>
 
         {isSmallScreen && (
-          <FontAwesomeIcon
-            icon={faChevronDown}
+          <button
             onClick={handleProgressClick}
-            className="text-white hover:text-gray-400 cursor-pointer text-xs sm:text-base shrink-0"
-          />
+            className="text-white hover:opacity-60 active:opacity-60 transition-opacity text-xs sm:text-base shrink-0"
+          >
+            <FontAwesomeIcon icon={faChevronDown} className={`transition-transform duration-200 ${showProgress ? 'rotate-180' : ''}`} />
+          </button>
         )}
       </div>
 
