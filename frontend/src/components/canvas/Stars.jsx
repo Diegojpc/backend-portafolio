@@ -28,9 +28,10 @@ function generatePointsInSphere(count, radius) {
 
 const Stars = (props) => {
   const ref = useRef();
-  const [sphere] = useState(() => generatePointsInSphere(5000, 1.2));
+  const starCount = window.innerWidth < 768 ? 2000 : 5000;
+  const [sphere] = useState(() => generatePointsInSphere(starCount, 1.2));
 
-  useFrame((state, delta) => {
+  useFrame((_state, delta) => {
     ref.current.rotation.x -= delta / 10;
     ref.current.rotation.y -= delta / 15;
   });

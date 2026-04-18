@@ -15,13 +15,17 @@ const interpolateColor = (color1, color2, factor) => {
   return _c1.lerp(_c2, factor).getStyle();
 };
 
-const WaveMesh = ({ position, rotation, factor, speed, scale, size }) => {
+const isMobileDevice = () => window.innerWidth < 768;
+
+const WaveMesh = ({ position, rotation, factor, speed, scale, size, isMobile }) => {
   const meshRef = useRef();
   const geometryRef = useRef();
   const simplex = useMemo(() => createNoise2D(), []);
-  // FIX: Use R3F's shared clock instead of global THREE.Clock
-  // This avoids the getDelta() bug where two WaveMeshes share one clock
   const { clock } = useThree();
+
+  // Reduce geometry resolution on mobile: fewer vertices = less CPU/GPU per frame
+  const segmentsX = isMobile ? 60 : 120;
+  const segmentsY = isMobile ? 30 : 60;
 
   useFrame(() => {
     const cycle = clock.elapsedTime * speed;
@@ -35,7 +39,6 @@ const WaveMesh = ({ position, rotation, factor, speed, scale, size }) => {
     }
     geometryRef.current.attributes.position.needsUpdate = true;
 
-    // Change color over time for a retro wave effect
     const time = clock.elapsedTime * 0.1;
     const colorIndex1 = Math.floor(time % retroWaveColors.length);
     const colorIndex2 = (colorIndex1 + 1) % retroWaveColors.length;
@@ -65,15 +68,13 @@ const WaveMesh = ({ position, rotation, factor, speed, scale, size }) => {
 
   return (
     <mesh ref={meshRef} position={position} rotation={rotation}>
-      <planeGeometry ref={geometryRef} args={[width, height, 200, 100]} />
-      <meshLambertMaterial 
-        wireframe={true}
-      />
+      <planeGeometry ref={geometryRef} args={[width, height, segmentsX, segmentsY]} />
+      <meshLambertMaterial wireframe={true} />
     </mesh>
   );
 };
 
-const Waves = ({ size }) => (
+const Waves = ({ size, isMobile }) => (
   <group>
     <WaveMesh
       position={[0, 300, -1200]}
@@ -82,6 +83,7 @@ const Waves = ({ size }) => (
       speed={0.3}
       scale={50}
       size={size}
+      isMobile={isMobile}
     />
     <WaveMesh
       position={[0, -300, -1200]}
@@ -90,34 +92,35 @@ const Waves = ({ size }) => (
       speed={0.3}
       scale={50}
       size={size}
+      isMobile={isMobile}
     />
   </group>
 );
 
 const WavesCanvas = () => {
   const [size, setSize] = useState(window.innerWidth);
+  const [mobile, setMobile] = useState(isMobileDevice);
 
   useEffect(() => {
     const handleResize = () => {
       setSize(window.innerWidth);
+      setMobile(isMobileDevice());
     };
-
     window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  // On mobile skip the canvas entirely — saves one WebGL context + all vertex computation
+  if (mobile) return null;
 
   return (
     <Canvas
-      shadows
-      dpr={[1, 2]}
+      dpr={[1, 1.5]}
       camera={{ near: 0.01, far: 1200, position: [0, 0, 0] }}
-      gl={{ preserveDrawingBuffer: true, antialias: true }}
+      gl={{ antialias: false }}
     >
       <ambientLight intensity={1.2} />
-      <Waves size={size} />
+      <Waves size={size} isMobile={false} />
       <Preload all />
     </Canvas>
   );

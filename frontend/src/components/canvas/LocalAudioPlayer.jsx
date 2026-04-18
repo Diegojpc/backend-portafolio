@@ -188,7 +188,7 @@ const LocalAudioPlayer = ({ setAudioElement }) => {
 
   return (
     <div className="p-4 max-w-3xl mx-auto relative">
-      <audio ref={audioRef} src={songs[currentSongIndex]} />
+      <audio ref={audioRef} src={songs[currentSongIndex]} preload="none" />
       <div className="flex items-center space-x-4 mx-auto">
         <button onClick={handlePrev} className="text-white hover:text-gray-400">
           <FontAwesomeIcon icon={faBackward} />

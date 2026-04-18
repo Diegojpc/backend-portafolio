@@ -17,8 +17,11 @@ export default defineConfig({
         chunkFileNames: 'chunks/[name]-[hash].js',
         entryFileNames: 'js/[name]-[hash].js',
         manualChunks: {
-          vendor_three: ['three', '@react-three/fiber', '@react-three/drei'],
-          vendor_motion: ['framer-motion', 'gsap'],
+          vendor_three: ['three', '@react-three/fiber'],
+          vendor_drei: ['@react-three/drei'],
+          vendor_motion: ['framer-motion'],
+          vendor_gsap: ['gsap', '@gsap/react'],
+          vendor_react: ['react', 'react-dom', 'react-router-dom'],
         },
       },
     },
