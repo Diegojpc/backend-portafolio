@@ -24,8 +24,8 @@ const WaveMesh = ({ position, rotation, factor, speed, scale, size, isMobile }) 
   const { clock } = useThree();
 
   // Reduce geometry resolution on mobile: fewer vertices = less CPU/GPU per frame
-  const segmentsX = isMobile ? 40 : 180;
-  const segmentsY = isMobile ? 20 : 90;
+  const segmentsX = isMobile ? 60 : 180;
+  const segmentsY = isMobile ? 40 : 90;
 
   useFrame(() => {
     const cycle = clock.elapsedTime * speed;
