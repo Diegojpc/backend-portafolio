@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -9,14 +8,6 @@ import { techStackIcons } from "../constants";
 gsap.registerPlugin(ScrollTrigger);
 
 const TechStack = () => {
-  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
   useGSAP(() => {
     gsap.fromTo(
       ".tech-card",
@@ -44,16 +35,7 @@ const TechStack = () => {
               <div className="tech-card-animated-bg" />
               <div className="tech-card-content">
                 <div className="tech-icon-wrapper">
-                  {isMobile ? (
-                    // Static placeholder on mobile — eliminates 5 WebGL contexts
-                    <div className="w-full h-full flex items-center justify-center bg-[rgba(255,255,255,0.03)]">
-                      <span className="text-[#915EFF] text-3xl font-black select-none">
-                        {techStackIcon.name.charAt(0)}
-                      </span>
-                    </div>
-                  ) : (
-                    <TechIconCardExperience model={techStackIcon} />
-                  )}
+                  <TechIconCardExperience model={techStackIcon} />
                 </div>
                 <div className="padding-x text-center w-full">
                   <p>{techStackIcon.name}</p>
