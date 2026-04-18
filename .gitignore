@@ -39,3 +39,6 @@ Building Generative AI Services with FastAPI/
 
 # HuggingFace cache (models downloaded at runtime)
 .cache/
+
+# CLAUDE
+CLAUDE.md
