@@ -102,33 +102,33 @@ const LocalAudioPlayer = ({ setAudioElement }) => {
     setCurrentSongIndex((prevIndex) => (prevIndex - 1 + songs.length) % songs.length);
   }, []);
 
+  // When song index changes while playing, directly start the new track
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio || !isPlaying || !hasUserInteraction) return;
+    audio.play().catch((error) => {
+      console.error("[LocalAudioPlayer] Error auto-playing next song:", error);
+      setIsPlaying(false);
+    });
+  }, [currentSongIndex]); // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     const audio = audioRef.current;
 
     const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
     const handleSongEnd = () => handleNext();
     const handleLoad = () => setDuration(audio.duration);
-    const handleCanPlay = () => {
-      if (isPlaying && hasUserInteraction) {
-        audio.play().catch((error) => {
-          console.error("[LocalAudioPlayer] Error playing after load:", error);
-          setIsPlaying(false);
-        });
-      }
-    };
 
     audio.addEventListener('timeupdate', handleTimeUpdate);
     audio.addEventListener('ended', handleSongEnd);
     audio.addEventListener('loadedmetadata', handleLoad);
-    audio.addEventListener('canplay', handleCanPlay);
 
     return () => {
-      audio.removeEventListener('canplay', handleCanPlay);
       audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.removeEventListener('ended', handleSongEnd);
       audio.removeEventListener('loadedmetadata', handleLoad);
     };
-  }, [currentSongIndex, isPlaying, hasUserInteraction, handleNext]);
+  }, [currentSongIndex, handleNext]);
 
   const handlePlay = () => {
     setHasUserInteraction(true);
