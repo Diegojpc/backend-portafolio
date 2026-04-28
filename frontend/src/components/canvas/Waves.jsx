@@ -3,6 +3,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Preload } from "@react-three/drei";
 import * as THREE from "three";
 import { createNoise2D } from "simplex-noise";
+import WebGLGuard from "./WebGLGuard";
 
 const retroWaveColors = ["#2de2e6", "#035ee8", "#f6019d", "#d40078", "#9700cc", "#ffd319", "#ff901f", "#ff2975", "#c700b5", "#b000ff"];
 
@@ -127,18 +128,20 @@ const WavesCanvas = () => {
   }, []);
 
   return (
-    <div style={{ opacity: visible ? 1 : 0, transition: "opacity 0.4s ease", width: "100%", height: "100%" }}>
-      <Canvas
-        dpr={mobile ? [1, 1] : [1, 2]}
-        camera={{ near: 0.01, far: 1200, position: [0, 0, 0] }}
-        gl={{ antialias: false }}
-      >
-        <ambientLight intensity={1.2} />
-        <Waves size={size} isMobile={mobile} />
-        <ShaderPrecompiler />
-        <Preload all />
-      </Canvas>
-    </div>
+    <WebGLGuard>
+      <div style={{ opacity: visible ? 1 : 0, transition: "opacity 0.4s ease", width: "100%", height: "100%" }}>
+        <Canvas
+          dpr={mobile ? [1, 1] : [1, 2]}
+          camera={{ near: 0.01, far: 1200, position: [0, 0, 0] }}
+          gl={{ antialias: false }}
+        >
+          <ambientLight intensity={1.2} />
+          <Waves size={size} isMobile={mobile} />
+          <ShaderPrecompiler />
+          <Preload all />
+        </Canvas>
+      </div>
+    </WebGLGuard>
   );
 };
 

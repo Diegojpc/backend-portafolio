@@ -3,6 +3,7 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { Preload } from '@react-three/drei';
 import * as THREE from 'three';
 import { createNoise3D } from 'simplex-noise';
+import WebGLGuard from './WebGLGuard';
 
 // Helper functions
 const fractionate = (val, minVal, maxVal) => {
@@ -215,20 +216,22 @@ export const AudioVisualizer = ({ audioElement }) => {
   }, []);
 
   return (
-    <Canvas
-      shadows
-      camera={{
-        position: [0, 0, 100],
-        fov: isMobile ? 65 : 80,
-      }}
-      dpr={[1, 2]}
-      gl={{ antialias: true }}
-    >
-      <ambientLight intensity={0.8} />
-      <directionalLight position={[0, 50, 100]} intensity={0.8} />
-      <Sphere analyser={isAudioReady ? analyserRef.current : null} />
-      <Preload all />
-    </Canvas>
+    <WebGLGuard>
+      <Canvas
+        shadows
+        camera={{
+          position: [0, 0, 100],
+          fov: isMobile ? 65 : 80,
+        }}
+        dpr={[1, 2]}
+        gl={{ antialias: true }}
+      >
+        <ambientLight intensity={0.8} />
+        <directionalLight position={[0, 50, 100]} intensity={0.8} />
+        <Sphere analyser={isAudioReady ? analyserRef.current : null} />
+        <Preload all />
+      </Canvas>
+    </WebGLGuard>
   );
 };
 
