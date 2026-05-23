@@ -40,6 +40,12 @@ class AppSettings(BaseSettings):
     # Provider Secrets
     gemini_api_key: Annotated[str, Field(alias="GEMINI_API_KEY")]
 
+    # API Documentation
+    enable_docs: Annotated[bool, Field(
+        alias="ENABLE_DOCS",
+        default=False
+    )]
+
     @property
     def cors_origins_list(self) -> list[str]:
         """Parse CORS_ORIGINS string into a list."""
@@ -54,6 +60,7 @@ def get_settings() -> AppSettings:
         logger.info(f"[Config] CORS origins: {settings.cors_origins_list}")
         logger.info(f"[Config] LLM model: {settings.model_name}")
         logger.info(f"[Config] Gemini API Key configured: {'Yes' if settings.gemini_api_key else 'No'}")
+        logger.info(f"[Config] API Documentation enabled: {'Yes' if settings.enable_docs else 'No'}")
         return settings
     except Exception as e:
         logger.critical(f"[Config] Failed to load settings: {e}")
