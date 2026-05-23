@@ -1,7 +1,7 @@
 // src/App.jsx
 
 import { BrowserRouter } from "react-router-dom";
-import { useState, Suspense, lazy } from 'react';
+import { useState, useEffect, Suspense, lazy } from 'react';
 import { Hero, Navbar } from './components';
 
 import ChatWidget from './components/chat/ChatWidget';
@@ -15,8 +15,29 @@ const Footer  = lazy(() => import("./components/Footer"));
 const WaveCanvas  = lazy(() => import("./components/canvas/Waves"));
 const StarsCanvas = lazy(() => import("./components/canvas/Stars"));
 
+/**
+ * Dismiss the pure-HTML splash screen injected in index.html.
+ * Waits one animation frame so the browser has painted at least
+ * the Hero + Navbar before the overlay fades out.
+ */
+const dismissSplash = () => {
+  requestAnimationFrame(() => {
+    const splash = document.getElementById('splash-screen');
+    if (!splash) return;
+    splash.style.opacity = '0';
+    splash.style.visibility = 'hidden';
+    // Remove from DOM after the CSS transition completes
+    setTimeout(() => splash.remove(), 600);
+    console.info('[App] Splash screen dismissed.');
+  });
+};
+
 const App = () => {
   const [audioElement, setAudioElement] = useState(null);
+
+  useEffect(() => {
+    dismissSplash();
+  }, []);
 
   return (
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>

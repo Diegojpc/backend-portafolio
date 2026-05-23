@@ -13,6 +13,53 @@
   color-scheme: dark;
 }
 
+/* ── CV Download Button ── */
+.cv-download-btn {
+  background: linear-gradient(135deg, #915EFF 0%, #6B3FA0 100%);
+  box-shadow: 0 0 0 0 rgba(145, 94, 255, 0);
+  position: relative;
+  overflow: hidden;
+}
+
+.cv-download-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.12) 50%,
+    transparent 100%
+  );
+  transition: left 0.5s ease;
+}
+
+.cv-download-btn:hover {
+  box-shadow: 0 0 20px 4px rgba(145, 94, 255, 0.45),
+              0 0 40px 8px rgba(145, 94, 255, 0.15);
+}
+
+.cv-download-btn:hover::before {
+  left: 100%;
+}
+
+/* ── Wave Loading Spinner ── */
+.wave-loader {
+  width: 36px;
+  height: 36px;
+  border: 2px solid rgba(145, 94, 255, 0.15);
+  border-top-color: #915EFF;
+  border-radius: 50%;
+  animation: splash-wave-spin 0.8s linear infinite;
+}
+
+@keyframes splash-wave-spin {
+  to { transform: rotate(360deg); }
+}
+
 .hash-span {
   margin-top: -100px;
   padding-bottom: 100px;

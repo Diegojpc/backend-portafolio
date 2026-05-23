@@ -17,7 +17,7 @@ const Contact = ({ audioElement }) => {
         message: '',
     });
     const [loading, setLoading] = useState(false);
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
 
     useEffect(() => {
         if (!audioElement) return;
@@ -133,13 +133,36 @@ const Contact = ({ audioElement }) => {
                         />
                     </label>
 
-                    <button
-                        type="submit"
-                        className="relative flex items-center justify-center cursor-pointer py-3 px-8 rounded-xl font-bold text-white bg-neutral-900 transition-all duration-300 ease-in-out transform hover:scale-[1.02] shadow-md shadow-primary outline-none w-fit hover:animate-wave"
-                    >
-                        {loading ? t('contact.btnSending') : t('contact.btnSend')}
-                        <span className="absolute inset-0 border border-primary rounded-xl opacity-0 transition-opacity duration-300 hover:opacity-100"></span>
-                    </button>
+                    <div className="flex flex-wrap items-center gap-4">
+                        <button
+                            type="submit"
+                            className="relative flex items-center justify-center cursor-pointer py-3 px-8 rounded-xl font-bold text-white bg-neutral-900 transition-all duration-300 ease-in-out transform hover:scale-[1.02] shadow-md shadow-primary outline-none w-fit hover:animate-wave"
+                        >
+                            {loading ? t('contact.btnSending') : t('contact.btnSend')}
+                            <span className="absolute inset-0 border border-primary rounded-xl opacity-0 transition-opacity duration-300 hover:opacity-100"></span>
+                        </button>
+
+                        <a
+                            href={language === 'en' ? '/resume/Diego_Pena_Resume_EN.pdf' : '/resume/Diego_Pena_Resume_ES.pdf'}
+                            download
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={t('contact.downloadCvAria')}
+                            className="cv-download-btn group relative flex items-center gap-2 cursor-pointer py-3 px-6 rounded-xl font-bold text-white transition-all duration-300 ease-in-out transform hover:scale-[1.02] outline-none w-fit"
+                        >
+                            <svg
+                                className="w-5 h-5 transition-transform duration-300 group-hover:translate-y-[2px]"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                viewBox="0 0 24 24"
+                                aria-hidden="true"
+                            >
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4M4 18h16" />
+                            </svg>
+                            {t('contact.downloadCv')}
+                        </a>
+                    </div>
                 </form>
             </motion.div>
 

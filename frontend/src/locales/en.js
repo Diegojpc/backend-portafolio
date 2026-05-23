@@ -27,7 +27,9 @@ export const en = {
     btnSend: "Send",
     btnSending: "Sending...",
     alertSuccess: "Thank you. I will get back to you as soon as possible.",
-    alertError: "Ahh, something went wrong. Please try again."
+    alertError: "Ahh, something went wrong. Please try again.",
+    downloadCv: "Download My Resume",
+    downloadCvAria: "Download Diego's resume as PDF"
   },
   projects: {
     subtitle: "My work",

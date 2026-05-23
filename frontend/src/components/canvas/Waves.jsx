@@ -20,34 +20,14 @@ const isMobileDevice = () => window.innerWidth < 768;
 
 const WaveMesh = ({ position, rotation, factor, speed, scale, size, isMobile }) => {
   const meshRef = useRef();
-  const geometryRef = useRef();
   const simplex = useMemo(() => createNoise2D(), []);
   const { clock } = useThree();
 
-  // Reduce geometry resolution on mobile: fewer vertices = less CPU/GPU per frame
+  // Wall-clock offset so the noise cycle is never near 0 on mount.
+  const timeOffset = useMemo(() => performance.now() / 1000, []);
+
   const segmentsX = isMobile ? 60 : 180;
   const segmentsY = isMobile ? 40 : 90;
-
-  useFrame(() => {
-    const cycle = clock.elapsedTime * speed;
-
-    const vertices = geometryRef.current.attributes.position.array;
-    for (let i = 0; i < vertices.length; i += 3) {
-      const xoff = vertices[i] / factor;
-      const yoff = vertices[i + 1] / factor + cycle;
-      const rand = simplex(xoff, yoff) * scale;
-      vertices[i + 2] = rand;
-    }
-    geometryRef.current.attributes.position.needsUpdate = true;
-
-    const time = clock.elapsedTime * 0.1;
-    const colorIndex1 = Math.floor(time % retroWaveColors.length);
-    const colorIndex2 = (colorIndex1 + 1) % retroWaveColors.length;
-    const t = time % 1;
-
-    const interpolatedColor = interpolateColor(retroWaveColors[colorIndex1], retroWaveColors[colorIndex2], t);
-    meshRef.current.material.color.set(interpolatedColor);
-  });
 
   const getGeometrySize = (windowWidth, windowHeight) => {
     if (windowWidth <= 950 && windowHeight <= 450) {
@@ -67,10 +47,45 @@ const WaveMesh = ({ position, rotation, factor, speed, scale, size, isMobile }) 
 
   const { width, height } = getGeometrySize(size, window.innerHeight);
 
+  // Create geometry with wave shape PRE-BAKED so it is NEVER flat,
+  // not even on frame 0 before the first useFrame runs.
+  const geometry = useMemo(() => {
+    const geo = new THREE.PlaneGeometry(width, height, segmentsX, segmentsY);
+    const cycle = timeOffset * speed;
+    const verts = geo.attributes.position.array;
+    for (let i = 0; i < verts.length; i += 3) {
+      verts[i + 2] = simplex(verts[i] / factor, verts[i + 1] / factor + cycle) * scale;
+    }
+    geo.attributes.position.needsUpdate = true;
+    return geo;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [width, height, segmentsX, segmentsY]);
+
+  useEffect(() => () => geometry.dispose(), [geometry]);
+
+  useFrame(() => {
+    const geo = meshRef.current?.geometry;
+    if (!geo) return;
+
+    const cycle = (timeOffset + clock.elapsedTime) * speed;
+    const vertices = geo.attributes.position.array;
+    for (let i = 0; i < vertices.length; i += 3) {
+      vertices[i + 2] = simplex(vertices[i] / factor, vertices[i + 1] / factor + cycle) * scale;
+    }
+    geo.attributes.position.needsUpdate = true;
+
+    const time = (timeOffset + clock.elapsedTime) * 0.1;
+    const colorIndex1 = Math.floor(time % retroWaveColors.length);
+    const colorIndex2 = (colorIndex1 + 1) % retroWaveColors.length;
+    const t = time % 1;
+
+    const interpolatedColor = interpolateColor(retroWaveColors[colorIndex1], retroWaveColors[colorIndex2], t);
+    meshRef.current.material.color.set(interpolatedColor);
+  });
+
   return (
-    <mesh ref={meshRef} position={position} rotation={rotation}>
-      <planeGeometry ref={geometryRef} args={[width, height, segmentsX, segmentsY]} />
-      <meshLambertMaterial wireframe={true} />
+    <mesh ref={meshRef} position={position} rotation={rotation} geometry={geometry}>
+      <meshBasicMaterial wireframe={true} />
     </mesh>
   );
 };
@@ -98,19 +113,43 @@ const Waves = ({ size, isMobile }) => (
   </group>
 );
 
-// Forces shader compilation before the first visible frame
-const ShaderPrecompiler = () => {
-  const { gl, scene, camera } = useThree();
-  useEffect(() => {
+// Runs inside the R3F render loop. Only fades in the wrapper AFTER
+// the render loop has been running long enough for the waves to be
+// visibly animating — guaranteeing the user never sees a frozen mesh.
+const FadeInController = ({ wrapperRef, onReady }) => {
+  const revealed = useRef(false);
+  const { gl, scene, camera, clock } = useThree();
+
+  // Force shader compilation synchronously so the GPU pipeline is
+  // primed before the first rendered frame.
+  useMemo(() => {
     gl.compile(scene, camera);
   }, [gl, scene, camera]);
+
+  useFrame(() => {
+    // Wait until R3F has been animating for at least 0.6s.
+    // This ensures multiple real GPU frames have been rendered
+    // with the wave already in motion — 0.4s was too aggressive
+    // for slower GPUs during cold shader compilation.
+    if (!revealed.current && clock.elapsedTime > 0.6) {
+      revealed.current = true;
+      if (wrapperRef.current) {
+        wrapperRef.current.style.opacity = "1";
+      }
+      // Signal the parent that waves are visible
+      onReady?.();
+      console.info('[Waves] Canvas revealed after shader warm-up.');
+    }
+  });
+
   return null;
 };
 
 const WavesCanvas = () => {
+  const wrapperRef = useRef(null);
   const [size, setSize] = useState(window.innerWidth);
   const [mobile, setMobile] = useState(isMobileDevice);
-  const [visible, setVisible] = useState(false);
+  const [waveReady, setWaveReady] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -121,23 +160,42 @@ const WavesCanvas = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Delay visibility until shaders are compiled and first frames rendered
-  useEffect(() => {
-    const id = setTimeout(() => setVisible(true), 350);
-    return () => clearTimeout(id);
-  }, []);
-
   return (
     <WebGLGuard>
-      <div style={{ opacity: visible ? 1 : 0, transition: "opacity 0.4s ease", width: "100%", height: "100%" }}>
+      {/* Loading indicator — visible while waves are initializing */}
+      {!waveReady && (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1,
+            pointerEvents: "none",
+          }}
+        >
+          <div className="wave-loader" />
+        </div>
+      )}
+
+      <div
+        ref={wrapperRef}
+        style={{
+          opacity: 0,
+          transition: "opacity 0.5s ease",
+          width: "100%",
+          height: "100%",
+        }}
+      >
         <Canvas
           dpr={mobile ? [1, 1] : [1, 2]}
           camera={{ near: 0.01, far: 1200, position: [0, 0, 0] }}
           gl={{ antialias: false }}
         >
-          <ambientLight intensity={1.2} />
+
           <Waves size={size} isMobile={mobile} />
-          <ShaderPrecompiler />
+          <FadeInController wrapperRef={wrapperRef} onReady={() => setWaveReady(true)} />
           <Preload all />
         </Canvas>
       </div>

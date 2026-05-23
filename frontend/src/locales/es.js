@@ -27,7 +27,9 @@ export const es = {
     btnSend: "Enviar",
     btnSending: "Enviando...",
     alertSuccess: "Gracias por escribirme. Me pondré en contacto contigo lo antes posible.",
-    alertError: "Ahh, algo salió mal. Inténtalo de nuevo, por favor."
+    alertError: "Ahh, algo salió mal. Inténtalo de nuevo, por favor.",
+    downloadCv: "Descargar Mi Hoja de Vida",
+    downloadCvAria: "Descargar la hoja de vida de Diego en PDF"
   },
   projects: {
     subtitle: "Mi Trabajo",
