@@ -34,20 +34,39 @@ const dismissSplash = () => {
 
 const App = () => {
   const [audioElement, setAudioElement] = useState(null);
+  const [wavesLoaded, setWavesLoaded] = useState(false);
 
   useEffect(() => {
     dismissSplash();
+
+    // 3-second safety fail-safe timeout
+    const fallbackTimeout = setTimeout(() => {
+      setWavesLoaded((loaded) => {
+        if (!loaded) {
+          console.warn('[App] WebGL wave loading timed out. Forcing Hero fade-in.');
+          return true;
+        }
+        return loaded;
+      });
+    }, 3000);
+
+    return () => clearTimeout(fallbackTimeout);
   }, []);
+
+  const handleWavesReady = () => {
+    setWavesLoaded(true);
+    console.info('[App] Waves loaded callback received.');
+  };
 
   return (
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <div className="relative z-0 bg-primary">
         <div className="bg-primary bg-cover bg-no-repeat bg-center relative">
           <Navbar setAudioElement={setAudioElement} />
-          <Hero />
+          <Hero isLoaded={wavesLoaded} />
           <div className="absolute inset-0 flex flex-col justify-between">
             <Suspense fallback={null}>
-              <WaveCanvas />
+              <WaveCanvas onReady={handleWavesReady} />
             </Suspense>
             <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-transparent to-black pointer-events-none">
             </div>

@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Preload } from '@react-three/drei';
+import { Preload, OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 import { createNoise3D } from 'simplex-noise';
 import WebGLGuard from './WebGLGuard';
@@ -50,6 +50,7 @@ const Sphere = ({ analyser }) => {
   useEffect(() => {
     if (analyser) {
       setIsAudioConnected(true);
+      console.info("[AudioVisualizer] Audio analyser linked to Sphere.");
     }
   }, [analyser]);
 
@@ -210,6 +211,8 @@ export const AudioVisualizer = ({ audioElement }) => {
     const handleMediaQueryChange = (event) => setIsMobile(event.matches);
     mediaQuery.addEventListener("change", handleMediaQueryChange);
 
+    console.info("[AudioVisualizer] Canvas mounted with OrbitControls enabled.");
+
     return () => {
       mediaQuery.removeEventListener("change", handleMediaQueryChange);
     };
@@ -229,6 +232,7 @@ export const AudioVisualizer = ({ audioElement }) => {
         <ambientLight intensity={0.8} />
         <directionalLight position={[0, 50, 100]} intensity={0.8} />
         <Sphere analyser={isAudioReady ? analyserRef.current : null} />
+        <OrbitControls enableZoom={false} enablePan={false} />
         <Preload all />
       </Canvas>
     </WebGLGuard>

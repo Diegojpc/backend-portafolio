@@ -4,6 +4,7 @@ import { Preload } from "@react-three/drei";
 import * as THREE from "three";
 import { createNoise2D } from "simplex-noise";
 import WebGLGuard from "./WebGLGuard";
+import { isWebGLAvailable } from "../../utils/webglSupport";
 
 const retroWaveColors = ["#2de2e6", "#035ee8", "#f6019d", "#d40078", "#9700cc", "#ffd319", "#ff901f", "#ff2975", "#c700b5", "#b000ff"];
 
@@ -145,11 +146,20 @@ const FadeInController = ({ wrapperRef, onReady }) => {
   return null;
 };
 
-const WavesCanvas = () => {
+const WavesCanvas = ({ onReady }) => {
   const wrapperRef = useRef(null);
   const [size, setSize] = useState(window.innerWidth);
   const [mobile, setMobile] = useState(isMobileDevice);
   const [waveReady, setWaveReady] = useState(false);
+
+  useEffect(() => {
+    // If WebGL is not supported, notify the parent immediately
+    // so we do not trap the page text in an invisible state.
+    if (!isWebGLAvailable()) {
+      console.warn("[WavesCanvas] WebGL not supported, firing onReady immediately.");
+      onReady?.();
+    }
+  }, [onReady]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -195,7 +205,13 @@ const WavesCanvas = () => {
         >
 
           <Waves size={size} isMobile={mobile} />
-          <FadeInController wrapperRef={wrapperRef} onReady={() => setWaveReady(true)} />
+          <FadeInController
+            wrapperRef={wrapperRef}
+            onReady={() => {
+              setWaveReady(true);
+              onReady?.();
+            }}
+          />
           <Preload all />
         </Canvas>
       </div>
