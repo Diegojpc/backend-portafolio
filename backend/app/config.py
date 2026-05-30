@@ -40,6 +40,9 @@ class AppSettings(BaseSettings):
     # Provider Secrets
     gemini_api_key: Annotated[str, Field(alias="GEMINI_API_KEY")]
 
+    # AWS — optional; if set, RAG documents are loaded from this S3 bucket
+    s3_bucket: Annotated[str, Field(alias="S3_BUCKET", default="")]
+
     # API Documentation
     enable_docs: Annotated[bool, Field(
         alias="ENABLE_DOCS",

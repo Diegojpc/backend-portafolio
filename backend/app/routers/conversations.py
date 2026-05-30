@@ -2,9 +2,11 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import StreamingResponse
 from loguru import logger
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 from app.database import DBSessionDep
 from app.entities import Conversation
@@ -17,6 +19,8 @@ from app.schemas import (
     ConversationUpdate,
     MessageOut,
 )
+
+limiter = Limiter(key_func=get_remote_address)
 
 router = APIRouter(
     prefix="/conversations",
@@ -104,7 +108,9 @@ async def list_conversation_messages(
 # --- Chat Endpoint (RAG-powered) ---
 
 @router.post("/{conversation_id}/chat", summary="Chat with AI Assistant")
+@limiter.limit("10/minute")
 async def chat(
+    request: Request,
     conversation: GetConversationDep,
     chat_request: ChatRequest,
     session: DBSessionDep,

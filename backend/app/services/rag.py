@@ -1,5 +1,6 @@
 # services/rag.py — Direct-Context 1-Million Token Pipeline
 
+import io
 import os
 import glob
 import PyPDF2
@@ -33,6 +34,39 @@ def extract_text_from_file(filepath: str) -> str:
         with open(filepath, "r", encoding="utf-8") as f:
             return f.read()
 
+
+def _extract_text_from_bytes(filename: str, data: bytes) -> str:
+    """Extract text from in-memory bytes (used for S3-loaded files)."""
+    if filename.lower().endswith('.pdf'):
+        reader = PyPDF2.PdfReader(io.BytesIO(data))
+        return "\n".join([p.extract_text() for p in reader.pages if p.extract_text()])
+    return data.decode("utf-8", errors="replace")
+
+
+def _load_from_s3(bucket: str) -> str:
+    """Download and aggregate all RAG documents from an S3 bucket."""
+    import boto3
+    from botocore.exceptions import ClientError
+
+    s3 = boto3.client("s3")
+    aggregated = ""
+    try:
+        objects = s3.list_objects_v2(Bucket=bucket).get("Contents", [])
+        doc_keys = [o["Key"] for o in objects if o["Key"].endswith((".pdf", ".md", ".txt"))]
+        logger.info(f"[RAG] Found {len(doc_keys)} documents in s3://{bucket}/")
+        for key in doc_keys:
+            try:
+                obj = s3.get_object(Bucket=bucket, Key=key)
+                content = _extract_text_from_bytes(key, obj["Body"].read())
+                aggregated += f"\n\n--- DOCUMENT START: {key} ---\n{content}\n--- DOCUMENT END: {key} ---"
+                logger.debug(f"[RAG] Loaded s3://{bucket}/{key} ({len(content)} chars)")
+            except ClientError as e:
+                logger.error(f"[RAG] Failed to load s3://{bucket}/{key}: {e}")
+    except ClientError as e:
+        logger.error(f"[RAG] Cannot list s3://{bucket}: {e}")
+    return aggregated
+
+
 def load_models() -> None:
     """Pre-flights Gemini APIs."""
     try:
@@ -42,28 +76,35 @@ def load_models() -> None:
         logger.error(f"[RAG] Error verifying Gemini connectivity. Check API Key: {e}")
 
 def ingest_documents() -> None:
-    """Loads all static documents into raw serverless RAM bypassing Vector Stores completely."""
+    """Loads all RAG documents — from S3 if S3_BUCKET is set, otherwise from local data/ dir."""
     try:
-        data_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data")
-        doc_files = glob.glob(os.path.join(data_dir, "*.md")) + glob.glob(os.path.join(data_dir, "*.txt")) + glob.glob(os.path.join(data_dir, "*.pdf"))
-        
-        if not doc_files:
-            logger.warning(f"[RAG] No base documents found.")
-            _state["is_ready"] = True
-            return
+        s3_bucket = os.environ.get("S3_BUCKET", "")
+        if s3_bucket:
+            logger.info(f"[RAG] S3_BUCKET={s3_bucket} — loading documents from S3")
+            aggregated_text = _load_from_s3(s3_bucket)
+        else:
+            logger.info("[RAG] No S3_BUCKET set — loading documents from local data/ directory")
+            data_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data")
+            doc_files = (
+                glob.glob(os.path.join(data_dir, "*.md"))
+                + glob.glob(os.path.join(data_dir, "*.txt"))
+                + glob.glob(os.path.join(data_dir, "*.pdf"))
+            )
+            if not doc_files:
+                logger.warning("[RAG] No base documents found in data/ — starting with empty context.")
+                _state["is_ready"] = True
+                return
+            aggregated_text = ""
+            for filepath in doc_files:
+                filename = os.path.basename(filepath)
+                try:
+                    content = extract_text_from_file(filepath)
+                    aggregated_text += f"\n\n--- DOCUMENT START: {filename} ---\n{content}\n--- DOCUMENT END: {filename} ---"
+                except Exception as e:
+                    logger.error(f"[RAG] Failed to parse {filename}: {e}")
 
-        aggregated_text = ""
-        for filepath in doc_files:
-            filename = os.path.basename(filepath)
-            try:
-                content = extract_text_from_file(filepath)
-                aggregated_text += f"\n\n--- DOCUMENT START: {filename} ---\n{content}\n--- DOCUMENT END: {filename} ---"
-            except Exception as e:
-                logger.error(f"[RAG] Failed to parse natively {filename}: {e}")
-                continue
-                
         _state["global_context"] = aggregated_text
-        logger.info(f"[RAG] Mega-Prompt Loaded. Absorbed {len(doc_files)} underlying documents encoding {len(aggregated_text)} bytes directly to state.")
+        logger.info(f"[RAG] Mega-Prompt ready — {len(aggregated_text):,} bytes of context loaded.")
         _state["is_ready"] = True
 
     except Exception as e:

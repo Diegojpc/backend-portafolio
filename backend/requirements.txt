@@ -7,17 +7,25 @@ a2wsgi==1.10.8
 python-dotenv==1.0.1
 pydantic==2.10.4
 pydantic-settings==2.7.1
+email-validator==2.2.0
 loguru==0.7.3
 click
 
-# Database
+# Database — async PostgreSQL (production) + SQLite (local dev fallback)
 sqlalchemy==2.0.37
+asyncpg==0.30.0
 aiosqlite==0.20.0
+alembic==1.14.1
+psycopg2-binary==2.9.12
+
+# Rate limiting
+slowapi==0.1.9
+
+# AWS SDK (S3 for RAG documents, Secrets Manager)
+boto3==1.38.0
 
 # AI / Agentic Core
 google-generativeai==0.8.4
-
-
 
 # Agent Tools & Web Scraping
 beautifulsoup4==4.13.3

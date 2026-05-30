@@ -2,12 +2,17 @@
 
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from loguru import logger
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 
 from app.config import settings
 from app.database import engine, init_db
+from app.routers.contact import router as contact_router
 from app.routers.conversations import router as conversations_router
 from app.routers.documents import router as documents_router
 
@@ -39,6 +44,8 @@ async def lifespan(_: FastAPI):
     logger.info("[Shutdown] Cleanup complete.")
 
 
+limiter = Limiter(key_func=get_remote_address)
+
 app = FastAPI(
     title="Diego's Portfolio AI Assistant",
     description="AI chatbot backend with RAG for Diego's portfolio website.",
@@ -48,6 +55,9 @@ app = FastAPI(
     redoc_url="/redoc" if settings.enable_docs else None,
     openapi_url="/openapi.json" if settings.enable_docs else None,
 )
+
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # CORS — allow the frontend to make requests
 app.add_middleware(
@@ -61,6 +71,7 @@ app.add_middleware(
 # Register routers
 app.include_router(conversations_router)
 app.include_router(documents_router)
+app.include_router(contact_router)
 
 
 @app.get("/", tags=["Health"])

@@ -55,3 +55,19 @@ class Message(Base):
         "Conversation",
         back_populates="messages",
     )
+
+
+class ContactSubmission(Base):
+    """Stores contact form submissions from portfolio visitors."""
+
+    __tablename__ = "contact_submissions"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column()
+    email: Mapped[str] = mapped_column(index=True)
+    message: Mapped[str] = mapped_column(Text)
+    submitted_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+    )
+    is_read: Mapped[bool] = mapped_column(default=False)

@@ -1,7 +1,7 @@
 # schemas.py — Pydantic request/response models
 
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 # --- Conversation Schemas ---
@@ -46,3 +46,22 @@ class MessageOut(BaseModel):
 class ChatRequest(BaseModel):
     prompt: str = Field(min_length=1, max_length=4000)
     use_local_model: bool = False
+
+
+# --- Contact Schemas ---
+
+class ContactCreate(BaseModel):
+    name: str = Field(min_length=1, max_length=120)
+    email: EmailStr
+    message: str = Field(min_length=10, max_length=4000)
+
+
+class ContactOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    name: str
+    email: str
+    message: str
+    submitted_at: datetime
+    is_read: bool
