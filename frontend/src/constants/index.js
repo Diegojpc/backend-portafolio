@@ -209,18 +209,22 @@ export const getEducation = (t) => [
 export const skillCategories = [
   {
     categoryKey: 'skills.cat.languages',
+    color: 'blue-text-gradient',
     skills: ['Python', 'JavaScript', 'React', 'R', 'SQL', 'MATLAB', 'C++'],
   },
   {
     categoryKey: 'skills.cat.mlai',
+    color: 'pink-text-gradient',
     skills: ['Scikit-learn', 'TensorFlow', 'PyTorch', 'Keras', 'LangChain', 'RAG Systems', 'NLP'],
   },
   {
     categoryKey: 'skills.cat.cloud',
+    color: 'green-text-gradient',
     skills: ['AWS', 'GCP', 'Docker', 'Kubernetes', 'Terraform', 'Azure DevOps', 'Serverless'],
   },
   {
     categoryKey: 'skills.cat.data',
+    color: 'yellow-text-gradient',
     skills: ['Qdrant', 'PostgreSQL', 'MySQL', 'Pandas', 'NumPy', 'Power BI', 'SQLite'],
   },
 ];

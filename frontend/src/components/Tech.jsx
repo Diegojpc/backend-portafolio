@@ -25,6 +25,19 @@ const TechStack = () => {
       }
     );
 
+    // Subtitle animates first, then categories stagger in behind it
+    gsap.fromTo(
+      ".skills-subtitle",
+      { y: 18, opacity: 0 },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 0.6,
+        ease: "power2.out",
+        scrollTrigger: { trigger: "#skills", start: "center center" },
+      }
+    );
+
     gsap.fromTo(
       ".skill-category",
       { y: 30, opacity: 0 },
@@ -34,6 +47,7 @@ const TechStack = () => {
         duration: 0.7,
         ease: "power2.out",
         stagger: 0.15,
+        delay: 0.15,
         scrollTrigger: { trigger: "#skills", start: "center center" },
       }
     );
@@ -61,7 +75,7 @@ const TechStack = () => {
           ))}
         </div>
 
-        <p className="text-center text-secondary text-[13px] uppercase tracking-widest mt-16 mb-6">
+        <p className="skills-subtitle text-center text-secondary text-[13px] uppercase tracking-widest mt-16 mb-6">
           {t('skills.subtitle')}
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
@@ -77,9 +91,11 @@ const TechStack = () => {
                 {cat.skills.map((skill) => (
                   <span
                     key={skill}
-                    className="px-2.5 py-1 text-[11px] text-white-100 bg-black-100 rounded-full border border-white/10 hover:border-[#915EFF]/50 transition-colors cursor-default"
+                    className="px-2.5 py-1 bg-black-100 rounded-full border border-white/10 hover:border-[#915EFF]/50 transition-colors cursor-default"
                   >
-                    {skill}
+                    <span className={`text-[11px] font-medium ${cat.color}`}>
+                      {skill}
+                    </span>
                   </span>
                 ))}
               </div>
