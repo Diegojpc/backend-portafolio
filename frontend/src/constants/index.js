@@ -209,51 +209,19 @@ export const getEducation = (t) => [
 export const skillCategories = [
   {
     categoryKey: 'skills.cat.languages',
-    skills: [
-      { name: 'Python',     color: 'blue-text-gradient'   },
-      { name: 'JavaScript', color: 'yellow-text-gradient' },
-      { name: 'React',      color: 'green-text-gradient'  },
-      { name: 'R',          color: 'pink-text-gradient'   },
-      { name: 'SQL',        color: 'orange-text-gradient' },
-      { name: 'MATLAB',     color: 'blue-text-gradient'   },
-      { name: 'C++',        color: 'yellow-text-gradient' },
-    ],
+    skills: ['Python', 'JavaScript', 'React', 'R', 'SQL', 'MATLAB', 'C++'],
   },
   {
     categoryKey: 'skills.cat.mlai',
-    skills: [
-      { name: 'Scikit-learn', color: 'orange-text-gradient' },
-      { name: 'TensorFlow',   color: 'yellow-text-gradient' },
-      { name: 'PyTorch',      color: 'pink-text-gradient'   },
-      { name: 'Keras',        color: 'green-text-gradient'  },
-      { name: 'LangChain',    color: 'blue-text-gradient'   },
-      { name: 'RAG Systems',  color: 'orange-text-gradient' },
-      { name: 'NLP',          color: 'pink-text-gradient'   },
-    ],
+    skills: ['Scikit-learn', 'TensorFlow', 'PyTorch', 'Keras', 'LangChain', 'RAG Systems', 'NLP'],
   },
   {
     categoryKey: 'skills.cat.cloud',
-    skills: [
-      { name: 'AWS',          color: 'yellow-text-gradient' },
-      { name: 'GCP',          color: 'blue-text-gradient'   },
-      { name: 'Docker',       color: 'green-text-gradient'  },
-      { name: 'Kubernetes',   color: 'blue-text-gradient'   },
-      { name: 'Terraform',    color: 'pink-text-gradient'   },
-      { name: 'Azure DevOps', color: 'orange-text-gradient' },
-      { name: 'Serverless',   color: 'green-text-gradient'  },
-    ],
+    skills: ['AWS', 'GCP', 'Docker', 'Kubernetes', 'Terraform', 'Azure DevOps', 'Serverless'],
   },
   {
     categoryKey: 'skills.cat.data',
-    skills: [
-      { name: 'Qdrant',      color: 'pink-text-gradient'   },
-      { name: 'PostgreSQL',  color: 'blue-text-gradient'   },
-      { name: 'MySQL',       color: 'orange-text-gradient' },
-      { name: 'Pandas',      color: 'green-text-gradient'  },
-      { name: 'NumPy',       color: 'yellow-text-gradient' },
-      { name: 'Power BI',    color: 'orange-text-gradient' },
-      { name: 'SQLite',      color: 'blue-text-gradient'   },
-    ],
+    skills: ['Qdrant', 'PostgreSQL', 'MySQL', 'Pandas', 'NumPy', 'Power BI', 'SQLite'],
   },
 ];
 
