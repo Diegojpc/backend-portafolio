@@ -12,13 +12,12 @@ const ProjectCard = ({ index, name, description, tags, image, source_code_link }
   return (
     <motion.div variants={fadeIn("up", "spring", index * 0.5, 0.75)}>
       <Tilt
-        options={{
-          max:45,
-          scale: 1,
-          speed: 450
-        }}
-        className="bg-gradient-to-t from-transparent via-transparent to-white p-5 rounded-2xl w-full max-w-[360px]"
+        options={{ max: 20, scale: 1.02, speed: 450 }}
+        className="relative bg-tertiary p-5 rounded-2xl w-full max-w-[360px] border border-[#915EFF]/25 hover:border-[#915EFF]/55 shadow-card transition-colors duration-300 overflow-hidden"
       >
+        {/* Purple shimmer line at top */}
+        <span className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#915EFF]/60 to-transparent" />
+
         <div className='relative w-full h-[230px]'>
           <img
             src={image}
@@ -27,8 +26,7 @@ const ProjectCard = ({ index, name, description, tags, image, source_code_link }
           />
           <div className='absolute inset-0 flex justify-end m-3 card_img_hover'>
             <div
-              onClick={() => window.open
-              (source_code_link, "_blank")}
+              onClick={() => window.open(source_code_link, "_blank")}
               className='black-gradient w-10 h-10 rounded-full flex justify-center items-center cursor-pointer'
             >
               <img
@@ -42,7 +40,7 @@ const ProjectCard = ({ index, name, description, tags, image, source_code_link }
 
         <div className='mt-5'>
           <h3 className='text-white font-bold text-[24px]'>{name}</h3>
-          <p className='mt-2 text-white text-[14px]'>{description}</p>
+          <p className='mt-2 text-white-100 text-[14px] leading-[22px]'>{description}</p>
         </div>
 
         <div className='mt-4 flex flex-wrap gap-2'>
@@ -51,9 +49,7 @@ const ProjectCard = ({ index, name, description, tags, image, source_code_link }
               #{tag.name}
             </p>
           ))}
-
         </div>
-
       </Tilt>
     </motion.div>
   )

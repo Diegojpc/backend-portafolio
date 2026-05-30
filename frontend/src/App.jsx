@@ -6,11 +6,13 @@ import { Hero, Navbar } from './components';
 
 import ChatWidget from './components/chat/ChatWidget';
 
-const About   = lazy(() => import("./components/About"));
-const Tech    = lazy(() => import("./components/Tech"));
-const Works   = lazy(() => import("./components/Works"));
-const Contact = lazy(() => import("./components/Contact"));
-const Footer  = lazy(() => import("./components/Footer"));
+const About      = lazy(() => import("./components/About"));
+const Tech       = lazy(() => import("./components/Tech"));
+const Experience = lazy(() => import("./components/Experience"));
+const Education  = lazy(() => import("./components/Education"));
+const Works      = lazy(() => import("./components/Works"));
+const Contact    = lazy(() => import("./components/Contact"));
+const Footer     = lazy(() => import("./components/Footer"));
 
 const WaveCanvas  = lazy(() => import("./components/canvas/Waves"));
 const StarsCanvas = lazy(() => import("./components/canvas/Stars"));
@@ -75,6 +77,8 @@ const App = () => {
         <Suspense fallback={null}>
           <About />
           <Tech />
+          <Experience />
+          <Education />
           <Works />
           <div className="relative z-0">
             <Contact audioElement={audioElement} />
