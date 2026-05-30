@@ -90,11 +90,11 @@ const TechStack = () => {
               <div className="flex flex-wrap gap-2">
                 {cat.skills.map((skill) => (
                   <span
-                    key={skill}
+                    key={skill.name}
                     className="px-2.5 py-1 bg-black-100 rounded-full border border-white/10 hover:border-[#915EFF]/50 transition-colors cursor-default"
                   >
-                    <span className={`text-[11px] font-medium ${cat.color}`}>
-                      {skill}
+                    <span className={`text-[11px] font-medium ${skill.color}`}>
+                      {skill.name}
                     </span>
                   </span>
                 ))}
