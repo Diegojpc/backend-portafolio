@@ -73,7 +73,7 @@ DATABASE_URL=sqlite+aiosqlite:///./storage/portfolio.db alembic upgrade head
 Disabled by default. To enable it, set in `backend/.env`:
 `REALTIME_ENABLED=true`, `FISH_API_KEY`, `FISH_VOICE_ID` (a voice cloned on [fish.audio](https://fish.audio)).
 The microphone button appears in the chat widget only when `/health` reports `"realtime_voice": true`.
-Use Chrome or Edge (the browser's speech recognition is required). Cost guards: 12 requests/min per IP,
+Speech-to-text uses the browser's recognition when it works (Chrome, Edge) and otherwise falls back to server-side transcription with Gemini (Brave, Firefox, Chromium builds without Google keys), so the call works in any modern browser; in that case the visitor's audio is sent to Google Gemini (the call panel says so). Cost guards: 12 requests/min per IP,
 12 turns per call and a global daily cap of TTS characters (`REALTIME_DAILY_CHARS`).
 
 ### Knowledge base

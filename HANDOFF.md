@@ -65,8 +65,13 @@ Flujo: `VoiceCall.jsx` (SpeechRecognition del navegador) → `POST /realtime/voi
   Idea no aplicada para bajar latencia: cortar la primera frase en la primera coma (~30+ caracteres), a costa de prosodia menos natural.
 - Respuestas de voz: el prompt pide ≤35 palabras; salen ~35–45 palabras (12–20 s de audio). El usuario aún debe confirmar a oído que la voz es la suya.
 - Bug encontrado y corregido: `gemini-3.8-flash` gasta tokens en "pensar"; con `max_output_tokens=300` quedaban ~8 para la respuesta. En modo voz se usa `thinking_budget=0`.
-- **Limitación conocida (2026-10-18):** el STT usa `SpeechRecognition` del navegador, que depende del servicio de voz de Google. En **Brave** (y Chromium sin claves de Google) falla con `error: network`; el usuario probó en Brave y "no pasaba nada" porque el error se ignoraba.
-  Ahora se muestra un mensaje y un botón Reintentar. Firefox no tiene `SpeechRecognition`. Solución pendiente de decidir: STT en el servidor (grabar audio → WAV → `/realtime/voice/stt`, p. ej. Gemini con audio) como respaldo para Brave/Firefox.
+- **STT con respaldo en servidor (2026-10-18):** `SpeechRecognition` del navegador depende del servicio de voz de Google y falla en Brave (`error: network`) o no existe (Firefox).
+  Ahora `VoiceCall` usa el reconocimiento del navegador si funciona y, si falla o no existe, pasa solo a: micrófono + VAD por energía (`components/call/audioCapture.js`, AudioWorklet) → WAV 16 kHz mono →
+  `POST /realtime/voice/stt?language=es|en` (`services/stt.py`, Gemini con audio, `thinking_budget=0`) → texto → `/realtime/voice/turn`. El navegador recuerda el cambio en `sessionStorage`.
+  Guardas del endpoint: kill switch, 20/min por IP, máx ~1 MB (~30 s) leído en streaming, solo `audio/wav` válido, y se descarta el audio casi silencioso (pico < 500/32768) sin llamar al modelo.
+  **Hallazgo:** con silencio o ruido el modelo inventa texto ("¡Tontos!"). El silencio digital se filtra en el servidor; el ruido de fondo lo filtra el VAD del cliente (umbral = 3× el ruido ambiente aprendido, mínimo 400 ms de voz). Ruido blanco constante fuerte aún puede colarse.
+  **Probado:** WAV generado con TTS → transcripción exacta (ES) y correcta (EN); 415/422/413/503; en Brave real: error de reconocimiento → cambio automático → micrófono → VAD → STT → turno → audio ("HABLANDO…") sin errores.
+  **No probado:** voz humana real por micrófono físico en Brave/Firefox, Safari/iOS (MediaSource, AudioWorklet), latencia total con voz real (esperable: 0.9 s de silencio final + STT ~1 s + turno ~2.3 s).
 - Pendiente de la fase: Turnstile (necesita claves de Cloudflare), probar con clave Fish y `reference_id` reales, aviso de privacidad también en el modo chat, desplegar con las migraciones.
 - Para activar en local: `backend/.env` con `REALTIME_ENABLED=true`, `FISH_API_KEY=...`, `FISH_VOICE_ID=...`, y apuntar `BACKEND_URL` de `ChatWidget.jsx` al backend local.
 

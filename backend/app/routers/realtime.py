@@ -20,6 +20,7 @@ from app.entities import Conversation, VoiceTurn
 from app.schemas import VoiceTurnRequest
 from app.services.conversations import ConversationService
 from app.services.speech import split_sentences
+from app.services.stt import SttError, Transcriber, get_stt
 from app.services.tts_fish import TtsError, TtsProvider, get_tts
 
 limiter = Limiter(key_func=get_remote_address)
@@ -168,3 +169,39 @@ async def voice_turn(
                 logger.exception(f"[Realtime] Failed to persist turn conversation_id={conversation.id}")
 
     return StreamingResponse(body(), media_type=getattr(tts, "media_type", "audio/mpeg"))
+
+
+# 16 kHz mono 16-bit is ~32 KB/s, so this allows ~30 s of speech: far more than one turn needs.
+MAX_STT_BYTES = 1_000_000
+
+
+@router.post("/voice/stt", summary="Transcribe one spoken utterance (WAV) for browsers without speech recognition")
+@limiter.limit("20/minute")
+async def voice_stt(
+    request: Request,
+    stt: Annotated[Transcriber, Depends(get_stt)],
+    language: str = "es",
+):
+    if not settings.realtime_enabled:
+        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, detail="voice_disabled")
+    if not request.headers.get("content-type", "").startswith(("audio/wav", "audio/x-wav")):
+        raise HTTPException(status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, detail="expected_audio_wav")
+
+    declared = int(request.headers.get("content-length") or 0)
+    if declared > MAX_STT_BYTES:
+        raise HTTPException(status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail="audio_too_large")
+    data = bytearray()
+    async for chunk in request.stream():  # cap while reading: content-length can be absent or lie
+        data.extend(chunk)
+        if len(data) > MAX_STT_BYTES:
+            raise HTTPException(status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail="audio_too_large")
+    if len(data) < 1000 or data[:4] != b"RIFF" or data[8:12] != b"WAVE":
+        logger.warning(f"[Realtime] STT rejected: not a WAV (bytes={len(data)})")
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, detail="invalid_wav")
+
+    try:
+        text = await stt.transcribe(bytes(data), language)
+    except SttError:
+        raise HTTPException(status.HTTP_502_BAD_GATEWAY, detail="stt_failed")
+    logger.info(f"[Realtime] STT ok bytes={len(data)} chars={len(text)} ip={_ip_hash(request)}")
+    return {"text": text}

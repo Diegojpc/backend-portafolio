@@ -1,14 +1,22 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import { Canvas } from "@react-three/fiber";
 import { Sphere } from "../canvas/AudioVisualizer";
 import { useLanguage } from "../../context/LanguageContext";
+import { createVadRecorder } from "./audioCapture";
 
 const SpeechRecognitionImpl =
   typeof window !== "undefined" ? window.SpeechRecognition || window.webkitSpeechRecognition : null;
+const CAN_CAPTURE =
+  typeof navigator !== "undefined" && !!navigator.mediaDevices?.getUserMedia && typeof AudioWorkletNode !== "undefined";
 
 const MAX_CALL_MS = 3 * 60 * 1000;
 const MIME = "audio/mpeg";
+const STT_FLAG = "voicecall_stt_server";
+
+const readServerFlag = () => {
+  try { return sessionStorage.getItem(STT_FLAG) === "1"; } catch { return false; }
+};
 
 const errorKeyFor = (detail) => {
   switch (detail) {
@@ -21,8 +29,9 @@ const errorKeyFor = (detail) => {
 
 /**
  * Voice call with Diego's AI avatar.
- * mic -> browser speech recognition -> POST /realtime/voice/turn -> streamed mp3 (cloned voice) -> speaker.
- * The mic is closed while the avatar speaks, which avoids echo and removes the need for echo cancellation.
+ *   speech -> text:  browser SpeechRecognition when it works, otherwise mic + VAD -> WAV -> POST /realtime/voice/stt
+ *   text -> avatar:  POST /realtime/voice/turn -> streamed mp3 (cloned voice) -> speaker
+ * The mic is paused while the avatar thinks/speaks, which avoids echo.
  */
 const VoiceCall = ({ backendUrl, conversationId, onConversationId, onTurn, onClose }) => {
   const { t, language } = useLanguage();
@@ -31,6 +40,7 @@ const VoiceCall = ({ backendUrl, conversationId, onConversationId, onTurn, onClo
   const [heard, setHeard] = useState("");
   const [errorKey, setErrorKey] = useState(null);
   const [analyser, setAnalyser] = useState(null);
+  const [level, setLevel] = useState(0);
 
   const audioRef = useRef(null);
   const audioCtxRef = useRef(null);
@@ -39,17 +49,22 @@ const VoiceCall = ({ backendUrl, conversationId, onConversationId, onTurn, onClo
   const convIdRef = useRef(conversationId);
   const activeRef = useRef(false); // true between "start" and "hang up"
   const callTimerRef = useRef(null);
+  const modeRef = useRef(SpeechRecognitionImpl && !readServerFlag() ? "browser" : "server");
+  const vadRef = useRef(null);
+  // Long-lived callbacks (recognition/VAD events) call through here so they always see the latest render.
+  const act = useRef({});
 
   if (!audioRef.current && typeof Audio !== "undefined") audioRef.current = new Audio();
 
-  const fail = useCallback((key, detail) => {
+  const fail = (key, detail) => {
     console.error(`[VoiceCall] ${key}`, detail ?? "");
     activeRef.current = false;
+    vadRef.current?.setPaused(true);
     setErrorKey(key);
     setStatus("error");
-  }, []);
+  };
 
-  const ensureConversation = useCallback(async () => {
+  const ensureConversation = async () => {
     if (convIdRef.current) return convIdRef.current;
     const res = await fetch(`${backendUrl}/conversations`, {
       method: "POST",
@@ -61,11 +76,11 @@ const VoiceCall = ({ backendUrl, conversationId, onConversationId, onTurn, onClo
     convIdRef.current = data.id;
     onConversationId?.(data.id);
     return data.id;
-  }, [backendUrl, onConversationId]);
+  };
 
   // Plays a streamed mp3 response. Uses MediaSource when available (starts speaking on the first chunk),
   // otherwise buffers the whole reply (Safari/iOS).
-  const playResponse = useCallback(async (resp, signal) => {
+  const playResponse = async (resp, signal) => {
     const audio = audioRef.current;
     const ended = new Promise((resolve) => {
       const done = () => { audio.removeEventListener("ended", done); audio.removeEventListener("error", done); resolve(); };
@@ -108,53 +123,11 @@ const VoiceCall = ({ backendUrl, conversationId, onConversationId, onTurn, onClo
       await audio.play();
     }
     await ended;
-  }, []);
+  };
 
-  const startListening = useCallback(() => {
-    if (!activeRef.current || !SpeechRecognitionImpl) return;
-    const rec = new SpeechRecognitionImpl();
-    rec.lang = language === "en" ? "en-US" : "es-CO";
-    rec.interimResults = true;
-    rec.continuous = false;
-    let finalText = "";
-    recognitionRef.current = rec;
-
-    rec.onresult = (event) => {
-      let interim = "";
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const r = event.results[i];
-        if (r.isFinal) finalText += r[0].transcript;
-        else interim += r[0].transcript;
-      }
-      setHeard((finalText + interim).trim());
-    };
-    rec.onerror = (e) => {
-      console.warn(`[VoiceCall] recognition error: ${e.error} ${e.message ?? ""}`);
-      if (e.error === "no-speech" || e.error === "aborted") return; // onend decides whether to restart
-      recognitionRef.current = null;
-      rec.abort();
-      if (e.error === "not-allowed") fail("call.errMic", e.error);
-      else if (e.error === "audio-capture") fail("call.errMicCapture", e.error);
-      // "network" / "service-not-allowed": the browser has no speech service (Brave, Chromium without Google keys).
-      else fail("call.errSpeechService", e.error);
-    };
-    rec.onstart = () => console.info("[VoiceCall] recognition started");
-    rec.onspeechstart = () => console.info("[VoiceCall] speech detected");
-    rec.onend = () => {
-      console.info(`[VoiceCall] recognition ended (final text: ${finalText.trim() ? "yes" : "none"})`);
-      if (!activeRef.current || recognitionRef.current !== rec) return;
-      const text = finalText.trim();
-      if (text) sendTurn(text);
-      else startListening(); // silence: keep listening
-    };
-    setHeard("");
-    setStatus("listening");
-    try { rec.start(); } catch (e) { console.warn("[VoiceCall] recognition.start failed:", e); }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [language, fail]);
-
-  const sendTurn = useCallback(async (text) => {
+  const sendTurn = async (text) => {
     if (!activeRef.current) return;
+    vadRef.current?.setPaused(true);
     setStatus("thinking");
     const controller = new AbortController();
     abortRef.current = controller;
@@ -184,31 +157,145 @@ const VoiceCall = ({ backendUrl, conversationId, onConversationId, onTurn, onClo
         console.warn("[VoiceCall] could not load captions:", e);
         onTurn?.(text, "");
       }
-      startListening();
+      act.current.startListening();
     } catch (e) {
       if (e.name === "AbortError") return;
       fail("call.errGeneric", e);
     }
-  }, [backendUrl, ensureConversation, playResponse, startListening, fail, onTurn]);
+  };
 
-  const hangUp = useCallback(() => {
+  // ---- speech -> text, path A: the browser's own recognition ----
+  const startBrowserListening = () => {
+    const rec = new SpeechRecognitionImpl();
+    rec.lang = language === "en" ? "en-US" : "es-CO";
+    rec.interimResults = true;
+    rec.continuous = false;
+    let finalText = "";
+    recognitionRef.current = rec;
+
+    rec.onresult = (event) => {
+      let interim = "";
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const r = event.results[i];
+        if (r.isFinal) finalText += r[0].transcript;
+        else interim += r[0].transcript;
+      }
+      setHeard((finalText + interim).trim());
+    };
+    rec.onerror = (e) => {
+      console.warn(`[VoiceCall] recognition error: ${e.error} ${e.message ?? ""}`);
+      if (e.error === "no-speech" || e.error === "aborted") return; // onend decides whether to restart
+      recognitionRef.current = null;
+      rec.abort();
+      if (e.error === "not-allowed") return fail("call.errMic", e.error);
+      if (e.error === "audio-capture") return fail("call.errMicCapture", e.error);
+      // "network" / "service-not-allowed": no speech service here (Brave, Chromium without Google keys).
+      if (!CAN_CAPTURE) return fail("call.errSpeechService", e.error);
+      console.info("[VoiceCall] Browser speech recognition unavailable; switching to server transcription.");
+      modeRef.current = "server";
+      try { sessionStorage.setItem(STT_FLAG, "1"); } catch { /* storage unavailable */ }
+      act.current.startListening();
+    };
+    rec.onstart = () => console.info("[VoiceCall] recognition started");
+    rec.onspeechstart = () => console.info("[VoiceCall] speech detected");
+    rec.onend = () => {
+      console.info(`[VoiceCall] recognition ended (final text: ${finalText.trim() ? "yes" : "none"})`);
+      if (!activeRef.current || recognitionRef.current !== rec) return;
+      const text = finalText.trim();
+      if (text) act.current.sendTurn(text);
+      else act.current.startListening(); // silence: keep listening
+    };
+    setHeard("");
+    setStatus("listening");
+    try { rec.start(); } catch (e) { console.warn("[VoiceCall] recognition.start failed:", e); }
+  };
+
+  // ---- speech -> text, path B: mic + VAD, transcribed by the backend ----
+  const handleUtterance = async (wav) => {
+    if (!activeRef.current) return;
+    vadRef.current?.setPaused(true);
+    setStatus("thinking");
+    const controller = new AbortController();
+    abortRef.current = controller;
+    const t0 = performance.now();
+    try {
+      const resp = await fetch(`${backendUrl}/realtime/voice/stt?language=${language === "en" ? "en" : "es"}`, {
+        method: "POST",
+        headers: { "Content-Type": "audio/wav" },
+        body: wav,
+        signal: controller.signal,
+      });
+      if (!resp.ok) {
+        const detail = (await resp.json().catch(() => ({}))).detail;
+        return fail(errorKeyFor(detail), `STT HTTP ${resp.status} ${detail ?? ""}`);
+      }
+      const { text } = await resp.json();
+      console.info(`[VoiceCall] transcribed in ${(performance.now() - t0).toFixed(0)}ms (${(text || "").length} chars)`);
+      if (!activeRef.current) return;
+      const clean = (text || "").trim();
+      if (!clean) return act.current.startListening(); // nothing intelligible: keep listening
+      setHeard(clean);
+      act.current.sendTurn(clean);
+    } catch (e) {
+      if (e.name === "AbortError") return;
+      fail("call.errGeneric", e);
+    }
+  };
+
+  const startServerListening = async () => {
+    setHeard("");
+    setStatus("listening");
+    if (!vadRef.current) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+        });
+        if (!activeRef.current) { stream.getTracks().forEach((tr) => tr.stop()); return; }
+        vadRef.current = await createVadRecorder({
+          ctx: audioCtxRef.current,
+          stream,
+          onUtterance: (wav) => act.current.handleUtterance(wav),
+          onLevel: setLevel,
+        });
+        console.info("[VoiceCall] Server transcription: microphone ready.");
+      } catch (e) {
+        if (e.name === "NotAllowedError") return fail("call.errMic", e);
+        if (e.name === "NotFoundError") return fail("call.errMicCapture", e);
+        return fail("call.errGeneric", e);
+      }
+    }
+    if (activeRef.current) vadRef.current.setPaused(false);
+  };
+
+  const startListening = () => {
+    if (!activeRef.current) return;
+    if (modeRef.current === "browser") startBrowserListening();
+    else startServerListening();
+  };
+
+  act.current = { startListening, sendTurn, handleUtterance };
+
+  const hangUp = () => {
     activeRef.current = false;
     clearTimeout(callTimerRef.current);
     abortRef.current?.abort();
     recognitionRef.current?.abort();
     recognitionRef.current = null;
+    vadRef.current?.stop();
+    vadRef.current = null;
     audioRef.current?.pause();
     setStatus("idle");
     setHeard("");
-  }, []);
+    setLevel(0);
+  };
 
-  const interrupt = useCallback(() => {
+  const interrupt = () => {
     abortRef.current?.abort();
     audioRef.current?.pause();
     startListening();
-  }, [startListening]);
+  };
 
-  const start = useCallback(async () => {
+  const start = async () => {
     setErrorKey(null);
     activeRef.current = true;
     // Created inside the click handler so the browser allows audio playback.
@@ -226,15 +313,16 @@ const VoiceCall = ({ backendUrl, conversationId, onConversationId, onTurn, onClo
       console.info("[VoiceCall] Max call duration reached.");
       hangUp();
     }, MAX_CALL_MS);
-    console.info("[VoiceCall] Call started.");
+    console.info(`[VoiceCall] Call started (speech-to-text: ${modeRef.current}).`);
     startListening();
-  }, [startListening, hangUp]);
+  };
 
   useEffect(() => () => {
     activeRef.current = false;
     clearTimeout(callTimerRef.current);
     abortRef.current?.abort();
     recognitionRef.current?.abort();
+    vadRef.current?.stop();
     audioRef.current?.pause();
     audioCtxRef.current?.close().catch(() => {});
   }, []);
@@ -245,7 +333,7 @@ const VoiceCall = ({ backendUrl, conversationId, onConversationId, onTurn, onClo
     : status === "speaking" ? t("call.speaking")
     : "";
 
-  if (!SpeechRecognitionImpl) {
+  if (!SpeechRecognitionImpl && !CAN_CAPTURE) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center p-6 text-center text-[#aaa6c3] text-[14px] gap-4">
         <p>{t("call.unsupported")}</p>
@@ -264,6 +352,12 @@ const VoiceCall = ({ backendUrl, conversationId, onConversationId, onTurn, onClo
 
       <div className="flex flex-col items-center gap-2 min-h-[88px] w-full">
         <span className="text-[12px] text-[#915EFF] font-bold uppercase tracking-wider">{label}</span>
+        {status === "listening" && modeRef.current === "server" && (
+          // Mic level: lets the visitor see the microphone is picking them up.
+          <div className="w-32 h-1.5 rounded-full bg-white/10 overflow-hidden" aria-hidden="true">
+            <div className="h-full bg-[#915EFF] transition-[width] duration-75" style={{ width: `${Math.min(100, level * 800)}%` }} />
+          </div>
+        )}
         {heard && <p className="text-[14px] text-white/80 line-clamp-3">&ldquo;{heard}&rdquo;</p>}
         {errorKey && <p className="text-[13px] text-red-400">{t(errorKey)}</p>}
       </div>
