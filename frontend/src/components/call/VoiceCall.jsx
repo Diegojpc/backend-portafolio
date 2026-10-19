@@ -129,11 +129,19 @@ const VoiceCall = ({ backendUrl, conversationId, onConversationId, onTurn, onClo
       setHeard((finalText + interim).trim());
     };
     rec.onerror = (e) => {
+      console.warn(`[VoiceCall] recognition error: ${e.error} ${e.message ?? ""}`);
       if (e.error === "no-speech" || e.error === "aborted") return; // onend decides whether to restart
-      if (e.error === "not-allowed" || e.error === "service-not-allowed") fail("call.errMic", e.error);
-      else console.warn("[VoiceCall] recognition error:", e.error);
+      recognitionRef.current = null;
+      rec.abort();
+      if (e.error === "not-allowed") fail("call.errMic", e.error);
+      else if (e.error === "audio-capture") fail("call.errMicCapture", e.error);
+      // "network" / "service-not-allowed": the browser has no speech service (Brave, Chromium without Google keys).
+      else fail("call.errSpeechService", e.error);
     };
+    rec.onstart = () => console.info("[VoiceCall] recognition started");
+    rec.onspeechstart = () => console.info("[VoiceCall] speech detected");
     rec.onend = () => {
+      console.info(`[VoiceCall] recognition ended (final text: ${finalText.trim() ? "yes" : "none"})`);
       if (!activeRef.current || recognitionRef.current !== rec) return;
       const text = finalText.trim();
       if (text) sendTurn(text);

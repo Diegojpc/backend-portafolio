@@ -69,6 +69,8 @@ export const es = {
     notice: "Hablas con un avatar de IA, no con Diego. Tu voz se transcribe en tu navegador y el texto se envía a servicios de IA (Google Gemini y Fish Audio). Máx. 3 minutos.",
     unsupported: "Tu navegador no soporta reconocimiento de voz. Usa Chrome o Edge, o escríbeme en el chat.",
     errMic: "No pude acceder al micrófono. Revisa los permisos del navegador.",
+    errMicCapture: "No encuentro un micrófono disponible. Conéctalo o elígelo en el navegador.",
+    errSpeechService: "Tu navegador no puede usar el reconocimiento de voz (Brave y algunos Chromium lo bloquean). Prueba con Chrome o Edge, o escríbeme en el chat.",
     errCallLimit: "Llegamos al límite de esta llamada. ¡Puedes seguir por el chat de texto!",
     errDailyLimit: "El avatar de voz alcanzó su límite diario. Prueba mañana o usa el chat de texto.",
     errDisabled: "La llamada de voz no está disponible ahora mismo.",

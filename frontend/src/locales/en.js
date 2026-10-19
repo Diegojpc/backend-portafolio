@@ -69,6 +69,8 @@ export const en = {
     notice: "You are talking to an AI avatar, not Diego. Your voice is transcribed in your browser and the text is sent to AI services (Google Gemini and Fish Audio). Max. 3 minutes.",
     unsupported: "Your browser does not support speech recognition. Use Chrome or Edge, or type in the chat.",
     errMic: "I could not access the microphone. Check your browser permissions.",
+    errMicCapture: "I can't find an available microphone. Connect one or pick it in your browser.",
+    errSpeechService: "Your browser can't use speech recognition (Brave and some Chromium builds block it). Try Chrome or Edge, or type in the chat.",
     errCallLimit: "We reached this call's limit. You can keep going in the text chat!",
     errDailyLimit: "The voice avatar reached its daily limit. Try tomorrow or use the text chat.",
     errDisabled: "Voice calls are not available right now.",
