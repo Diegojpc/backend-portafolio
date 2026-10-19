@@ -181,10 +181,11 @@ const ChatWidget = () => {
             initial={{ opacity: 0, y: 50, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 50, scale: 0.9 }}
-            className="mb-4 w-[calc(100vw-32px)] sm:w-96 overflow-hidden rounded-2xl bg-black/85 sm:bg-black/60 shadow-[0_0_25px_rgba(145,94,255,0.3)] backdrop-blur-xl sm:backdrop-blur-md border border-[rgba(255,255,255,0.1)] flex flex-col h-[78dvh] sm:h-[500px] max-h-[85vh] sm:max-h-[80vh]"
+            data-testid="chat-panel"
+            className="mb-4 w-[calc(100vw-32px)] sm:w-96 overflow-hidden rounded-2xl bg-black/85 sm:bg-black/60 shadow-[0_0_25px_rgba(145,94,255,0.3)] backdrop-blur-xl sm:backdrop-blur-md border border-[rgba(255,255,255,0.1)] flex flex-col h-[78dvh] sm:h-[500px] max-h-[calc(100dvh-7.5rem)]"
           >
             {/* Header */}
-            <div className="bg-[#151030] border-b border-[rgba(255,255,255,0.1)] p-4 flex justify-between items-center text-white">
+            <div className="bg-[#151030] border-b border-[rgba(255,255,255,0.1)] pl-4 pr-2 py-2 flex justify-between items-center gap-2 text-white shrink-0">
               <div className="flex items-center gap-2">
                 <div className={`w-2.5 h-2.5 rounded-full shadow-[0_0_10px_currentColor] transition-colors ${
                   serverStatus === "warming" ? "bg-yellow-400 text-yellow-400 animate-pulse" :
@@ -192,15 +193,15 @@ const ChatWidget = () => {
                   isLocalMode               ? "bg-amber-500 text-amber-500" :
                                               "bg-[#915EFF] text-[#915EFF]"
                 }`}></div>
-                <h3 className="font-bold text-[17px]">{t('chat.title')}</h3>
+                <h3 className="font-bold text-[17px] leading-tight">{t('chat.title')}</h3>
                 {serverStatus === "warming" && (
                   <span className="text-[10px] text-yellow-400/80 font-normal">{t('chat.warming')}</span>
                 )}
               </div>
 
-              <div className="flex items-center gap-4">
-                {/* Mode Toggle Switch */}
-                  <label className="flex items-center cursor-pointer gap-2" title="Toggle between Local CPU (Private, Slower) and Gemini Cloud (Fast, Live Web Scraping)">
+              <div className="flex items-center gap-1 shrink-0">
+                {/* Mode Toggle Switch (hidden on narrow screens: it would push the close button out of the panel) */}
+                  <label className="hidden xs:flex items-center cursor-pointer gap-2 mr-2" title="Toggle between Local CPU (Private, Slower) and Gemini Cloud (Fast, Live Web Scraping)">
                     <span className={`text-xs ${!isLocalMode ? "text-[#915EFF] font-bold" : "text-gray-400"}`}>{t('chat.cloud')}</span>
                     <div className="relative">
                       <input 
@@ -224,9 +225,10 @@ const ChatWidget = () => {
                 {voiceEnabled && (
                   <button
                     onClick={() => setCallOpen((v) => !v)}
-                    className={`transition-colors ${callOpen ? "text-[#915EFF]" : "text-white/60 hover:text-white"}`}
+                    className={`p-2.5 rounded-full transition-colors ${callOpen ? "text-[#915EFF] bg-white/5" : "text-white/60 hover:text-white"}`}
                     title={t('call.open')}
                     aria-label={t('call.open')}
+                    data-testid="open-call"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="2" width="6" height="12" rx="3" /><path d="M5 10a7 7 0 0 0 14 0" /><path d="M12 19v3" /></svg>
                   </button>
@@ -234,7 +236,7 @@ const ChatWidget = () => {
 
                 <button
                   onClick={toggleChat}
-                  className="text-white/60 hover:text-white transition-colors ml-2"
+                  className="p-2.5 rounded-full text-white/60 hover:text-white transition-colors"
                   title="Close chat"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>

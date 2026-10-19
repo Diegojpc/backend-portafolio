@@ -66,6 +66,8 @@ export const en = {
     listening: "Listening...",
     thinking: "Thinking...",
     speaking: "Speaking...",
+    noticeShort: "AI avatar, not Diego · max. 3 min.",
+    privacy: "Privacy",
     notice: "You are talking to an AI avatar, not Diego. Your voice is transcribed in your browser or, if it cannot, sent as audio to Google Gemini; replies are generated with Gemini and Fish Audio. Max. 3 minutes.",
     unsupported: "Your browser cannot capture audio for the call. Try an up-to-date Chrome, Edge or Firefox, or type in the chat.",
     errMic: "I could not access the microphone. Check your browser permissions.",

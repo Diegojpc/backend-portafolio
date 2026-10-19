@@ -41,6 +41,7 @@ const VoiceCall = ({ backendUrl, conversationId, onConversationId, onTurn, onClo
   const [errorKey, setErrorKey] = useState(null);
   const [analyser, setAnalyser] = useState(null);
   const [level, setLevel] = useState(0);
+  const [showPrivacy, setShowPrivacy] = useState(false);
 
   const audioRef = useRef(null);
   const audioCtxRef = useRef(null);
@@ -343,48 +344,68 @@ const VoiceCall = ({ backendUrl, conversationId, onConversationId, onTurn, onClo
   }
 
   return (
-    // Fixed-height panel: the actions stay pinned at the bottom (shrink-0) and only the middle scrolls,
-    // so the buttons can never be clipped by a small viewport, browser zoom or a long notice.
-    <div className="flex-1 min-h-0 flex flex-col gap-3 p-4 text-center">
-      <div className="shrink-0 w-full h-32 rounded-xl overflow-hidden bg-black/40">
-        <Canvas camera={{ position: [0, 0, 100], fov: 80 }} dpr={[1, 1.5]}>
-          <Sphere analyser={analyser} />
+    // Fixed-height panel: the sphere takes whatever height is left, the actions stay pinned at the bottom
+    // (shrink-0) and nothing the visitor needs to read or press can be pushed out of view.
+    <div data-testid="call-panel" className="flex-1 min-h-0 flex flex-col gap-2 p-4 text-center">
+      {/* Sphere: grows on tall panels, hidden on very short screens (phone landscape) */}
+      <div className="flex-1 min-h-[88px] w-full rounded-xl overflow-hidden h-sm:hidden">
+        <Canvas camera={{ position: [0, 0, 58], fov: 80 }} dpr={[1, 1.5]}>
+          <Sphere analyser={analyser} material="water" />
         </Canvas>
       </div>
 
-      <div className="flex-1 min-h-0 overflow-y-auto flex flex-col items-center gap-2 w-full">
-        <span className="text-[12px] text-[#915EFF] font-bold uppercase tracking-wider min-h-[18px]">{label}</span>
+      <div data-testid="call-middle" className="shrink-0 flex flex-col items-center gap-1.5 w-full h-sm:flex-1 h-sm:justify-center">
+        <span className="text-[11px] text-[#915EFF] font-bold uppercase tracking-wider min-h-[16px]">{label}</span>
         {status === "listening" && modeRef.current === "server" && (
           // Mic level: lets the visitor see the microphone is picking them up.
           <div className="w-32 h-1.5 rounded-full bg-white/10 overflow-hidden shrink-0" aria-hidden="true">
             <div className="h-full bg-[#915EFF] transition-[width] duration-75" style={{ width: `${Math.min(100, level * 800)}%` }} />
           </div>
         )}
-        {heard && <p className="text-[14px] text-white/80 line-clamp-3">&ldquo;{heard}&rdquo;</p>}
-        {errorKey && <p className="text-[13px] text-red-400">{t(errorKey)}</p>}
-        <p className="text-[11px] text-[#aaa6c3]/70 leading-snug mt-auto">{t("call.notice")}</p>
+        {heard && <p className="text-[14px] text-white/80 line-clamp-2">&ldquo;{heard}&rdquo;</p>}
+        {errorKey && <p className="text-[13px] text-red-400 leading-snug">{t(errorKey)}</p>}
       </div>
 
-      <div className="shrink-0 flex flex-col items-center gap-2 w-full">
-        <div className="flex gap-3">
+      <div className="min-h-0 shrink overflow-y-auto flex flex-col items-center gap-1 w-full">
+        {/* One short line always; the full privacy text only on demand, so it never pushes the layout around. */}
+        <p className="text-[11px] text-[#aaa6c3]/80 leading-snug">
+          {t("call.noticeShort")}{" "}
+          <button
+            data-testid="call-privacy-toggle"
+            onClick={() => setShowPrivacy((v) => !v)}
+            aria-expanded={showPrivacy}
+            className="underline underline-offset-2 hover:text-white"
+          >
+            {t("call.privacy")}
+          </button>
+        </p>
+        {showPrivacy && (
+          <p data-testid="call-privacy-detail" className="text-[11px] text-[#aaa6c3] leading-snug max-h-20 overflow-y-auto rounded-lg bg-white/5 p-2 text-left">
+            {t("call.notice")}
+          </p>
+        )}
+      </div>
+
+      <div className="shrink-0 flex flex-col items-center gap-1 w-full">
+        <div className="flex gap-3 mt-1">
           {!inCall ? (
-            <button onClick={start} className="px-6 py-3 rounded-full bg-[#915EFF] hover:bg-[#804dee] text-white font-semibold transition-colors">
+            <button data-testid="call-start" onClick={start} className="min-h-[44px] px-6 rounded-full bg-[#915EFF] hover:bg-[#804dee] text-white font-semibold transition-colors">
               {status === "error" ? t("call.retry") : t("call.start")}
             </button>
           ) : (
             <>
               {status === "speaking" && (
-                <button onClick={interrupt} className="px-4 py-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors">
+                <button data-testid="call-interrupt" onClick={interrupt} className="min-h-[44px] px-4 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors">
                   {t("call.interrupt")}
                 </button>
               )}
-              <button onClick={hangUp} className="px-6 py-3 rounded-full bg-red-600 hover:bg-red-500 text-white font-semibold transition-colors">
+              <button data-testid="call-hangup" onClick={hangUp} className="min-h-[44px] px-6 rounded-full bg-red-600 hover:bg-red-500 text-white font-semibold transition-colors">
                 {t("call.hangUp")}
               </button>
             </>
           )}
         </div>
-        <button onClick={() => { hangUp(); onClose?.(); }} className="text-[12px] text-[#aaa6c3] underline">
+        <button data-testid="call-back" onClick={() => { hangUp(); onClose?.(); }} className="min-h-[40px] px-4 text-[12px] text-[#aaa6c3] underline">
           {t("call.backToChat")}
         </button>
       </div>

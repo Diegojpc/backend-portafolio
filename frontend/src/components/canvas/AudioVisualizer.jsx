@@ -1,7 +1,9 @@
 import { useRef, useState, useEffect, useMemo } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Preload, OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
+import { mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { createNoise3D } from 'simplex-noise';
 import WebGLGuard from './WebGLGuard';
 import useInView from '../../hooks/useInView';
@@ -40,7 +42,41 @@ const interpolateColor = (color1, color2, factor) => {
 // FIX: Reusable Vector3 — avoids heap allocation per vertex per frame
 const _vertex = new THREE.Vector3();
 
-export const Sphere = ({ analyser }) => {
+// Procedural studio lighting for the water look: gives the glossy surface something to reflect
+// without downloading an HDR from a CDN.
+const WaterEnvironment = () => {
+  const { gl, scene } = useThree();
+  useEffect(() => {
+    const pmrem = new THREE.PMREMGenerator(gl);
+    const env = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    scene.environment = env;
+    return () => {
+      scene.environment = null;
+      env.dispose();
+      pmrem.dispose();
+    };
+  }, [gl, scene]);
+  return null;
+};
+
+// Indexed (welded) icosphere: vertices are shared, so computeVertexNormals() yields smooth shading.
+// The default non-indexed one would look faceted, which is wrong for liquid.
+const createWaterGeometry = () => {
+  const geo = new THREE.IcosahedronGeometry(20, 10);
+  geo.deleteAttribute('normal');
+  geo.deleteAttribute('uv');
+  const welded = mergeVertices(geo);
+  welded.computeVertexNormals();
+  geo.dispose();
+  return welded;
+};
+
+// material: "wire" (retro wireframe, default) | "water" (glossy liquid sphere)
+export const Sphere = ({ analyser, material = 'wire' }) => {
+  const isWater = material === 'water';
+  const waterGeometry = useMemo(() => (isWater ? createWaterGeometry() : null), [isWater]);
+  useEffect(() => () => waterGeometry?.dispose(), [waterGeometry]);
+
   const meshRef = useRef();
   const materialRef = useRef();
   const noise3D = useRef(createNoise3D());
@@ -85,19 +121,25 @@ export const Sphere = ({ analyser }) => {
   useFrame(() => {
     if (!meshRef.current) return;
 
-    // Always rotate and cycle color
+    // Always rotate (and, for the wire look, cycle color)
     meshRef.current.rotation.x += 0.001;
     meshRef.current.rotation.y += 0.003;
     meshRef.current.rotation.z += 0.005;
 
-    const time = clock.getElapsedTime() * 0.1;
-    const colorIndex1 = Math.floor(time % retroWaveColors.length);
-    const colorIndex2 = (colorIndex1 + 1) % retroWaveColors.length;
-    const color = interpolateColor(retroWaveColors[colorIndex1], retroWaveColors[colorIndex2], time % 1);
-    if (materialRef.current) materialRef.current.color = color;
+    if (!isWater) {
+      const time = clock.getElapsedTime() * 0.1;
+      const colorIndex1 = Math.floor(time % retroWaveColors.length);
+      const colorIndex2 = (colorIndex1 + 1) % retroWaveColors.length;
+      const color = interpolateColor(retroWaveColors[colorIndex1], retroWaveColors[colorIndex2], time % 1);
+      if (materialRef.current) materialRef.current.color = color;
+    }
 
     // Frequency-driven deformation only when audio is active
-    if (!analyser || !isAudioConnected) return;
+    if (!analyser || !isAudioConnected) {
+      // Water keeps a gentle ripple at rest so it reads as a living liquid, not a frozen ball.
+      if (isWater) warpSphere(meshRef.current, 0, 0.1, 0.06);
+      return;
+    }
 
     const bufferLength = analyser.frequencyBinCount;
 
@@ -122,6 +164,32 @@ export const Sphere = ({ analyser }) => {
       modulate(upperAvgFr * 1.4, 0, 1, 0, 3)
     );
   });
+
+  if (isWater) {
+    return (
+      <>
+        <WaterEnvironment />
+        <directionalLight position={[40, 60, 80]} intensity={1.2} />
+        <mesh ref={meshRef} geometry={waterGeometry}>
+          <meshPhysicalMaterial
+            ref={materialRef}
+            color="#1f9bff"
+            emissive="#0359c4"
+            emissiveIntensity={0.3}
+            roughness={0.03}
+            metalness={0}
+            clearcoat={1}
+            clearcoatRoughness={0.02}
+            envMapIntensity={1.3}
+            transparent
+            opacity={0.5}
+            side={THREE.DoubleSide}
+            depthWrite={false}
+          />
+        </mesh>
+      </>
+    );
+  }
 
   return (
     <mesh ref={meshRef}>
