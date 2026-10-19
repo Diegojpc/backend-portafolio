@@ -25,7 +25,7 @@ slowapi==0.1.9
 boto3==1.38.0
 
 # AI / Agentic Core
-google-generativeai==0.8.4
+google-genai>=2.31.0,<3
 
 # Agent Tools & Web Scraping
 beautifulsoup4==4.13.3

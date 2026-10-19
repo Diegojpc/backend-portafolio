@@ -13,6 +13,7 @@ class AppSettings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env"),
         env_file_encoding="utf-8",
+        extra="ignore",  # .env may also carry unrelated keys (e.g. VITE_* copied from the frontend)
     )
 
     # Database
@@ -30,7 +31,7 @@ class AppSettings(BaseSettings):
     # AI Models
     model_name: Annotated[str, Field(
         alias="MODEL_NAME",
-        default="gemini-1.5-flash"
+        default="gemini-3.8-flash"
     )]
     embedding_model: Annotated[str, Field(
         alias="EMBEDDING_MODEL",
