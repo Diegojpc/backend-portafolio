@@ -19,9 +19,10 @@ npm run dev        # http://localhost:5173
 `frontend/.env` (gitignored) only needs the EmailJS keys for the contact form:
 `VITE_APP_EMAILJS_SERVICE_ID`, `VITE_APP_EMAILJS_TEMPLATE_ID`, `VITE_APP_EMAILJS_PUBLIC_KEY`.
 
-> The chat widget talks to the backend URL hardcoded as `BACKEND_URL` in
-> `frontend/src/components/chat/ChatWidget.jsx` (currently the Render deployment).
-> Change it to `http://localhost:8000` to use your local backend.
+> The chat widget picks its backend automatically: `npm run dev` uses `http://localhost:8000`,
+> production builds use the Render deployment. Override with `VITE_BACKEND_URL` in `frontend/.env`.
+> If a feature you enabled locally (e.g. the voice button) does not show up, check the browser's
+> network tab: the widget may be talking to a different backend than the one you started.
 
 ## Run the backend
 

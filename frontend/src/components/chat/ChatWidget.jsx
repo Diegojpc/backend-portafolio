@@ -6,7 +6,10 @@ import { useLanguage } from "../../context/LanguageContext";
 
 const VoiceCall = lazy(() => import("../call/VoiceCall"));
 
-const BACKEND_URL = "https://backend-portafolio-pa3u.onrender.com";
+// VITE_BACKEND_URL overrides everything; `npm run dev` talks to the local backend; production builds use Render.
+const BACKEND_URL =
+  import.meta.env.VITE_BACKEND_URL ||
+  (import.meta.env.DEV ? "http://localhost:8000" : "https://backend-portafolio-pa3u.onrender.com");
 
 const ChatWidget = () => {
   const [isOpen, setIsOpen] = useState(false);

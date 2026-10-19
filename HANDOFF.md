@@ -29,7 +29,7 @@ Estado vivo del proyecto. Actualizar al cerrar cada fase. Última actualización
 - `backend/app/database.py` solo soporta SQLite; `docs/` y `requirements.txt` describen Postgres/RDS.
 - `init_db()` hace `create_all` en cada arranque; Alembic no crea tablas en runtime.
 - `GET /contact` lista todos los mensajes sin autenticación. `Contact.jsx` envía por EmailJS, no usa `/contact`.
-- `ChatWidget.jsx` tiene `BACKEND_URL` hardcodeado (Render).
+- `ChatWidget.jsx`: `BACKEND_URL` ahora sale de `VITE_BACKEND_URL`, o `http://localhost:8000` en `npm run dev`, o Render en producción. (Antes estaba fijo en Render: en local el botón de voz no aparecía porque el `/health` de Render aún no tiene `realtime_voice`.)
 - `README.md` y `ARCHITECTURE.md` están obsoletos (TinyLlama/ChromaDB/Render/Hostinger).
 - `fetch_url` (`services/tools.py`) estaba roto y, activado, sería un SSRF (el servidor pediría URLs elegidas por el
   visitante; en AWS alcanzaría el endpoint de metadata). Quedó **desconectado** de `rag.py`. No reactivar sin allowlist/bloqueo de IPs privadas.
