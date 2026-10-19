@@ -7,6 +7,7 @@ import { mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { createNoise3D } from 'simplex-noise';
 import WebGLGuard from './WebGLGuard';
 import useInView from '../../hooks/useInView';
+import { clamp, maxSphereRadius, softClampRadius } from './sphereMath';
 
 // Helper functions
 const fractionate = (val, minVal, maxVal) => {
@@ -61,8 +62,11 @@ const WaterEnvironment = () => {
 
 // Indexed (welded) icosphere: vertices are shared, so computeVertexNormals() yields smooth shading.
 // The default non-indexed one would look faceted, which is wrong for liquid.
+const WATER_RADIUS = 20;
+const WATER_AMP = 0.3;
+
 const createWaterGeometry = () => {
-  const geo = new THREE.IcosahedronGeometry(20, 10);
+  const geo = new THREE.IcosahedronGeometry(WATER_RADIUS, 10);
   geo.deleteAttribute('normal');
   geo.deleteAttribute('uv');
   const welded = mergeVertices(geo);
@@ -91,11 +95,13 @@ export const Sphere = ({ analyser, material = 'wire' }) => {
     }
   }, [analyser]);
 
-  const warpSphere = (mesh, bassFr, midFr, treFr) => {
+  const warpSphere = (mesh, bassFr, midFr, treFr, maxRadius = Infinity, ampScale = 1) => {
     const pos = mesh.geometry.attributes.position;
 
-    const offset = mesh.geometry.parameters.radius * 1;
-    const amp = 5;
+    // The welded water geometry has no `parameters`, so fall back to its known radius.
+    const offset = mesh.geometry.parameters?.radius ?? WATER_RADIUS;
+    // Water uses gentler swells: the original amplitude folds the surface over itself (crumpled-plastic look).
+    const amp = 5 * ampScale;
     const time = window.performance.now();
     const rf = 0.00001;
 
@@ -103,12 +109,13 @@ export const Sphere = ({ analyser, material = 'wire' }) => {
       _vertex.fromBufferAttribute(pos, i);
       _vertex.normalize();
 
-      const distance = (offset + bassFr) +
+      const raw = (offset + bassFr) +
         noise3D.current(
           _vertex.x + time * rf * 4,
           _vertex.y + time * rf * 6,
           _vertex.z + time * rf * 7
         ) * amp * (treFr * 2 + midFr);
+      const distance = softClampRadius(raw, offset, maxRadius);
 
       _vertex.multiplyScalar(distance);
       pos.setXYZ(i, _vertex.x, _vertex.y, _vertex.z);
@@ -118,8 +125,17 @@ export const Sphere = ({ analyser, material = 'wire' }) => {
     mesh.geometry.computeVertexNormals();
   };
 
-  useFrame(() => {
+  useFrame((state) => {
     if (!meshRef.current) return;
+    // The water sphere must never leave its canvas, however loud the audio is.
+    let maxRadius = Infinity;
+    if (isWater) {
+      const fits = maxSphereRadius(state.camera.position.z, state.camera.fov, state.size.width / state.size.height);
+      // Very narrow canvases cannot even hold the resting sphere: shrink it, and bound the swell in local units.
+      const fit = Math.min(1, fits / (WATER_RADIUS * 1.25));
+      meshRef.current.scale.setScalar(fit);
+      maxRadius = fits / fit;
+    }
 
     // Always rotate (and, for the wire look, cycle color)
     meshRef.current.rotation.x += 0.001;
@@ -137,7 +153,7 @@ export const Sphere = ({ analyser, material = 'wire' }) => {
     // Frequency-driven deformation only when audio is active
     if (!analyser || !isAudioConnected) {
       // Water keeps a gentle ripple at rest so it reads as a living liquid, not a frozen ball.
-      if (isWater) warpSphere(meshRef.current, 0, 0.1, 0.06);
+      if (isWater) warpSphere(meshRef.current, 0, 0.1, 0.06, maxRadius, WATER_AMP);
       return;
     }
 
@@ -157,11 +173,16 @@ export const Sphere = ({ analyser, material = 'wire' }) => {
     const midAvgFr   = avg(midRange)  / midRange.length;
     const upperAvgFr = avg(upperHalf) / upperHalf.length;
 
+    // modulate() extrapolates past its range for loud input; bound each band to its intended range
+    // for the water sphere (the wireframe one keeps its original behaviour).
+    const bound = (v, hi) => (isWater ? clamp(v, 0, hi) : v);
     warpSphere(
       meshRef.current,
-      modulate(lowerMaxFr * 2, 0, 1, 0, 5),
-      modulate(midAvgFr   * 1.6, 0, 1, 0, 4),
-      modulate(upperAvgFr * 1.4, 0, 1, 0, 3)
+      bound(modulate(lowerMaxFr * 2, 0, 1, 0, 5), 5),
+      bound(modulate(midAvgFr   * 1.6, 0, 1, 0, 4), 4),
+      bound(modulate(upperAvgFr * 1.4, 0, 1, 0, 3), 3),
+      maxRadius,
+      isWater ? WATER_AMP : 1
     );
   });
 
