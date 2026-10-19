@@ -44,6 +44,16 @@ class AppSettings(BaseSettings):
     # AWS — optional; if set, RAG documents are loaded from this S3 bucket
     s3_bucket: Annotated[str, Field(alias="S3_BUCKET", default="")]
 
+    # Realtime voice (Fish Audio TTS). Disabled by default: it spends money per visitor.
+    realtime_enabled: Annotated[bool, Field(alias="REALTIME_ENABLED", default=False)]
+    fish_api_key: Annotated[str, Field(alias="FISH_API_KEY", default="")]
+    fish_model: Annotated[str, Field(alias="FISH_MODEL", default="s2.1-pro-free")]
+    fish_voice_id: Annotated[str, Field(alias="FISH_VOICE_ID", default="")]
+    realtime_daily_chars: Annotated[int, Field(alias="REALTIME_DAILY_CHARS", default=20000)]
+    realtime_max_turns: Annotated[int, Field(alias="REALTIME_MAX_TURNS", default=12)]
+    realtime_max_input_chars: Annotated[int, Field(alias="REALTIME_MAX_INPUT_CHARS", default=500)]
+    realtime_max_tts_chars: Annotated[int, Field(alias="REALTIME_MAX_TTS_CHARS", default=700)]
+
     # API Documentation
     enable_docs: Annotated[bool, Field(
         alias="ENABLE_DOCS",
@@ -64,6 +74,7 @@ def get_settings() -> AppSettings:
         logger.info(f"[Config] CORS origins: {settings.cors_origins_list}")
         logger.info(f"[Config] LLM model: {settings.model_name}")
         logger.info(f"[Config] Gemini API Key configured: {'Yes' if settings.gemini_api_key else 'No'}")
+        logger.info(f"[Config] Realtime voice enabled: {settings.realtime_enabled} (Fish key configured: {'Yes' if settings.fish_api_key else 'No'}, model={settings.fish_model})")
         logger.info(f"[Config] API Documentation enabled: {'Yes' if settings.enable_docs else 'No'}")
         return settings
     except Exception as e:

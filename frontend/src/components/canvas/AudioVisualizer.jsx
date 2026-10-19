@@ -40,7 +40,7 @@ const interpolateColor = (color1, color2, factor) => {
 // FIX: Reusable Vector3 — avoids heap allocation per vertex per frame
 const _vertex = new THREE.Vector3();
 
-const Sphere = ({ analyser }) => {
+export const Sphere = ({ analyser }) => {
   const meshRef = useRef();
   const materialRef = useRef();
   const noise3D = useRef(createNoise3D());

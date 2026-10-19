@@ -71,3 +71,23 @@ class ContactSubmission(Base):
         default=lambda: datetime.now(timezone.utc),
     )
     is_read: Mapped[bool] = mapped_column(default=False)
+
+
+class VoiceTurn(Base):
+    """One spoken turn of a voice call. Used to enforce per-call and daily cost caps."""
+
+    __tablename__ = "voice_turns"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    conversation_id: Mapped[int] = mapped_column(
+        ForeignKey("conversations.id", ondelete="CASCADE"),
+        index=True,
+    )
+    ip_hash: Mapped[str] = mapped_column(index=True)
+    input_chars: Mapped[int] = mapped_column(default=0)
+    tts_chars: Mapped[int] = mapped_column(default=0)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        index=True,
+    )

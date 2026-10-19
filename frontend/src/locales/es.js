@@ -57,6 +57,24 @@ export const es = {
       desc: "Demostración de un prototipo interactivo puramente elaborado sobre LangchainJS. Diseñado para responder a preguntas frecuentes mediante la inyección vectorial de documentos de texto proporcionando respuestas dotadas de memoria situacional."
     }
   },
+  call: {
+    start: "Iniciar llamada",
+    retry: "Reintentar",
+    hangUp: "Colgar",
+    interrupt: "Interrumpir",
+    backToChat: "Volver al chat",
+    listening: "Te escucho...",
+    thinking: "Pensando...",
+    speaking: "Hablando...",
+    notice: "Hablas con un avatar de IA, no con Diego. Tu voz se transcribe en tu navegador y el texto se envía a servicios de IA (Google Gemini y Fish Audio). Máx. 3 minutos.",
+    unsupported: "Tu navegador no soporta reconocimiento de voz. Usa Chrome o Edge, o escríbeme en el chat.",
+    errMic: "No pude acceder al micrófono. Revisa los permisos del navegador.",
+    errCallLimit: "Llegamos al límite de esta llamada. ¡Puedes seguir por el chat de texto!",
+    errDailyLimit: "El avatar de voz alcanzó su límite diario. Prueba mañana o usa el chat de texto.",
+    errDisabled: "La llamada de voz no está disponible ahora mismo.",
+    errGeneric: "Algo falló con la llamada. Intenta de nuevo o usa el chat de texto.",
+    open: "Llamada de voz",
+  },
   chat: {
     title: "Asistente Virtual",
     cloud: "Nube",

@@ -127,7 +127,7 @@ def _format_history_to_gemini(conversation_history: list[dict] | None) -> list[t
     ]
 
 
-def stream_response(prompt: str, conversation_history: list[dict] | None = None, use_local_model: bool = False):
+def stream_response(prompt: str, conversation_history: list[dict] | None = None, use_local_model: bool = False, mode: str = "chat"):
     """Stream a Gemini answer using the full knowledge base as system instruction."""
     if not _state["is_ready"]:
         logger.warning("[RAG] stream_response called before the knowledge base was ready.")
@@ -139,10 +139,15 @@ def stream_response(prompt: str, conversation_history: list[dict] | None = None,
         yield "Local Engine offline. PyTorch modules were stripped from this Free-Tier Production deployment to optimize memory. Please toggle switch to 'Cloud' mode to resume."
         return
 
-    logger.info(f"[RAG] Streaming prompt to Gemini model={settings.model_name} history={len(conversation_history or [])}")
+    logger.info(f"[RAG] Streaming prompt to Gemini model={settings.model_name} mode={mode} history={len(conversation_history or [])}")
 
     config = types.GenerateContentConfig(
-        system_instruction=build_system_instruction("chat", _state["global_context"]),
+        system_instruction=build_system_instruction(mode, _state["global_context"]),
+        # Spoken answers are short; cap output so a verbose model cannot burn TTS budget.
+        # gemini-3.8-flash spends output tokens on hidden "thinking": without disabling it, a 300-token cap
+        # left ~8 tokens for the actual answer. Spoken turns also need the lowest latency.
+        max_output_tokens=300 if mode in ("voice", "video") else None,
+        thinking_config=types.ThinkingConfig(thinking_budget=0) if mode in ("voice", "video") else None,
         # No tools on purpose: fetch_url would let visitors make the server request arbitrary URLs (SSRF).
     )
     chat_session = client.chats.create(

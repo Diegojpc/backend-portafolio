@@ -15,6 +15,7 @@ from app.database import engine, init_db
 from app.routers.contact import router as contact_router
 from app.routers.conversations import router as conversations_router
 from app.routers.documents import router as documents_router
+from app.routers.realtime import router as realtime_router
 
 
 @asynccontextmanager
@@ -39,6 +40,8 @@ async def lifespan(_: FastAPI):
 
     yield
 
+    from app.services.tts_fish import close_shared_client
+    await close_shared_client()
     logger.info("[Shutdown] Closing database connection...")
     await engine.dispose()
     logger.info("[Shutdown] Cleanup complete.")
@@ -72,6 +75,7 @@ app.add_middleware(
 app.include_router(conversations_router)
 app.include_router(documents_router)
 app.include_router(contact_router)
+app.include_router(realtime_router)
 
 
 @app.get("/", tags=["Health"])
@@ -91,4 +95,5 @@ def health_detail():
         "ai_model": settings.model_name,
         "embedding_model": settings.embedding_model,
         "rag_ready": is_ready(),
+        "realtime_voice": settings.realtime_enabled,
     }

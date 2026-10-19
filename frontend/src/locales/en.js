@@ -57,6 +57,24 @@ export const en = {
       desc: "This project showcases a conversational assistant prototype built with LangchainJS. It is designed to respond to frequently asked questions by leveraging a set of text documents and conversational memory to deliver context-aware answers."
     }
   },
+  call: {
+    start: "Start call",
+    retry: "Try again",
+    hangUp: "Hang up",
+    interrupt: "Interrupt",
+    backToChat: "Back to chat",
+    listening: "Listening...",
+    thinking: "Thinking...",
+    speaking: "Speaking...",
+    notice: "You are talking to an AI avatar, not Diego. Your voice is transcribed in your browser and the text is sent to AI services (Google Gemini and Fish Audio). Max. 3 minutes.",
+    unsupported: "Your browser does not support speech recognition. Use Chrome or Edge, or type in the chat.",
+    errMic: "I could not access the microphone. Check your browser permissions.",
+    errCallLimit: "We reached this call's limit. You can keep going in the text chat!",
+    errDailyLimit: "The voice avatar reached its daily limit. Try tomorrow or use the text chat.",
+    errDisabled: "Voice calls are not available right now.",
+    errGeneric: "Something went wrong with the call. Try again or use the text chat.",
+    open: "Voice call",
+  },
   chat: {
     title: "Virtual Assistant",
     cloud: "Cloud",

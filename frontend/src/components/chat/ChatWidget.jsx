@@ -1,8 +1,10 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, Suspense, lazy } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useLanguage } from "../../context/LanguageContext";
+
+const VoiceCall = lazy(() => import("../call/VoiceCall"));
 
 const BACKEND_URL = "https://backend-portafolio-pa3u.onrender.com";
 
@@ -14,6 +16,8 @@ const ChatWidget = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [isLocalMode, setIsLocalMode] = useState(false);
   const [conversationId, setConversationId] = useState(null);
+  const [voiceEnabled, setVoiceEnabled] = useState(false);
+  const [callOpen, setCallOpen] = useState(false);
   // "warming" | "ready" | "error"
   const [serverStatus, setServerStatus] = useState("warming");
   const messagesEndRef = useRef(null);
@@ -26,6 +30,7 @@ const ChatWidget = () => {
       try {
         const res = await fetch(`${BACKEND_URL}/health`, { signal: AbortSignal.timeout(60_000) });
         setServerStatus(res.ok ? "ready" : "error");
+        if (res.ok) setVoiceEnabled(Boolean((await res.json()).realtime_voice));
       } catch {
         setServerStatus("error");
       }
@@ -213,6 +218,17 @@ const ChatWidget = () => {
                     <span className={`text-xs ${isLocalMode ? "text-amber-500 font-bold" : "text-gray-400"}`}>{t('chat.local')}</span>
                   </label>
 
+                {voiceEnabled && (
+                  <button
+                    onClick={() => setCallOpen((v) => !v)}
+                    className={`transition-colors ${callOpen ? "text-[#915EFF]" : "text-white/60 hover:text-white"}`}
+                    title={t('call.open')}
+                    aria-label={t('call.open')}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="2" width="6" height="12" rx="3" /><path d="M5 10a7 7 0 0 0 14 0" /><path d="M12 19v3" /></svg>
+                  </button>
+                )}
+
                 <button
                   onClick={toggleChat}
                   className="text-white/60 hover:text-white transition-colors ml-2"
@@ -223,6 +239,22 @@ const ChatWidget = () => {
               </div>
             </div>
 
+            {callOpen ? (
+              <Suspense fallback={<div className="flex-1" />}>
+                <VoiceCall
+                  backendUrl={BACKEND_URL}
+                  conversationId={conversationId}
+                  onConversationId={setConversationId}
+                  onTurn={(userText, reply) => setMessages((prev) => [
+                    ...prev,
+                    { role: "user", content: userText },
+                    ...(reply ? [{ role: "assistant", content: reply }] : []),
+                  ])}
+                  onClose={() => setCallOpen(false)}
+                />
+              </Suspense>
+            ) : (
+            <>
             {/* Messages Area */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-[#915EFF] scrollbar-track-transparent">
               {messages.map((msg, idx) => (
@@ -305,6 +337,8 @@ const ChatWidget = () => {
                 </div>
               </div>
             </form>
+            </>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
