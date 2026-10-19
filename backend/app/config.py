@@ -49,6 +49,8 @@ class AppSettings(BaseSettings):
     fish_api_key: Annotated[str, Field(alias="FISH_API_KEY", default="")]
     fish_model: Annotated[str, Field(alias="FISH_MODEL", default="s2.1-pro-free")]
     fish_voice_id: Annotated[str, Field(alias="FISH_VOICE_ID", default="")]
+    # Optional second clone for English (e.g. recorded with English speech); falls back to FISH_VOICE_ID.
+    fish_voice_id_en: Annotated[str, Field(alias="FISH_VOICE_ID_EN", default="")]
     realtime_daily_chars: Annotated[int, Field(alias="REALTIME_DAILY_CHARS", default=20000)]
     realtime_max_turns: Annotated[int, Field(alias="REALTIME_MAX_TURNS", default=12)]
     realtime_max_input_chars: Annotated[int, Field(alias="REALTIME_MAX_INPUT_CHARS", default=500)]

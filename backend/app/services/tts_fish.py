@@ -19,7 +19,7 @@ class TtsError(Exception):
 
 
 class TtsProvider(Protocol):
-    def synthesize_stream(self, text: str) -> AsyncIterator[bytes]: ...
+    def synthesize_stream(self, text: str, language: str | None = None) -> AsyncIterator[bytes]: ...
 
 
 # One pooled client for the whole process: a fresh TLS handshake per sentence cost ~2s on the first byte.
@@ -51,7 +51,7 @@ class FishTts:
     def __init__(self, client: httpx.AsyncClient | None = None) -> None:
         self._client = client
 
-    async def synthesize_stream(self, text: str) -> AsyncIterator[bytes]:
+    async def synthesize_stream(self, text: str, language: str | None = None) -> AsyncIterator[bytes]:
         if not settings.fish_api_key:
             raise TtsError("FISH_API_KEY is not configured", status=503)
         body = {
@@ -60,11 +60,15 @@ class FishTts:
             "latency": "balanced",
             "normalize": True,
         }
-        if settings.fish_voice_id:
-            body["reference_id"] = settings.fish_voice_id
+        # Explicit language makes Fish use that language's phonetics instead of guessing per chunk.
+        if language in ("en", "es"):
+            body["language"] = language
+        voice_id = (settings.fish_voice_id_en if language == "en" else "") or settings.fish_voice_id
+        if voice_id:
+            body["reference_id"] = voice_id
         headers = {"Authorization": f"Bearer {settings.fish_api_key}", "model": settings.fish_model}
 
-        logger.info(f"[Fish] TTS request chars={len(text)} model={settings.fish_model} voice={'set' if settings.fish_voice_id else 'default'}")
+        logger.info(f"[Fish] TTS request chars={len(text)} lang={language or 'auto'} model={settings.fish_model} voice={'set' if voice_id else 'default'}")
         client = self._client or _get_shared_client()
         try:
             async with client.stream("POST", FISH_TTS_URL, json=body, headers=headers) as resp:

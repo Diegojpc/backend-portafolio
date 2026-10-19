@@ -10,10 +10,15 @@ from loguru import logger
 
 from app.config import settings
 
-_PROMPTS = {
-    "es": "Transcribe literalmente lo que se dice en este audio, en español. Responde SOLO con la transcripción, sin comillas ni comentarios. Nunca adivines ni inventes palabras: si no hay voz humana clara y entendible, responde con una cadena vacía.",
-    "en": "Transcribe verbatim what is said in this audio, in English. Reply with ONLY the transcript, no quotes or comments. Never guess or invent words: if there is no clear, intelligible human speech, reply with an empty string.",
-}
+# The UI language is only a hint: a visitor with the site in Spanish may well speak English (and vice versa),
+# so the model must transcribe the language actually spoken and never translate.
+_HINT = {"es": "Spanish", "en": "English"}
+_PROMPT = (
+    "Transcribe verbatim what is said in this audio. The speaker most likely speaks {hint}, but may speak "
+    "Spanish or English: write the words in the language actually spoken and NEVER translate. Reply with ONLY the "
+    "transcript, no quotes or comments. Never guess or invent words: if there is no clear, intelligible human speech, "
+    "reply with an empty string."
+)
 
 
 # Peak amplitude (of 32768) below which a clip is treated as silence and never sent to the model:
@@ -52,7 +57,7 @@ class GeminiStt:
     async def transcribe(self, wav: bytes, language: str) -> str:
         from app.services.rag import client  # shared google-genai client
 
-        lang = language if language in _PROMPTS else "es"
+        lang = language if language in _HINT else "es"
         if not has_signal(wav):
             logger.info(f"[STT] Skipped: audio has no signal (bytes={len(wav)})")
             return ""
@@ -61,7 +66,7 @@ class GeminiStt:
         try:
             resp = await client.aio.models.generate_content(
                 model=settings.model_name,
-                contents=[types.Part.from_bytes(data=wav, mime_type="audio/wav"), _PROMPTS[lang]],
+                contents=[types.Part.from_bytes(data=wav, mime_type="audio/wav"), _PROMPT.format(hint=_HINT[lang])],
                 config=types.GenerateContentConfig(
                     thinking_config=types.ThinkingConfig(thinking_budget=0),
                     max_output_tokens=300,

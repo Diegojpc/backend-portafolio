@@ -56,3 +56,26 @@ def split_sentences(chunks: Iterable[str]) -> Iterator[str]:
         emitted += 1
         yield tail
     logger.debug(f"[Speech] Split stream into {emitted} sentences")
+
+
+_EN_WORDS = frozenset("""the and is are was were of to in with for that this these those he his she her has have had on as at by from an
+i you your my me we our it its they them their can could will would should do does did not no yes what how why when where who which
+about also but or if so than then there here very more most some any all just only into over after before between through like
+experience skills works worked engineer developer data science software studied degree university""".split())
+_ES_WORDS = frozenset("""el la los las de del y es son fue fueron en con para por que este esta estos estas su sus se lo le les un una unos unas
+como más pero o si no sí qué cómo por qué cuándo dónde quién cuál sobre también muy todo todos tiene tienen ha han había hay ser estar
+trabajo trabajó experiencia habilidades ingeniero desarrollador datos ciencia estudió título universidad""".split())
+_WORD_RE = re.compile(r"[a-záéíóúñü]+")
+
+
+def detect_language(text: str) -> str | None:
+    """Cheap ES/EN detector for TTS hints. Returns "en", "es" or None when unsure (Fish then auto-detects).
+
+    Stopword counting is enough here: the sentences are our own short model replies in one of two languages.
+    """
+    words = _WORD_RE.findall(text.lower())
+    en = sum(w in _EN_WORDS for w in words)
+    es = sum(w in _ES_WORDS for w in words)
+    if en == es or max(en, es) < 2:
+        return None
+    return "en" if en > es else "es"

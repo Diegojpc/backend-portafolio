@@ -19,7 +19,7 @@ from app.database import DBSessionDep, async_session
 from app.entities import Conversation, VoiceTurn
 from app.schemas import VoiceTurnRequest
 from app.services.conversations import ConversationService
-from app.services.speech import split_sentences
+from app.services.speech import detect_language, split_sentences
 from app.services.stt import SttError, Transcriber, get_stt
 from app.services.tts_fish import TtsError, TtsProvider, get_tts
 
@@ -122,7 +122,7 @@ async def voice_turn(
             if first_sentence:
                 first_sentence = False
                 logger.info(f"[Realtime] First sentence from LLM after {(time.perf_counter() - t_start) * 1000:.0f}ms ({len(sentence)} chars)")
-            async for chunk in tts.synthesize_stream(sentence):
+            async for chunk in tts.synthesize_stream(sentence, detect_language(sentence)):
                 if first_audio:
                     first_audio = False
                     logger.info(f"[Realtime] First audio byte after {(time.perf_counter() - t_start) * 1000:.0f}ms")
