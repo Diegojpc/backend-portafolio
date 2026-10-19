@@ -48,6 +48,11 @@ class AppSettings(BaseSettings):
     realtime_enabled: Annotated[bool, Field(alias="REALTIME_ENABLED", default=False)]
     fish_api_key: Annotated[str, Field(alias="FISH_API_KEY", default="")]
     fish_model: Annotated[str, Field(alias="FISH_MODEL", default="s2.1-pro-free")]
+    # Delivery tuning that works WITHOUT re-cloning the voice. speed: 0.5-2.0 (1.0 = the clone's natural pace);
+    # temperature: 0-1, higher = more expressive/variable. FISH_SPEED_EN overrides the speed for English sentences.
+    fish_speed: Annotated[float, Field(alias="FISH_SPEED", default=1.15, ge=0.5, le=2.0)]
+    fish_speed_en: Annotated[float | None, Field(alias="FISH_SPEED_EN", default=None, ge=0.5, le=2.0)]
+    fish_temperature: Annotated[float, Field(alias="FISH_TEMPERATURE", default=0.7, ge=0.0, le=1.0)]
     fish_voice_id: Annotated[str, Field(alias="FISH_VOICE_ID", default="")]
     # Optional second clone for English (e.g. recorded with English speech); falls back to FISH_VOICE_ID.
     fish_voice_id_en: Annotated[str, Field(alias="FISH_VOICE_ID_EN", default="")]

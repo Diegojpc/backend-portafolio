@@ -54,11 +54,14 @@ class FishTts:
     async def synthesize_stream(self, text: str, language: str | None = None) -> AsyncIterator[bytes]:
         if not settings.fish_api_key:
             raise TtsError("FISH_API_KEY is not configured", status=503)
+        speed = settings.fish_speed_en if (language == "en" and settings.fish_speed_en) else settings.fish_speed
         body = {
             "text": text,
             "format": "mp3",
             "latency": "balanced",
             "normalize": True,
+            "temperature": settings.fish_temperature,
+            "prosody": {"speed": speed},
         }
         # Explicit language makes Fish use that language's phonetics instead of guessing per chunk.
         if language in ("en", "es"):
@@ -68,7 +71,7 @@ class FishTts:
             body["reference_id"] = voice_id
         headers = {"Authorization": f"Bearer {settings.fish_api_key}", "model": settings.fish_model}
 
-        logger.info(f"[Fish] TTS request chars={len(text)} lang={language or 'auto'} model={settings.fish_model} voice={'set' if voice_id else 'default'}")
+        logger.info(f"[Fish] TTS request chars={len(text)} lang={language or 'auto'} speed={speed} model={settings.fish_model} voice={'set' if voice_id else 'default'}")
         client = self._client or _get_shared_client()
         try:
             async with client.stream("POST", FISH_TTS_URL, json=body, headers=headers) as resp:
