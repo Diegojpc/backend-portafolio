@@ -45,7 +45,28 @@ Estado vivo del proyecto. Actualizar al cerrar cada fase. Última actualización
   Flash más reciente con capa gratuita (Gemini 4 Argon es solo de pago; 3.8 Flash pasa a $0.75/$3.75 por 1M tokens hasta el 31-dic-2026
   y se duplica el 1-ene-2027 si se sale del free tier). Probado con la clave actual.
 - Modelos Live disponibles con la clave: `gemini-3.8-live`, `gemini-2.5-flash-native-audio-latest`.
-- Pendiente de Fase 0: probar el endpoint HTTP `/conversations/{id}/chat` end-to-end y el deploy a producción.
+- Endpoint HTTP `/conversations/{id}/chat` probado de punta a punta (venv limpio, 2026-10-18). Pendiente: deploy a producción.
+- **Bug corregido:** `requirements.txt` fijaba `pydantic==2.10.4`, incompatible con `google-genai` (>=2.12.5): la instalación en entorno limpio fallaba (Docker/Render habrían fallado). Ahora `pydantic>=2.12.5,<3`.
+- README reescrito (era de TinyLlama/ChromaDB) con instrucciones para bash y fish; nuevo `backend/.env.example`.
+
+## Fase 1 (código escrito): llamada de voz
+Flujo: `VoiceCall.jsx` (SpeechRecognition del navegador) → `POST /realtime/voice/turn` → `rag.stream_response(mode="voice")` →
+`speech.split_sentences` → `tts_fish.FishTts` (HTTP streaming mp3) → audio en streaming → MediaSource (fallback blob en Safari).
+- Backend: `routers/realtime.py`, `services/{speech,tts_fish}.py`, entidad `VoiceTurn` + migración `a1c4e7d90b21`, vars en `config.py`
+  (`REALTIME_ENABLED` (default **false**), `FISH_API_KEY`, `FISH_MODEL` (default `s2.1-pro-free`), `FISH_VOICE_ID`, `REALTIME_DAILY_CHARS`=20000,
+  `REALTIME_MAX_TURNS`=12, `REALTIME_MAX_INPUT_CHARS`=500, `REALTIME_MAX_TTS_CHARS`=700). `/health` expone `realtime_voice`; el botón de micrófono solo aparece si es true.
+- Guardas: slowapi 12/min por IP, tope de turnos por llamada, tope diario global de caracteres TTS (persistido en `voice_turns`), kill switch, la clave de Fish nunca sale del servidor.
+- Frontend: `components/call/VoiceCall.jsx` (lazy), botón de micrófono en el header de `ChatWidget.jsx`, claves `call.*` en `locales/{es,en}.js`, esfera reutilizada (`Sphere` ahora exportada).
+- **Probado:** script con TTS falso + Gemini real + SQLite temporal: audio en streaming, historial, persistencia, 429 por turnos y por tope diario, 503 si el TTS falla antes del primer byte, 503 deshabilitado, 422 entrada larga, 404.
+  Chat y widget cargan en el build sin errores. **No probado:** audio real de Fish, reproducción MediaSource, SpeechRecognition (requiere micrófono y Chrome), latencia por turno, ES/EN en voz.
+- **Probado con Fish real** (`s2.1-pro-free`, voz clonada del usuario): mp3 válido (128 kbps, 44.1 kHz mono). Servidor real + curl, 3 turnos ES/EN:
+  primer byte de audio **2.1–2.6 s** tras recibir la petición (Gemini primera frase 1.4–2.0 s + Fish 0.6–0.9 s), sin contar el STT del navegador (+~0.5–1 s esperado).
+  La síntesis va más rápida que la reproducción: no hay huecos entre frases. Cliente HTTP de Fish compartido (la primera llamada con conexión nueva tardó 2.4 s solo en Fish).
+  Idea no aplicada para bajar latencia: cortar la primera frase en la primera coma (~30+ caracteres), a costa de prosodia menos natural.
+- Respuestas de voz: el prompt pide ≤35 palabras; salen ~35–45 palabras (12–20 s de audio). El usuario aún debe confirmar a oído que la voz es la suya.
+- Bug encontrado y corregido: `gemini-3.8-flash` gasta tokens en "pensar"; con `max_output_tokens=300` quedaban ~8 para la respuesta. En modo voz se usa `thinking_budget=0`.
+- Pendiente de la fase: Turnstile (necesita claves de Cloudflare), probar con clave Fish y `reference_id` reales, aviso de privacidad también en el modo chat, desplegar con las migraciones.
+- Para activar en local: `backend/.env` con `REALTIME_ENABLED=true`, `FISH_API_KEY=...`, `FISH_VOICE_ID=...`, y apuntar `BACKEND_URL` de `ChatWidget.jsx` al backend local.
 
 ## En curso: avatares de voz y video (plan completo en `~/.claude/plans/quiero-que-hagas-lo-mellow-dahl.md`)
 Decisiones del usuario: avatar de video realista premium, voz clonada con **Fish Audio**, presupuesto < $10/mes, chat con el último modelo gratuito de Gemini.
@@ -56,7 +77,7 @@ Créditos Higgsfield al 2026-10-18: 419.1 (plan starter).
 | Fase | Contenido | Estado |
 |---|---|---|
 | 0 | HANDOFF, migrar a `google-genai`, extraer `persona.py` | **hecho y probado** localmente (sin commitear) |
-| 1 | Llamada de voz con **Fish Audio** (decisión del usuario): STT → chat Gemini 3.8 Flash → TTS Fish con su voz clonada; guardas de costo, `RealtimeSession` | pendiente |
+| 1 | Llamada de voz con **Fish Audio**: STT del navegador → Gemini 3.8 Flash → TTS Fish con su voz clonada | **backend probado con Fish y Gemini reales (2026-10-18); falta probar en navegador (micrófono, MediaSource)** (sin commitear) |
 | 1b | (absorbida en 1: la voz clonada es Fish `reference_id`) | — |
 | 2a | Retrato y clips pre-renderizados con Higgsfield (pedir aprobación de costo antes de cada generación) | pendiente |
 | 2b | Avatar en tiempo real (Tavus/HeyGen LiveAvatar LITE) | **gate:** decidir presupuesto antes de escribir código |
