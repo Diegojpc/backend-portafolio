@@ -4,6 +4,7 @@ import { Preload, OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 import { createNoise3D } from 'simplex-noise';
 import WebGLGuard from './WebGLGuard';
+import useInView from '../../hooks/useInView';
 
 // Helper functions
 const fractionate = (val, minVal, maxVal) => {
@@ -136,6 +137,7 @@ const Sphere = ({ analyser }) => {
 
 export const AudioVisualizer = ({ audioElement }) => {
   const [isMobile, setIsMobile] = useState(false);
+  const [viewRef, inView] = useInView();
   const contextRef = useRef(null);
   const sourceRef = useRef(null);
   const analyserRef = useRef(null);
@@ -219,6 +221,8 @@ export const AudioVisualizer = ({ audioElement }) => {
   }, []);
 
   return (
+    <div ref={viewRef} style={{ width: "100%", height: "100%" }}>
+    {inView && (
     <WebGLGuard>
       <Canvas
         shadows
@@ -226,7 +230,7 @@ export const AudioVisualizer = ({ audioElement }) => {
           position: [0, 0, 100],
           fov: isMobile ? 65 : 80,
         }}
-        dpr={[1, 2]}
+        dpr={[1, 1.5]}
         gl={{ antialias: true }}
       >
         <ambientLight intensity={0.8} />
@@ -236,6 +240,8 @@ export const AudioVisualizer = ({ audioElement }) => {
         <Preload all />
       </Canvas>
     </WebGLGuard>
+    )}
+    </div>
   );
 };
 

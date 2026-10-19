@@ -3,9 +3,11 @@ import { Canvas } from "@react-three/fiber";
 import { useEffect } from "react";
 import * as THREE from "three";
 import WebGLGuard from "./WebGLGuard";
+import useInView from "../../hooks/useInView";
 
 const TechIconCardExperience = ({ model }) => {
   const scene = useGLTF(model.modelPath);
+  const [viewRef, inView] = useInView();
 
   useEffect(() => {
     if (model.name === "Interactive Developer") {
@@ -38,8 +40,10 @@ const TechIconCardExperience = ({ model }) => {
   );
 
   return (
+    <div ref={viewRef} style={{ width: "100%", height: "100%" }}>
+    {inView && (
     <WebGLGuard fallback={TechFallback}>
-      <Canvas>
+      <Canvas dpr={[1, 1.5]}>
         <ambientLight intensity={0.3} />
         <directionalLight position={[5, 5, 5]} intensity={1} />
         <spotLight
@@ -58,6 +62,8 @@ const TechIconCardExperience = ({ model }) => {
         <OrbitControls enableZoom={false} />
       </Canvas>
     </WebGLGuard>
+    )}
+    </div>
   );
 };
 

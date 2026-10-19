@@ -1,7 +1,7 @@
 // src/App.jsx
 
 import { BrowserRouter } from "react-router-dom";
-import { useState, useEffect, Suspense, lazy } from 'react';
+import { useState, useEffect, useCallback, Suspense, lazy } from 'react';
 import { Hero, Navbar } from './components';
 
 import ChatWidget from './components/chat/ChatWidget';
@@ -37,11 +37,13 @@ const dismissSplash = () => {
 const App = () => {
   const [audioElement, setAudioElement] = useState(null);
   const [wavesLoaded, setWavesLoaded] = useState(false);
+  // Below-the-fold sections (and their canvases) mount only after the waves are up.
+  const [restReady, setRestReady] = useState(false);
 
   useEffect(() => {
     dismissSplash();
 
-    // 3-second safety fail-safe timeout
+    // Safety fail-safe: never keep the Hero text hostage to WebGL
     const fallbackTimeout = setTimeout(() => {
       setWavesLoaded((loaded) => {
         if (!loaded) {
@@ -50,15 +52,28 @@ const App = () => {
         }
         return loaded;
       });
-    }, 3000);
+    }, 1500);
 
     return () => clearTimeout(fallbackTimeout);
   }, []);
 
-  const handleWavesReady = () => {
+  const handleWavesReady = useCallback(() => {
     setWavesLoaded(true);
     console.info('[App] Waves loaded callback received.');
-  };
+  }, []);
+
+  // Mount the rest of the page once the waves are ready (or the Hero was forced),
+  // yielding to the browser via idle callback so first frames are not competing.
+  useEffect(() => {
+    if (!wavesLoaded || restReady) return;
+    const schedule = window.requestIdleCallback || ((cb) => setTimeout(cb, 200));
+    const cancel = window.cancelIdleCallback || clearTimeout;
+    const id = schedule(() => {
+      console.info('[App] Mounting below-the-fold sections.');
+      setRestReady(true);
+    }, { timeout: 2000 });
+    return () => cancel(id);
+  }, [wavesLoaded, restReady]);
 
   return (
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
@@ -74,6 +89,7 @@ const App = () => {
             </div>
           </div>
         </div>
+        {restReady && (
         <Suspense fallback={null}>
           <About />
           <Tech />
@@ -86,6 +102,7 @@ const App = () => {
             <StarsCanvas />
           </div>
         </Suspense>
+        )}
       </div>
       <ChatWidget />
     </BrowserRouter>
