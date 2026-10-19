@@ -72,6 +72,7 @@ Flujo: `VoiceCall.jsx` (SpeechRecognition del navegador) → `POST /realtime/voi
   **Hallazgo:** con silencio o ruido el modelo inventa texto ("¡Tontos!"). El silencio digital se filtra en el servidor; el ruido de fondo lo filtra el VAD del cliente (umbral = 3× el ruido ambiente aprendido, mínimo 400 ms de voz). Ruido blanco constante fuerte aún puede colarse.
   **Probado:** WAV generado con TTS → transcripción exacta (ES) y correcta (EN); 415/422/413/503; en Brave real: error de reconocimiento → cambio automático → micrófono → VAD → STT → turno → audio ("HABLANDO…") sin errores.
   **No probado:** voz humana real por micrófono físico en Brave/Firefox, Safari/iOS (MediaSource, AudioWorklet), latencia total con voz real (esperable: 0.9 s de silencio final + STT ~1 s + turno ~2.3 s).
+- **Bug de maquetación corregido:** el panel de llamada (500 px fijos, `overflow-hidden`) dejaba el botón "Iniciar llamada" a 14 px del borde y recortaba "Volver al chat"; con más zoom/fuente o pantallas bajas el botón desaparecía. Ahora los botones están fijos abajo (`shrink-0`), la esfera mide `h-32` y solo el medio hace scroll. Verificado a 1100x520, 375x640 móvil y 834x754.
 - Pendiente de la fase: Turnstile (necesita claves de Cloudflare), probar con clave Fish y `reference_id` reales, aviso de privacidad también en el modo chat, desplegar con las migraciones.
 - Para activar en local: `backend/.env` con `REALTIME_ENABLED=true`, `FISH_API_KEY=...`, `FISH_VOICE_ID=...`, y apuntar `BACKEND_URL` de `ChatWidget.jsx` al backend local.
 
