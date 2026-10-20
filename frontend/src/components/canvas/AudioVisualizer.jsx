@@ -6,7 +6,7 @@ import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment
 import { mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { createNoise3D } from 'simplex-noise';
 import WebGLGuard from './WebGLGuard';
-import useInView from '../../hooks/useInView';
+import useLazyCanvas from '../../hooks/useLazyCanvas';
 import { clamp, maxSphereRadius, softClampRadius } from './sphereMath';
 
 // Helper functions
@@ -226,7 +226,7 @@ export const Sphere = ({ analyser, material = 'wire' }) => {
 
 export const AudioVisualizer = ({ audioElement }) => {
   const [isMobile, setIsMobile] = useState(false);
-  const [viewRef, inView] = useInView();
+  const [viewRef, mounted, visible] = useLazyCanvas({ rootMargin: '800px', warmupMs: 7500 });
   const contextRef = useRef(null);
   const sourceRef = useRef(null);
   const analyserRef = useRef(null);
@@ -311,7 +311,7 @@ export const AudioVisualizer = ({ audioElement }) => {
 
   return (
     <div ref={viewRef} style={{ width: "100%", height: "100%" }}>
-    {inView && (
+    {mounted && (
     <Suspense fallback={null}>
     <WebGLGuard>
       <Canvas
@@ -320,7 +320,8 @@ export const AudioVisualizer = ({ audioElement }) => {
           position: [0, 0, 100],
           fov: isMobile ? 65 : 80,
         }}
-        dpr={[1, 1.5]}
+        dpr={[1, 2]}
+        frameloop={visible ? 'always' : 'demand'}
         gl={{ antialias: true }}
       >
         <ambientLight intensity={0.8} />

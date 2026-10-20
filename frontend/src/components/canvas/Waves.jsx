@@ -84,8 +84,9 @@ const WaveMesh = ({ position, rotation, factor, speed, scale, size, isMobile, se
   // Wall-clock offset so the noise cycle is never near 0 on mount.
   const timeOffset = useMemo(() => performance.now() / 1000, []);
 
-  const segmentsX = isMobile ? 60 : 128;
-  const segmentsY = isMobile ? 40 : 64;
+  // Same density as the original design: the displacement runs on the GPU now, so the extra vertices are almost free.
+  const segmentsX = isMobile ? 60 : 180;
+  const segmentsY = isMobile ? 40 : 90;
 
   // Flat unit plane: no CPU vertex work at mount, rebuilt only when density changes.
   const geometry = useMemo(
@@ -217,7 +218,7 @@ const WavesCanvas = ({ onReady }) => {
   const [size, setSize] = useState(window.innerWidth);
   const [mobile, setMobile] = useState(isMobileDevice);
   const [waveReady, setWaveReady] = useState(false);
-  const [dprMax, setDprMax] = useState(mobile ? 1 : 1.5);
+  const [dprMax, setDprMax] = useState(mobile ? 1 : 2);
 
   useEffect(() => {
     // If WebGL is not supported, notify the parent immediately

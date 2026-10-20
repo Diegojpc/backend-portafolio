@@ -3,7 +3,7 @@ import { Canvas } from "@react-three/fiber";
 import { Suspense, useEffect } from "react";
 import * as THREE from "three";
 import WebGLGuard from "./WebGLGuard";
-import useInView from "../../hooks/useInView";
+import useLazyCanvas from "../../hooks/useLazyCanvas";
 import { techStackIcons } from "../../constants";
 
 // Download the models in the background as soon as this chunk loads, without suspending any UI.
@@ -34,8 +34,14 @@ const TechModel = ({ model }) => {
   );
 };
 
+// The canvas used to size itself to the browser default (300x150); the card is reserved at that exact size so the
+// grid does not reflow (24px -> 353px, a 4-card row turning into 2 rows) when the canvas appears.
+const CARD_CANVAS_STYLE = { width: "300px", height: "150px" };
+
 const TechIconCardExperience = ({ model }) => {
-  const [viewRef, inView] = useInView();
+  // Stagger the warm-up (one canvas per slot) so the four never build at the same moment.
+  const slot = Math.max(0, techStackIcons.findIndex((m) => m.name === model.name));
+  const [viewRef, mounted, visible] = useLazyCanvas({ rootMargin: "800px", warmupMs: 2500 + slot * 800 });
 
   const TechFallback = (
     <div
@@ -56,11 +62,11 @@ const TechIconCardExperience = ({ model }) => {
   );
 
   return (
-    <div ref={viewRef} style={{ width: "100%", height: "100%" }}>
-      {inView && (
+    <div ref={viewRef} style={CARD_CANVAS_STYLE}>
+      {mounted && (
         <Suspense fallback={null}>
         <WebGLGuard fallback={TechFallback}>
-          <Canvas dpr={[1, 1.5]}>
+          <Canvas dpr={[1, 2]} frameloop={visible ? "always" : "demand"}>
             <ambientLight intensity={0.3} />
             <directionalLight position={[5, 5, 5]} intensity={1} />
             <spotLight

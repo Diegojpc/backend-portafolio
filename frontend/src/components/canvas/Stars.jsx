@@ -3,7 +3,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { Points, PointMaterial, Preload } from "@react-three/drei";
 import * as THREE from 'three';
 import WebGLGuard from "./WebGLGuard";
-import useInView from "../../hooks/useInView";
+import useLazyCanvas from "../../hooks/useLazyCanvas";
 
 // Función personalizada para generar puntos dentro de una esfera
 function generatePointsInSphere(count, radius) {
@@ -53,13 +53,13 @@ const Stars = (props) => {
 };
 
 const StarsCanvas = () => {
-  const [viewRef, inView] = useInView();
+  const [viewRef, mounted, visible] = useLazyCanvas({ rootMargin: "800px", warmupMs: 6500 });
   return (
     <div ref={viewRef} className='w-full h-auto absolute inset-0 z-[-1]'>
-      {inView && (
+      {mounted && (
       <Suspense fallback={null}>
       <WebGLGuard fallback={null}>
-        <Canvas dpr={[1, 1.5]} camera={{ position: [0, 0, 1] }}>
+        <Canvas dpr={[1, 2]} frameloop={visible ? "always" : "demand"} camera={{ position: [0, 0, 1] }}>
           <Suspense fallback={null}>
             <Stars />
           </Suspense>
