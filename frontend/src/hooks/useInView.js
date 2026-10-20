@@ -19,8 +19,10 @@ const useInView = (rootMargin = "200px") => {
       setInView(true);
       return;
     }
+    // One callback can deliver several entries (e.g. "left" then "entered" during a slide-in animation):
+    // the LAST one is the current state. Reading entries[0] left the canvas unmounted while on screen.
     const observer = new IntersectionObserver(
-      ([entry]) => setInView(entry.isIntersecting),
+      (entries) => setInView(entries[entries.length - 1].isIntersecting),
       { rootMargin }
     );
     observer.observe(el);

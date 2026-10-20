@@ -146,3 +146,12 @@ por IP y Turnstile antes de emitir tokens; kill switch por variable de entorno.
 - Residual conocido: el documento fluctúa entre ~6263 y ~6592 px mientras carga (≈330 px; probablemente imágenes de Proyectos sin tamaño reservado). No reinicia el scroll, pero se puede pulir con `width`/`height` o `aspect-ratio`.
 - La esfera de alambre de Contacto no tiene tope de radio (sigue como el original, se recorta en los bordes del canvas en golpes fuertes); la de agua del chat de voz sí.
 - Frontend-only: **para producción basta subir el paquete `frontend/dist/_upload-code-only.zip`** a Hostinger; el backend no cambia (no hace falta empujar a `master`, y un push reinicia Render y borra su base efímera).
+
+## Tercera regresión (2026-10-19): `useInView` leía solo el primer evento del observador
+- **Síntoma:** a veces la esfera de Contacto no aparecía o desaparecía; reportado además como "aumentó de tamaño".
+- **Causa (medida):** un `IntersectionObserver` puede entregar VARIOS eventos en un mismo callback (aquí "salió" y "entró" por la animación de entrada de la sección). Mi hook usaba `([entry])` = el primero (`false`), desmontaba el canvas y, como el elemento seguía visible, nunca llegaba otro evento para volver a montarlo.
+  Arreglo: usar el ÚLTIMO (`entries[entries.length - 1]`). Aplica a los 3 canvas con carga diferida (Tech, Stars, AudioVisualizer).
+- **Sobre el "tamaño":** medido contra el código original (commit `07ccb3e`, worktree temporal) con el mismo viewport: canvas de Contacto 599×775 en ambos, esfera en reposo ≈207 px en ambos, y con la misma canción a los 4.6 s 342 px (actual) vs 343 px (original). Con el mismo espectro de audio forzado, ambos dan la misma "flor". No encontré ningún cambio de tamaño intencional ni accidental en esa esfera; la causa más probable de lo percibido es el montar/desmontar del bug anterior.
+  (La esfera de agua del chat de voz SÍ la había acercado: cámara z 100→58 a propósito; el usuario confirmó que esa está bien y se mantiene.)
+- Verificación final del build: 2 corridas de scroll continuo con CPU 4x + Fast 4G: 0 saltos grandes, 0 colapsos de altura, llega al final y la esfera de Contacto queda montada.
+- Lección de método: al comparar contra "antes", usar la misma entrada (misma canción, mismo instante, mismo espectro) en ambas versiones; mi primera comparación mezcló un parche de espectro con música real.
