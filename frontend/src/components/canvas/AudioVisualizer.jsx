@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, useMemo } from 'react';
+import { useRef, useState, useEffect, useMemo, Suspense } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Preload, OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
@@ -312,6 +312,7 @@ export const AudioVisualizer = ({ audioElement }) => {
   return (
     <div ref={viewRef} style={{ width: "100%", height: "100%" }}>
     {inView && (
+    <Suspense fallback={null}>
     <WebGLGuard>
       <Canvas
         shadows
@@ -324,11 +325,15 @@ export const AudioVisualizer = ({ audioElement }) => {
       >
         <ambientLight intensity={0.8} />
         <directionalLight position={[0, 50, 100]} intensity={0.8} />
-        <Sphere analyser={isAudioReady ? analyserRef.current : null} />
+        {/* Keep any pending load inside the canvas: see TechIconCardExperience.jsx */}
+        <Suspense fallback={null}>
+          <Sphere analyser={isAudioReady ? analyserRef.current : null} />
+        </Suspense>
         <OrbitControls enableZoom={false} enablePan={false} />
         <Preload all />
       </Canvas>
     </WebGLGuard>
+    </Suspense>
     )}
     </div>
   );

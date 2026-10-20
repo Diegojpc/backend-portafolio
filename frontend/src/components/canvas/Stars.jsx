@@ -57,6 +57,7 @@ const StarsCanvas = () => {
   return (
     <div ref={viewRef} className='w-full h-auto absolute inset-0 z-[-1]'>
       {inView && (
+      <Suspense fallback={null}>
       <WebGLGuard fallback={null}>
         <Canvas dpr={[1, 1.5]} camera={{ position: [0, 0, 1] }}>
           <Suspense fallback={null}>
@@ -65,6 +66,7 @@ const StarsCanvas = () => {
           <Preload all />
         </Canvas>
       </WebGLGuard>
+      </Suspense>
       )}
     </div>
   );
