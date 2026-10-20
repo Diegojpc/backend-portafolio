@@ -114,3 +114,12 @@ por IP y Turnstile antes de emitir tokens; kill switch por variable de entorno.
 - `s2.1-pro-free`: $0 "bajo fair use", sin límites publicados, sin garantías de latencia. La doc no dice nada sobre uso comercial ni datos.
 - **No verificado:** precio de `s2.1-pro` (terceros: ~$15 por 1M bytes UTF-8), límites de concurrencia, requisitos del clon (terceros: 10–30 s de audio), si la clave de API puede restringirse.
 - Implicación de diseño: la API key de Fish debe quedarse en el servidor (no hay tokens efímeros documentados), así que el audio del avatar pasa por el backend.
+
+## Correo del formulario de contacto (2026-10-19)
+- **El correo lo envía el navegador con EmailJS** (`Contact.jsx` → `@emailjs/browser`), no el backend. El backend no necesita ninguna variable de correo (y no envía ninguno); las
+  `VITE_APP_EMAILJS_*` van en `frontend/.env` y **se incrustan en el bundle al hacer `npm run build`** (verificado: el chunk de Contact las contiene). El router `POST/GET /contact` del backend no se usa.
+- **Probado** en local con el formulario real: EmailJS respondió HTTP 200 "OK", sale un `alert` de éxito y el formulario se limpia (mensaje "[PRUEBA]" enviado a `diegojosepc3@hotmail.com`, dirección fija en el código).
+  200 significa que EmailJS lo aceptó; **la entrega a la bandeja (o a spam) la confirma el usuario**.
+- Pendiente/riesgos: (1) el destinatario `to_email` se envía desde el cliente; si el template de EmailJS usa `{{to_email}}` como destinatario, cualquiera con la clave pública (visible en el bundle) puede mandar correos a quien quiera
+  desde la cuenta del usuario → fijar el "To Email" en el template, quitar `to_email` del código y activar en EmailJS la lista de dominios permitidos y/o reCAPTCHA (no verificable desde aquí); (2) el formulario no valida campos vacíos ni deshabilita el botón al enviar (doble envío);
+  usa `alert()`; (3) el plan gratuito de EmailJS tiene cupo mensual limitado; (4) `GET /contact` del backend lista mensajes sin autenticación (hoy vacío porque nada lo usa): eliminar o proteger el router.
