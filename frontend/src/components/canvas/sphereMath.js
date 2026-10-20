@@ -22,6 +22,8 @@ export const maxSphereRadius = (cameraZ, fovDeg, aspect, margin = 0.88) => {
  */
 export const softClampRadius = (distance, base, maxR) => {
   if (distance <= base) return distance;
+  // No bound requested (the wireframe sphere): without this, Infinity * tanh(0) is NaN and every vertex vanishes.
+  if (!Number.isFinite(maxR)) return distance;
   const room = Math.max(maxR - base, 0.001);
   return base + room * Math.tanh((distance - base) / room);
 };
