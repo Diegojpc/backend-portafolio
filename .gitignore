@@ -42,3 +42,5 @@ Building Generative AI Services with FastAPI/
 
 # CLAUDE
 CLAUDE.md
+# Claude hook log
+.claude/hooks/hooks.log
