@@ -78,6 +78,8 @@ export const es = {
     errDisabled: "La llamada de voz no está disponible ahora mismo.",
     errGeneric: "Algo falló con la llamada. Intenta de nuevo o usa el chat de texto.",
     open: "Llamada de voz",
+    connecting: "Llamada de voz (esperando al servidor...)",
+    unavailable: "Llamada de voz (servidor sin respuesta, se reintentará)",
   },
   chat: {
     title: "Asistente Virtual",
@@ -91,7 +93,8 @@ export const es = {
     fetchError: "Fallo en la comunicación con el servidor central",
     fallbackError: "Disculpa, estoy experimentando fallos de conexión al cerebro de la IA. Por favor, intenta de nuevo.",
     welcome: "¡Hola! Soy el Asistente Inteligente de Diego. ¿Hay algo en lo que te pueda ayudar?",
-    warming: "iniciando servidor..."
+    warming: "iniciando servidor...",
+    offline: "sin conexión"
   },
   experience: {
     subtitle: "Lo que he hecho hasta ahora",

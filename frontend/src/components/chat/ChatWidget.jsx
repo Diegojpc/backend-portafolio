@@ -11,6 +11,41 @@ const BACKEND_URL =
   import.meta.env.VITE_BACKEND_URL ||
   (import.meta.env.DEV ? "http://localhost:8000" : "https://backend-portafolio-pa3u.onrender.com");
 
+// Last /health answer for voice, so the mic can show on the next visit while the backend is still waking up.
+const VOICE_CACHE_KEY = "portfolio_voice";
+const HEALTH_TIMEOUT_MS = 60_000;
+// Render's free tier can take 40+ s to wake; retry instead of hiding the mic after one failed ping.
+const HEALTH_RETRY_DELAYS_MS = [2_000, 4_000, 8_000, 15_000, 30_000];
+
+// null = unknown, true/false = last known /health answer
+const readVoiceCache = () => {
+  try {
+    const saved = localStorage.getItem(VOICE_CACHE_KEY);
+    return saved === null ? null : saved === "1";
+  } catch {
+    return null;
+  }
+};
+
+const writeVoiceCache = (enabled) => {
+  try {
+    localStorage.setItem(VOICE_CACHE_KEY, enabled ? "1" : "0");
+  } catch {
+    // storage blocked (private mode): the mic just won't be remembered
+  }
+};
+
+// AbortController instead of AbortSignal.timeout(): the latter throws on Safari < 16 and would hide the mic forever.
+const fetchHealth = async () => {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), HEALTH_TIMEOUT_MS);
+  try {
+    return await fetch(`${BACKEND_URL}/health`, { signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+};
+
 const ChatWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
@@ -19,7 +54,8 @@ const ChatWidget = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [isLocalMode, setIsLocalMode] = useState(false);
   const [conversationId, setConversationId] = useState(null);
-  const [voiceEnabled, setVoiceEnabled] = useState(false);
+  // null until /health answers (or a cached answer exists); false only when the backend says voice is off
+  const [voiceEnabled, setVoiceEnabled] = useState(readVoiceCache);
   const [callOpen, setCallOpen] = useState(false);
   // "warming" | "ready" | "error"
   const [serverStatus, setServerStatus] = useState("warming");
@@ -27,19 +63,60 @@ const ChatWidget = () => {
   const fileInputRef = useRef(null);
   const { t } = useLanguage();
 
-  // Warm-up ping: fires on page load so the server is ready before the user opens chat
+  // Warm-up ping: fires on page load so the server is ready before the user opens chat.
+  // Retries with backoff, and starts over when the tab comes back or the network returns (iOS suspends
+  // background tabs and kills their fetches).
   useEffect(() => {
-    const warmUp = async () => {
+    let cancelled = false;
+    let failed = false;
+    let retryTimer;
+
+    const warmUp = async (attempt = 0) => {
       try {
-        const res = await fetch(`${BACKEND_URL}/health`, { signal: AbortSignal.timeout(60_000) });
-        setServerStatus(res.ok ? "ready" : "error");
-        if (res.ok) setVoiceEnabled(Boolean((await res.json()).realtime_voice));
-      } catch {
-        setServerStatus("error");
+        const res = await fetchHealth();
+        if (!res.ok) throw new Error(`/health returned ${res.status}`);
+        const voice = Boolean((await res.json()).realtime_voice);
+        if (cancelled) return;
+        failed = false;
+        setServerStatus("ready");
+        setVoiceEnabled(voice);
+        writeVoiceCache(voice);
+      } catch (err) {
+        if (cancelled) return;
+        const delay = HEALTH_RETRY_DELAYS_MS[attempt];
+        console.warn(`[ChatWidget] /health attempt ${attempt + 1} failed (${err}); ${delay === undefined ? "giving up" : `retrying in ${delay} ms`}`);
+        if (delay === undefined) {
+          failed = true;
+          setServerStatus("error");
+          return;
+        }
+        retryTimer = setTimeout(() => warmUp(attempt + 1), delay);
       }
     };
+
+    const restart = () => {
+      if (!failed) return;
+      failed = false;
+      setServerStatus("warming");
+      warmUp();
+    };
+    const onVisible = () => {
+      if (document.visibilityState === "visible") restart();
+    };
+
     warmUp();
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("online", restart);
+    return () => {
+      cancelled = true;
+      clearTimeout(retryTimer);
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("online", restart);
+    };
   }, []);
+
+  const voiceReady = serverStatus === "ready" && voiceEnabled === true;
+  const voiceHint = voiceReady ? t('call.open') : serverStatus === "error" ? t('call.unavailable') : t('call.connecting');
 
   // Auto-scroll to bottom of messages
   const scrollToBottom = () => {
@@ -197,6 +274,9 @@ const ChatWidget = () => {
                 {serverStatus === "warming" && (
                   <span className="text-[10px] text-yellow-400/80 font-normal">{t('chat.warming')}</span>
                 )}
+                {serverStatus === "error" && (
+                  <span className="text-[10px] text-red-400/80 font-normal">{t('chat.offline')}</span>
+                )}
               </div>
 
               <div className="flex items-center gap-1 shrink-0">
@@ -222,12 +302,13 @@ const ChatWidget = () => {
                     <span className={`text-xs ${isLocalMode ? "text-amber-500 font-bold" : "text-gray-400"}`}>{t('chat.local')}</span>
                   </label>
 
-                {voiceEnabled && (
+                {voiceEnabled !== false && (
                   <button
                     onClick={() => setCallOpen((v) => !v)}
-                    className={`p-2.5 rounded-full transition-colors ${callOpen ? "text-[#915EFF] bg-white/5" : "text-white/60 hover:text-white"}`}
-                    title={t('call.open')}
-                    aria-label={t('call.open')}
+                    disabled={!voiceReady}
+                    className={`p-2.5 rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${!voiceReady && serverStatus === "warming" ? "animate-pulse" : ""} ${callOpen ? "text-[#915EFF] bg-white/5" : "text-white/60 hover:text-white"}`}
+                    title={voiceHint}
+                    aria-label={voiceHint}
                     data-testid="open-call"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="2" width="6" height="12" rx="3" /><path d="M5 10a7 7 0 0 0 14 0" /><path d="M12 19v3" /></svg>

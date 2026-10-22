@@ -78,6 +78,8 @@ export const en = {
     errDisabled: "Voice calls are not available right now.",
     errGeneric: "Something went wrong with the call. Try again or use the text chat.",
     open: "Voice call",
+    connecting: "Voice call (waiting for the server...)",
+    unavailable: "Voice call (server unreachable, will retry)",
   },
   chat: {
     title: "Virtual Assistant",
@@ -91,7 +93,8 @@ export const en = {
     fetchError: "Failed to communicate with AI server",
     fallbackError: "Sorry, I am having trouble connecting to my server. Please try again later.",
     welcome: "Hi! I am Diego's AI Assistant. How can I help you today?",
-    warming: "warming up..."
+    warming: "warming up...",
+    offline: "no connection"
   },
   experience: {
     subtitle: "What I have done so far",
