@@ -158,7 +158,7 @@ export const en = {
       certification: "Certif.",
     },
     items: {
-      e1: { degree: "Cloud Architecture – Advanced Innovator Level" },
+      e1: { degree: "Cloud Architecture Bootcamp – Advanced Level (159 h)" },
       e2: { degree: "IBM AI Engineering Professional Certificate" },
       e3: { degree: "Postgraduate Specialization in Software Development" },
       e4: { degree: "Machine Learning Basics" },

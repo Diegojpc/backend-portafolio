@@ -158,8 +158,8 @@ export const getExperiences = (t) => [
 export const getEducation = (t) => [
   {
     degree: t('education.items.e1.degree'),
-    institution: 'Talento Tech (MinTIC)',
-    period: 'Apr 2026 – Present',
+    institution: 'Talento Tech (MinTIC) · IU Training',
+    period: '2026',
     type: 'certification',
   },
   {

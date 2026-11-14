@@ -158,7 +158,7 @@ export const es = {
       certification: "Certif.",
     },
     items: {
-      e1: { degree: "Arquitectura Cloud – Nivel Innovador Avanzado" },
+      e1: { degree: "Bootcamp de Arquitectura en la Nube – Nivel Avanzado (159 h)" },
       e2: { degree: "Certificado Profesional en Ingeniería de IA de IBM" },
       e3: { degree: "Especialización en Desarrollo de Software" },
       e4: { degree: "Fundamentos de Machine Learning" },
