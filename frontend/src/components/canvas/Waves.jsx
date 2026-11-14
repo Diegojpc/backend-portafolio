@@ -246,6 +246,7 @@ const Waves = ({ size, isMobile, audioElement, sceneRef }) => {
     nextPulse: 0,
     sinceOnset: 1,
     prevBass: 0,
+    ringColor: "",
   });
   const pulseEls = useRef(null);
 
@@ -323,6 +324,14 @@ const Waves = ({ size, isMobile, audioElement, sceneRef }) => {
     if (scene) {
       scene.style.setProperty("--bass", a.out.bass.toFixed(3));
       scene.style.setProperty("--high", a.out.high.toFixed(3));
+      // Ring, pulses and horizon follow the mesh's colour cycle (sRGB hex; only written on change).
+      const ring = `#${shared.uBase.value.getHexString()}`;
+      const ringPeak = `#${shared.uPeak.value.getHexString()}`;
+      if (ring !== a.ringColor) {
+        a.ringColor = ring;
+        scene.style.setProperty("--ring", ring);
+        scene.style.setProperty("--ring-peak", ringPeak);
+      }
 
       // Bass onset (rising through 0.6, at most ~3 per second) emits a wavefront from the ring.
       a.sinceOnset += dt;

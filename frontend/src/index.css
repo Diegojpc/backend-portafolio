@@ -353,7 +353,8 @@ button, input, textarea, select {
   }
 }
 /* ── Hero sound ring + horizon — see components/canvas/Waves.jsx ──
-   --bass / --high (0..1) are written every frame from the music analyser; the pulse rings are driven
+   --bass / --high (0..1) are written every frame from the music analyser, --ring / --ring-peak follow
+   the mesh colour cycle; the pulse rings are driven
    from the same loop (inline transform/opacity). The floor plane's far edge projects at ~66% of the
    canvas height (camera fov 75°, plane 300 below, far clip 1200: 0.5 + 0.5 * (300/1200) / tan(37.5°)),
    so the ring sits on that line and only its upper part shows. */
@@ -363,6 +364,9 @@ button, input, textarea, select {
   pointer-events: none;
   --bass: 0;
   --high: 0;
+  /* Current colour of the hero mesh cycle (written by Waves.jsx); defaults before the first frame. */
+  --ring: #2de2e6;
+  --ring-peak: #96f0f2;
 }
 .sound-ring-wrap {
   position: absolute;
@@ -383,12 +387,12 @@ button, input, textarea, select {
   translate: -50% 38%;
 }
 .sound-ring {
-  border: 1px solid rgba(45, 226, 230, 0.75);
-  box-shadow: 0 0 calc(8px + var(--high) * 18px) rgba(45, 226, 230, 0.25);
+  border: 1px solid color-mix(in srgb, var(--ring) 80%, transparent);
+  box-shadow: 0 0 calc(8px + var(--high) * 18px) color-mix(in srgb, var(--ring) 30%, transparent);
   transform: scale(calc(1 + var(--bass) * 0.035));
 }
 .sound-ring-pulse {
-  border: 1px solid rgba(107, 75, 255, 0.9);
+  border: 1px solid color-mix(in srgb, var(--ring-peak) 90%, transparent);
   opacity: 0;
   will-change: transform, opacity;
 }
@@ -398,8 +402,8 @@ button, input, textarea, select {
   right: 0;
   top: 66%;
   height: 1px;
-  background: linear-gradient(90deg, transparent, #6b4bff 20%, #2de2e6 50%, #6b4bff 80%, transparent);
-  box-shadow: 0 0 16px 2px rgba(107, 75, 255, 0.3);
+  background: linear-gradient(90deg, transparent, var(--ring) 20%, var(--ring-peak) 50%, var(--ring) 80%, transparent);
+  box-shadow: 0 0 16px 2px color-mix(in srgb, var(--ring) 30%, transparent);
   opacity: calc(0.3 + var(--high) * 0.6);
 }
 /* On phones the headline fills the width: no ring, keep the horizon line. */
