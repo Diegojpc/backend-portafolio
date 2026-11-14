@@ -1,9 +1,7 @@
 import {
-  rag_system,
-  chatbot,
-  webscraper,
   github,
   linkedin,
+  projectImages,
 } from "../assets";
 
 export const getNavLinks = (t) => [
@@ -54,75 +52,100 @@ const techStackIcons = [
   },
 ];
 
+// Order = what a visitor sees first in the carousel. codeUrl / liveUrl may be null (private repo, no live site).
 export const getProjects = (t) => [
   {
-    name: t('projectsData.p1.name'),
-    description: t('projectsData.p1.desc'),
-    tags: [
-      {
-        name: "FastAPI",
-        color: "yellow-text-gradient",
-      },
-      {
-        name: "Streamlit",
-        color: "green-text-gradient",
-      },
-      {
-        name: "LLM models (Gen AI)",
-        color: "pink-text-gradient",
-      },
-      {
-        name: "python",
-        color: "blue-text-gradient",
-      },
-    ],
-    image: webscraper,
-    source_code_link: "https://github.com/Diegojpc/Talk-to-the-web-web-scraper-",
+    id: 'sentmine',
+    name: t('projectsData.sentmine.name'),
+    description: t('projectsData.sentmine.desc'),
+    tags: ['TypeScript', 'Chrome Extension', 'LLM', 'Anki'],
+    image: projectImages.sentmine,
+    codeUrl: null,
+    liveUrl: 'https://www.sentmine.com',
   },
   {
-    name: t('projectsData.p2.name'),
-    description: t('projectsData.p2.desc'),
-    tags: [
-      {
-        name: "FastAPI",
-        color: "yellow-text-gradient",
-      },
-      {
-        name: "LangChain",
-        color: "green-text-gradient",
-      },
-      {
-        name: "Python",
-        color: "blue-text-gradient",
-      },
-    ],
-    image: rag_system,
-    source_code_link: "https://github.com/Diegojpc/evergreen_rag_assistant",
+    id: 'portfolio',
+    name: t('projectsData.portfolio.name'),
+    description: t('projectsData.portfolio.desc'),
+    tags: ['React', 'Three.js', 'FastAPI', 'Gemini', 'Agents'],
+    image: projectImages.portfolio,
+    codeUrl: 'https://github.com/Diegojpc/backend-portafolio',
+    liveUrl: 'https://diegojpc.com',
   },
   {
-    name: t('projectsData.p3.name'),
-    description: t('projectsData.p3.desc'),
-    tags: [
-      {
-        name: "langchainjs",
-        color: "blue-text-gradient",
-      },
-      {
-        name: "nodejs",
-        color: "green-text-gradient",
-      },
-      {
-        name: "reactjs",
-        color: "pink-text-gradient",
-      },
-    ],
-    image: chatbot,
-    source_code_link: "https://github.com/Diegojpc/PruebaChatbot-Cpocket",
+    id: 'cineai',
+    name: t('projectsData.cineai.name'),
+    description: t('projectsData.cineai.desc'),
+    tags: ['Docker', 'FastAPI', 'React', 'PostgreSQL', 'Gemini'],
+    image: projectImages.cineai,
+    codeUrl: 'https://github.com/Diegojpc/CineAI',
+    liveUrl: null,
+  },
+  {
+    id: 'astralmesh',
+    name: t('projectsData.astralmesh.name'),
+    description: t('projectsData.astralmesh.desc'),
+    tags: ['Unity', 'C#', 'AR Foundation', 'Audio DSP'],
+    image: projectImages.astralmesh,
+    codeUrl: 'https://github.com/Diegojpc/AstralMesh',
+    liveUrl: null,
+  },
+  {
+    id: 'blackjack',
+    name: t('projectsData.blackjack.name'),
+    description: t('projectsData.blackjack.desc'),
+    tags: ['Python', 'Gymnasium', 'DQN', 'PPO'],
+    image: projectImages.blackjack,
+    codeUrl: 'https://github.com/Diegojpc/BlackJack-AI',
+    liveUrl: null,
+  },
+  {
+    id: 'docsrag',
+    name: t('projectsData.docsrag.name'),
+    description: t('projectsData.docsrag.desc'),
+    tags: ['LangChain', 'Qdrant', 'FastAPI', 'Streamlit'],
+    image: projectImages.docsrag,
+    codeUrl: 'https://github.com/Diegojpc/Talk-to-Documents-RAG-',
+    liveUrl: null,
+  },
+  {
+    id: 'evergreen',
+    name: t('projectsData.evergreen.name'),
+    description: t('projectsData.evergreen.desc'),
+    tags: ['FastAPI', 'LangChain', 'Python'],
+    image: projectImages.evergreen,
+    codeUrl: 'https://github.com/Diegojpc/evergreen_rag_assistant',
+    liveUrl: null,
+  },
+  {
+    id: 'trading',
+    name: t('projectsData.trading.name'),
+    description: t('projectsData.trading.desc'),
+    tags: ['Python', 'HMM', 'FastAPI', 'CCXT'],
+    image: projectImages.trading,
+    codeUrl: 'https://github.com/Diegojpc/trading-bot-mvp',
+    liveUrl: null,
+  },
+  {
+    id: 'webscraper',
+    name: t('projectsData.webscraper.name'),
+    description: t('projectsData.webscraper.desc'),
+    tags: ['FastAPI', 'Streamlit', 'LLM', 'Python'],
+    image: projectImages.webscraper,
+    codeUrl: 'https://github.com/Diegojpc/Talk-to-the-web-web-scraper-',
+    liveUrl: null,
+  },
+  {
+    id: 'cpocket',
+    name: t('projectsData.cpocket.name'),
+    description: t('projectsData.cpocket.desc'),
+    tags: ['LangChain.js', 'Node.js', 'React'],
+    image: projectImages.cpocket,
+    codeUrl: 'https://github.com/Diegojpc/PruebaChatbot-Cpocket',
+    liveUrl: null,
   },
 ];
 
-// CV files live in public/resume/ (uploaded to Hostinger separately, not in the code ZIP).
-// `name` is the file name the visitor's browser saves, so the spaces in the source names never show.
 export const RESUME = {
   es: { href: encodeURI('/resume/CV ES - 2026.pdf'), name: 'Diego_Pena_CV_ES.pdf' },
   en: { href: encodeURI('/resume/CV EN - 2026.pdf'), name: 'Diego_Pena_CV_EN.pdf' },

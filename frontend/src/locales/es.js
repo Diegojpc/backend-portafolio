@@ -55,21 +55,54 @@ export const es = {
     intro: "Proyectos en la intersección de IA generativa, ciencia de datos y desarrollo full-stack.",
     allGithub: "Todo en GitHub",
     viewCode: "Ver código",
+    viewSite: "Ver sitio",
+    prev: "Proyectos anteriores",
+    next: "Más proyectos",
+    carousel: "Carrusel de proyectos",
   },
   projectsData: {
-    p1: {
-      name: "Habla con la Web (Scraper)",
-      desc: "Este proyecto es un raspador web que extrae datos de sitios y los presenta en formatos estructurados. Utiliza una arquitectura soportada en Modelos LLM para recopilar información eficientemente usando únicamente búsquedas semánticas y lenguaje natural."
+    sentmine: {
+      name: "Sentmine",
+      desc: "Extensión de navegador para aprender idiomas con series y videos (YouTube, Netflix, HBO Max): subtítulos duales, explicación con IA de cada frase en su escena y minado de frases a Anki con una sola tecla.",
     },
-    p2: {
-      name: "Asistente RAG",
-      desc: "Este asistente está diseñado para apoyar a los agricultores de Evergreen para tomar decisiones informadas sobre la producción de cultivos. Ofrece recomendaciones precisas generadas a través de un LLM que procesa la historia de producción del campo, clima, suelo, y fases lunares."
+    portfolio: {
+      name: "Este portafolio",
+      desc: "Sitio 3D con un asistente de IA por chat y por llamada de voz (Gemini + Fish Audio), visuales que reaccionan a la música y un backend en FastAPI. Construido con agentes de IA, skills, hooks y MCP.",
     },
-    p3: {
-      name: "Chat-Bot Automático",
-      desc: "Demostración de un prototipo interactivo puramente elaborado sobre LangchainJS. Diseñado para responder a preguntas frecuentes mediante la inyección vectorial de documentos de texto proporcionando respuestas dotadas de memoria situacional."
-    }
+    cineai: {
+      name: "CineAI",
+      desc: "Catálogo y recomendador de películas conversacional: un LLM recomienda a partir de un catálogo cargado desde TMDB. Arquitectura en la nube con 4 contenedores Docker (React, FastAPI, Gemini y PostgreSQL).",
+    },
+    astralmesh: {
+      name: "AstralMesh",
+      desc: "Mandala fractal en realidad aumentada que reacciona al sonido en tiempo real: extracción de bandas de frecuencia, normalización de nivel y geometría generativa. Build de iOS automatizada con GitHub Actions.",
+    },
+    blackjack: {
+      name: "Blackjack AI",
+      desc: "Agentes de aprendizaje por refuerzo que aprenden blackjack por fases: de Monte Carlo, SARSA y Q-Learning a DQN y PPO, con el objetivo de lograr conteo implícito de cartas y valor esperado positivo.",
+    },
+    docsrag: {
+      name: "Habla con tus documentos",
+      desc: "Sistema de preguntas y respuestas con RAG sobre tus propios PDF, TXT o DOCX: recupera los fragmentos relevantes en Qdrant antes de generar cada respuesta.",
+    },
+    evergreen: {
+      name: "Asistente RAG Evergreen",
+      desc: "Asistente para que los agricultores de Evergreen decidan sobre su producción: un LLM procesa el historial del cultivo, el clima, el suelo y las fases lunares para dar recomendaciones.",
+    },
+    trading: {
+      name: "AI Trading Bot",
+      desc: "Detección de regímenes de mercado con Hidden Markov Models y optimización de estrategias de cruce de medias validadas fuera de muestra, con dashboard en React y ejecución en Binance.",
+    },
+    webscraper: {
+      name: "Habla con la web",
+      desc: "Extrae datos de sitios web y los presenta de forma estructurada: describes en lenguaje natural lo que necesitas y un LLM hace la búsqueda semántica.",
+    },
+    cpocket: {
+      name: "Chatbot Cpocket",
+      desc: "Prototipo de chatbot con LangChain.js que responde preguntas frecuentes a partir de documentos de texto, con memoria de la conversación.",
+    },
   },
+
   call: {
     start: "Iniciar llamada",
     retry: "Reintentar",

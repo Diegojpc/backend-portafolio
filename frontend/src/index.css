@@ -425,3 +425,11 @@ button, input, textarea, select {
     background: radial-gradient(ellipse 58% 60% at 28% 44%, rgba(6, 6, 10, 0.9) 0%, rgba(6, 6, 10, 0.65) 45%, rgba(6, 6, 10, 0) 80%);
   }
 }
+
+/* Horizontal carousels (Projects): scrollable by touch, trackpad, keyboard and the arrow buttons, without a visible scrollbar. */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

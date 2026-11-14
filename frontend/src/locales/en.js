@@ -55,21 +55,54 @@ export const en = {
     intro: "Projects at the intersection of generative AI, data science and full-stack development.",
     allGithub: "Everything on GitHub",
     viewCode: "View code",
+    viewSite: "Visit site",
+    prev: "Previous projects",
+    next: "More projects",
+    carousel: "Projects carousel",
   },
   projectsData: {
-    p1: {
-      name: "Talk to the web (Web Scraper)",
-      desc: "This project is a web scraper that extracts data from websites and presents it in a structured format. It utilizes web scraping supported with LLM models to gather information efficiently through natural languages queries."
+    sentmine: {
+      name: "Sentmine",
+      desc: "Browser extension to learn languages from shows and videos (YouTube, Netflix, HBO Max): dual subtitles, AI explanations of each sentence in its scene, and one-key sentence mining to Anki.",
     },
-    p2: {
-      name: "Rag Assistant",
-      desc: "This assistant is designed to support Evergreen farmers in making informed crop production decisions. It delivers precise recommendations generated through a large language model (LLM) that processes integrated data including field production history, weather conditions, soil characteristics, lunar phases, and production parameters."
+    portfolio: {
+      name: "This portfolio",
+      desc: "3D site with an AI assistant you can chat with or call by voice (Gemini + Fish Audio), music-reactive visuals and a FastAPI backend. Built with AI agents, skills, hooks and MCP.",
     },
-    p3: {
-      name: "Chat-Bot",
-      desc: "This project showcases a conversational assistant prototype built with LangchainJS. It is designed to respond to frequently asked questions by leveraging a set of text documents and conversational memory to deliver context-aware answers."
-    }
+    cineai: {
+      name: "CineAI",
+      desc: "Conversational movie catalog and recommender: an LLM recommends from a catalog seeded from TMDB. Cloud architecture with 4 Docker containers (React, FastAPI, Gemini and PostgreSQL).",
+    },
+    astralmesh: {
+      name: "AstralMesh",
+      desc: "Augmented-reality fractal mandala that reacts to sound in real time: frequency band extraction, level normalization and generative geometry. iOS build automated with GitHub Actions.",
+    },
+    blackjack: {
+      name: "Blackjack AI",
+      desc: "Reinforcement learning agents that learn blackjack in phases: from Monte Carlo, SARSA and Q-Learning to DQN and PPO, aiming at implicit card counting and positive expected value.",
+    },
+    docsrag: {
+      name: "Talk to your documents",
+      desc: "RAG question answering over your own PDF, TXT or DOCX files: it retrieves the relevant passages from Qdrant before generating each answer.",
+    },
+    evergreen: {
+      name: "Evergreen RAG assistant",
+      desc: "Assistant that helps Evergreen farmers make crop decisions: an LLM processes field history, weather, soil and lunar phases to produce recommendations.",
+    },
+    trading: {
+      name: "AI Trading Bot",
+      desc: "Market regime detection with Hidden Markov Models and moving-average crossover strategies validated out of sample, with a React dashboard and execution on Binance.",
+    },
+    webscraper: {
+      name: "Talk to the web",
+      desc: "Extracts data from websites into a structured format: you describe what you need in natural language and an LLM does the semantic search.",
+    },
+    cpocket: {
+      name: "Cpocket chatbot",
+      desc: "LangChain.js chatbot prototype that answers frequently asked questions from text documents, with conversation memory.",
+    },
   },
+
   call: {
     start: "Start call",
     retry: "Try again",

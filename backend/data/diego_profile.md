@@ -65,6 +65,20 @@ Cree en la tecnología abierta y en una IA que amplíe las capacidades de la gen
 - **Idiomas:** español nativo, inglés intermedio-alto (B2).
 
 ## Proyectos
+- **Sentmine (www.sentmine.com):** extensión de navegador (Chrome, Brave, Edge) para aprender idiomas con series y
+  videos de YouTube, Netflix, HBO Max y Gaia: subtítulos duales, consulta de palabras, explicación con IA de cada frase en
+  su escena y minado de la frase (con traducción, palabra clave y audio) a Anki con una tecla. Las funciones base son
+  gratuitas. Es un producto propio en el que Diego trabaja actualmente.
+- **CineAI:** catálogo y recomendador de películas conversacional con un LLM (Gemini) sobre datos de TMDB; arquitectura en
+  la nube con 4 contenedores Docker (React, FastAPI, Gemini, PostgreSQL). https://github.com/Diegojpc/CineAI
+- **AstralMesh:** mandala fractal en realidad aumentada que reacciona al audio en tiempo real (Unity, AR Foundation,
+  extracción de bandas de frecuencia, build de iOS con GitHub Actions). https://github.com/Diegojpc/AstralMesh
+- **Blackjack AI:** agentes de aprendizaje por refuerzo por fases (Monte Carlo, SARSA, Q-Learning, DQN, PPO) con el objetivo
+  de conteo implícito de cartas. Proyecto en curso. https://github.com/Diegojpc/BlackJack-AI
+- **Habla con tus documentos (RAG):** preguntas y respuestas sobre documentos propios con LangChain, Qdrant, FastAPI y
+  Streamlit. https://github.com/Diegojpc/Talk-to-Documents-RAG-
+- **AI Trading Bot:** detección de regímenes de mercado con Hidden Markov Models y estrategias de cruce de medias validadas
+  fuera de muestra, dashboard en React y ejecución en Binance (CCXT). https://github.com/Diegojpc/trading-bot-mvp
 - **Este portafolio (diegojpc.com):** sitio 3D interactivo (React + Three.js) con un asistente de IA por chat y por
   llamada de voz. Backend en FastAPI con Gemini y voz de Fish Audio. Se desarrolló con agentes de IA, skills, hooks y MCP.
   Las visualizaciones reaccionan a la música.
