@@ -37,13 +37,33 @@ const writeVoiceCache = (enabled) => {
 };
 
 // AbortController instead of AbortSignal.timeout(): the latter throws on Safari < 16 and would hide the mic forever.
-const fetchHealth = async () => {
+const fetchWithTimeout = async (path) => {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), HEALTH_TIMEOUT_MS);
   try {
-    return await fetch(`${BACKEND_URL}/health`, { signal: controller.signal });
+    return await fetch(`${BACKEND_URL}${path}`, { signal: controller.signal });
   } finally {
     clearTimeout(timer);
+  }
+};
+
+/**
+ * Asks the backend whether it is up and whether voice is enabled: { voice: boolean | null }.
+ * Content blockers (Brave Shields, uBlock, AdGuard… on desktop, Android and iOS) block any URL
+ * containing "/health" (net::ERR_BLOCKED_BY_CLIENT), which used to leave the widget "offline" with the
+ * mic disabled even though chat and voice endpoints work. If /health fails, "/" (not blocked) proves the
+ * server is alive; voice availability is then unknown (null) and the call itself reports if it is off.
+ */
+const probeBackend = async () => {
+  try {
+    const res = await fetchWithTimeout("/health");
+    if (!res.ok) throw new Error(`/health returned ${res.status}`);
+    return { voice: Boolean((await res.json()).realtime_voice) };
+  } catch (healthErr) {
+    const res = await fetchWithTimeout("/");
+    if (!res.ok) throw new Error(`/ returned ${res.status} (after /health failed: ${healthErr})`);
+    console.warn(`[ChatWidget] /health unreachable (${healthErr}); likely a content blocker. Backend is up via "/".`);
+    return { voice: null };
   }
 };
 
@@ -73,14 +93,17 @@ const ChatWidget = () => {
 
     const warmUp = async (attempt = 0) => {
       try {
-        const res = await fetchHealth();
-        if (!res.ok) throw new Error(`/health returned ${res.status}`);
-        const voice = Boolean((await res.json()).realtime_voice);
+        const { voice } = await probeBackend();
         if (cancelled) return;
         failed = false;
         setServerStatus("ready");
-        setVoiceEnabled(voice);
-        writeVoiceCache(voice);
+        if (voice === null) {
+          // /health blocked: keep the last known answer, or offer the call (it reports "voice_disabled" itself).
+          setVoiceEnabled((prev) => (prev === false ? false : true));
+        } else {
+          setVoiceEnabled(voice);
+          writeVoiceCache(voice);
+        }
       } catch (err) {
         if (cancelled) return;
         const delay = HEALTH_RETRY_DELAYS_MS[attempt];
