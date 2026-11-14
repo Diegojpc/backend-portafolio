@@ -165,3 +165,13 @@ por IP y Turnstile antes de emitir tokens; kill switch por variable de entorno.
 - **Resultado (mismas condiciones, CPU 4x):** llegar a iconos 67 ms de peor frame, 0 tareas largas (antes 2891 ms); contacto 50 ms; volver 25 ms; altura de página constante **6592 px** durante carga y scroll (antes 6263/6413/6592); 0 saltos al inicio; esfera de Contacto montada y reaccionando a la música.
   Carga (primeros 16 s): trabajo total bloqueado igual al original (7.6 s) pero la peor tarea baja de **4256 ms (original)** a **711 ms**, repartida entre el segundo 4 y el 12 mientras el visitante está en la portada.
 - Pendiente conocido: el HDR de `<Environment preset="city">` sigue viniendo de un CDN externo (`raw.githack.com`, con redirección); alojarlo en `public/hdr/` lo haría independiente de red externa.
+
+## Rediseño del frontend (2026-11-14) — rama `feat/frontend-redesign`
+- Commits: layout/secciones/reproductor, topografía sonora + esfera espectral (`utils/audioGraph.js`, `utils/palette.js`),
+  chat/llamada + arreglo de Brave, iconos/manifest/og-image. Solo frontend: el backend no cambia.
+- **Desplegar en Hostinger:** subir `frontend/dist/_upload-code-only.zip` a `public_html` y descomprimir
+  (`index.html`, `js/`, `chunks/`, `assets/`, iconos, `site.webmanifest`, `og-image.jpg`). Antes, borrar en el servidor
+  los `js/`, `chunks/` y `assets/` viejos (los nombres llevan hash). NO subir `music/`, `models/` ni `resume/`.
+- `og:image` es relativa (`/og-image.jpg`); LinkedIn/Facebook piden URL absoluta: cambiar a `https://diegojpc.com/og-image.jpg`.
+- Brave: ahora usa transcripción en servidor (`/realtime/voice/stt`); probar la llamada en Brave Android tras desplegar.
+- `frontend/public/images.jpeg` es solo una referencia visual: no está en git ni en el zip.
