@@ -4,7 +4,7 @@ import { fadeIn, textVariant } from '../utils/motion'
 import { SectionWrapper } from '../hoc';
 import { useLanguage } from '../context/LanguageContext';
 
-const CHIPS = ['chip1', 'chip2', 'chip3'];
+const CHIPS = ['chip1', 'chip2', 'chip3', 'chip4'];
 
 const About = () => {
   const { t } = useLanguage();

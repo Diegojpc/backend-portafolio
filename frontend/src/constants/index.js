@@ -172,7 +172,7 @@ export const getEducation = (t) => [
     degree: t('education.items.e3.degree'),
     institution: 'EAFIT University',
     period: 'Jun 2025',
-    type: 'certification',
+    type: 'postgrad',
   },
   {
     degree: t('education.items.e4.degree'),

@@ -1,4 +1,3 @@
-import logo from "./logo.svg";
 import github from "./github.png";
 import menu from "./menu.svg";
 import close from "./close.svg";
@@ -9,7 +8,6 @@ import chatbot from "./chatbot.png";
 import webscraper from "./webscraper.png";
 
 export {
-  logo,
   github,
   menu,
   close,

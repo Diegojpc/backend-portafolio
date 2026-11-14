@@ -9,9 +9,9 @@ export const es = {
   hero: {
     eyebrow: "Ingeniero de IA · Científico de Datos · Desarrollador de Software",
     titleA: "Hola, soy Diego.",
-    titleB: "De la idea al",
-    titleHighlight: "producto",
-    subtitle: "Construyo como se construye hoy: agentes de IA, skills y herramientas conectadas por MCP que llevan una idea a un sistema en producción. RAG, asistentes de voz y ML en tiempo real, desde Colombia. Mi base: la ingeniería de sonido.",
+    titleB: "Convierto ideas en",
+    titleHighlight: "productos que funcionan",
+    subtitle: "Ingeniero Acústico de formación, especialista en Desarrollo de Software (EAFIT) e Ingeniero de IA de oficio. Trabajo con agentes de IA, skills y herramientas MCP para pasar del prototipo a sistemas en producción: RAG, asistentes de voz y ML en tiempo real.",
     ctaProjects: "Ver proyectos",
     ctaAI: "Hablar con mi IA",
     ctaCv: "Descargar CV",
@@ -25,11 +25,12 @@ export const es = {
   about: {
     intro: "01 — Sobre mí",
     overview: "No construyo demos. Construyo sistemas que aguantan presión real.",
-    text1: "Soy Diego, ingeniero de IA. Me formé como ingeniero de sonido, y de ahí traigo lo que hoy uso a diario: procesamiento de señales, matemáticas y pensamiento de sistemas aplicados a machine learning en producción. Creo en la tecnología abierta y en una IA que amplíe las capacidades de la gente, no que las concentre.",
+    text1: "Soy Diego, ingeniero acústico de formación, especialista en Desarrollo de Software por EAFIT y hoy ingeniero de IA. De la acústica traigo el procesamiento de señales, las matemáticas y el pensamiento de sistemas; del posgrado, la disciplina de construir software que se puede mantener. Creo en la tecnología abierta y en una IA que amplíe las capacidades de la gente, no que las concentre.",
     text2: "Trabajo en todo el stack de ML: <strong>motores de recomendación en tiempo real en GCP</strong> con <strong>NVIDIA Triton Inference Server</strong>, <strong>sistemas RAG con LangChain</strong>, <strong>asistentes de voz conversacionales con IA</strong> y aplicaciones full-stack con <strong>FastAPI</strong> y <strong>React</strong>.",
-    chip1: "IBM AI Engineering (en curso)",
+    chip1: "Esp. en Desarrollo de Software · EAFIT",
     chip2: "Científico de Datos · Virtualsoft",
-    chip3: "Base: Ing. de Sonido · USB",
+    chip3: "Ingeniero Acústico · USB",
+    chip4: "IBM AI Engineering (en curso)",
   },
   contact: {
     subtitle: "06 — Contacto",
@@ -152,6 +153,7 @@ export const es = {
     inProgress: "En Progreso",
     types: {
       degree: "Título",
+      postgrad: "Posgrado",
       diploma: "Diploma",
       certification: "Certif.",
     },
@@ -163,7 +165,7 @@ export const es = {
       e5: { degree: "Ciencia de Datos e Inteligencia Artificial / Analista de Datos" },
       e6: { degree: "Analista de Datos" },
       e7: { degree: "Diplomado en Análisis de Datos y Machine Learning en Python", institution: "Universidad de Antioquia" },
-      e8: { degree: "Ingeniero de Sonido", institution: "Universidad de San Buenaventura" },
+      e8: { degree: "Ingeniero Acústico", institution: "Universidad de San Buenaventura" },
     },
   },
   skills: {

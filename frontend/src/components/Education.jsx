@@ -6,9 +6,10 @@ import { SectionWrapper } from '../hoc';
 import { getEducation } from '../constants';
 import { useLanguage } from '../context/LanguageContext';
 
-// Degree stands out with the accent; the rest share a neutral badge.
+// University degrees (undergraduate and postgraduate) stand out with the accent; the rest share a neutral badge.
 const badgeStyle = {
   degree: 'border-accent/50 text-accent',
+  postgrad: 'border-accent/50 text-accent',
   diploma: 'border-white/25 text-white',
   certification: 'border-white/15 text-soft',
 };
