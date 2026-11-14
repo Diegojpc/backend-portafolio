@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect, Suspense, lazy } from "react";
+import { useState, useRef, useEffect, Suspense, lazy } from "react";
+import { OPEN_CHAT_EVENT } from "../../utils/events";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -52,7 +53,6 @@ const ChatWidget = () => {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const [isLocalMode, setIsLocalMode] = useState(false);
   const [conversationId, setConversationId] = useState(null);
   // null until /health answers (or a cached answer exists); false only when the backend says voice is off
   const [voiceEnabled, setVoiceEnabled] = useState(readVoiceCache);
@@ -137,11 +137,23 @@ const ChatWidget = () => {
 
   const toggleChat = () => setIsOpen(!isOpen);
 
-  const sendMessage = async (e) => {
-    e?.preventDefault();
-    if (!input.trim() || isLoading) return;
+  // The Hero "Talk to my AI" CTA opens the widget through a window event.
+  useEffect(() => {
+    const openChat = () => {
+      console.info("[ChatWidget] Open requested by", OPEN_CHAT_EVENT);
+      setIsOpen(true);
+    };
+    window.addEventListener(OPEN_CHAT_EVENT, openChat);
+    return () => window.removeEventListener(OPEN_CHAT_EVENT, openChat);
+  }, []);
 
-    const userText = input.trim();
+  // preset: text from a suggestion chip; otherwise the input field is sent.
+  const sendMessage = async (e, preset) => {
+    e?.preventDefault();
+    const userText = (preset ?? input).trim();
+    if (!userText || isLoading) return;
+
+    console.info("[ChatWidget] Sending message", { chars: userText.length, fromSuggestion: preset !== undefined });
     setInput("");
     setIsLoading(true);
 
@@ -172,7 +184,7 @@ const ChatWidget = () => {
       const response = await fetch(`${BACKEND_URL}/conversations/${currentConvId}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: userText, use_local_model: isLocalMode })
+        body: JSON.stringify({ prompt: userText, use_local_model: false })
       });
 
       if (!response.ok) throw new Error("Failed to communicate with AI server");
@@ -216,7 +228,7 @@ const ChatWidget = () => {
 
     setIsUploading(true);
     // Optimistic UI for User file interaction
-    setMessages((prev) => [...prev, { role: "user", content: `📎 ${t('chat.uploading')} ${file.name}...` }]);
+    setMessages((prev) => [...prev, { role: "user", content: `${t('chat.uploading')} ${file.name}...` }]);
 
     const formData = new FormData();
     formData.append("file", file);
@@ -249,78 +261,69 @@ const ChatWidget = () => {
     }
   };
 
+  const statusText = serverStatus === "warming" ? t('chat.warming')
+    : serverStatus === "error" ? t('chat.offline')
+    : t('chat.online');
+  const statusDot = serverStatus === "warming" ? "bg-yellow-400 animate-pulse"
+    : serverStatus === "error" ? "bg-red-500"
+    : "bg-accent";
+  // Suggestions only before the visitor has written anything (just the welcome message).
+  const showSuggestions = !callOpen && messages.length === 1 && !isLoading;
+  const iconBtn = "w-11 h-11 shrink-0 rounded-full flex items-center justify-center transition-colors";
+
   return (
     <div className="fixed z-[100] flex flex-col items-end bottom-4 right-4 sm:bottom-6 sm:right-6">
-      {/* Expanded Chat Window */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            initial={{ opacity: 0, y: 24, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 50, scale: 0.9 }}
+            exit={{ opacity: 0, y: 24, scale: 0.97 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
             data-testid="chat-panel"
-            className="mb-4 w-[calc(100vw-32px)] sm:w-96 overflow-hidden rounded-2xl bg-black/85 sm:bg-black/60 shadow-[0_0_25px_rgba(145,94,255,0.3)] backdrop-blur-xl sm:backdrop-blur-md border border-[rgba(255,255,255,0.1)] flex flex-col h-[78dvh] sm:h-[500px] max-h-[calc(100dvh-7.5rem)]"
+            role="dialog"
+            aria-label={t('chat.title')}
+            className="mb-3 w-[calc(100vw-32px)] sm:w-[400px] overflow-hidden rounded-3xl bg-surface border border-white/10 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.9)] flex flex-col h-[78dvh] sm:h-[560px] max-h-[calc(100dvh-7.5rem)]"
           >
             {/* Header */}
-            <div className="bg-[#151030] border-b border-[rgba(255,255,255,0.1)] pl-4 pr-2 py-2 flex justify-between items-center gap-2 text-white shrink-0">
-              <div className="flex items-center gap-2">
-                <div className={`w-2.5 h-2.5 rounded-full shadow-[0_0_10px_currentColor] transition-colors ${
-                  serverStatus === "warming" ? "bg-yellow-400 text-yellow-400 animate-pulse" :
-                  serverStatus === "error"   ? "bg-red-500 text-red-500" :
-                  isLocalMode               ? "bg-amber-500 text-amber-500" :
-                                              "bg-[#915EFF] text-[#915EFF]"
-                }`}></div>
-                <h3 className="font-bold text-[17px] leading-tight">{t('chat.title')}</h3>
-                {serverStatus === "warming" && (
-                  <span className="text-[10px] text-yellow-400/80 font-normal">{t('chat.warming')}</span>
-                )}
-                {serverStatus === "error" && (
-                  <span className="text-[10px] text-red-400/80 font-normal">{t('chat.offline')}</span>
-                )}
+            <div className="shrink-0 flex items-center justify-between gap-2 pl-4 pr-2 py-2.5 border-b border-white/10">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="relative shrink-0 w-10 h-10 rounded-full bg-surface-2 hidden xs:flex border border-accent/50 items-center justify-center font-display font-bold text-[13px] text-white">
+                  AI
+                  <span className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-surface ${statusDot}`} aria-hidden="true" />
+                </div>
+                <div className="min-w-0 flex flex-col">
+                  <h3 className="font-display font-semibold text-[16px] leading-tight text-white truncate">{t('chat.title')}</h3>
+                  <p className="flex items-center gap-1.5 font-mono text-[11px] text-muted truncate" aria-live="polite">
+                    {/* Below xs the avatar is hidden, so the status dot moves next to the text */}
+                    <span className={`xs:hidden shrink-0 w-2 h-2 rounded-full ${statusDot}`} aria-hidden="true" />
+                    <span className="truncate">{statusText} · {t('chat.subtitle')}</span>
+                  </p>
+                </div>
               </div>
 
               <div className="flex items-center gap-1 shrink-0">
-                {/* Mode Toggle Switch (hidden on narrow screens: it would push the close button out of the panel) */}
-                  <label className="hidden xs:flex items-center cursor-pointer gap-2 mr-2" title="Toggle between Local CPU (Private, Slower) and Gemini Cloud (Fast, Live Web Scraping)">
-                    <span className={`text-xs ${!isLocalMode ? "text-[#915EFF] font-bold" : "text-gray-400"}`}>{t('chat.cloud')}</span>
-                    <div className="relative">
-                      <input 
-                        type="checkbox" 
-                        className="hidden" 
-                        checked={isLocalMode} 
-                        onChange={() => {
-                          if (!isLocalMode) {
-                            alert("Local Inference is strictly disabled in this Free-Tier Production Environment to comply with Memory metrics. System will rely securely on Cloud algorithms.");
-                            return;
-                          }
-                          setIsLocalMode(false);
-                        }} 
-                      />
-                      <div className="w-8 h-4 bg-gray-700 rounded-full shadow-inner"></div>
-                      <div className={`absolute w-4 h-4 bg-white rounded-full shadow inset-y-0 left-0 transition-transform ${isLocalMode ? 'transform translate-x-100 bg-amber-500 translate-x-4' : 'bg-white'}`}></div>
-                    </div>
-                    <span className={`text-xs ${isLocalMode ? "text-amber-500 font-bold" : "text-gray-400"}`}>{t('chat.local')}</span>
-                  </label>
-
                 {voiceEnabled !== false && (
                   <button
+                    type="button"
                     onClick={() => setCallOpen((v) => !v)}
                     disabled={!voiceReady}
-                    className={`p-2.5 rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${!voiceReady && serverStatus === "warming" ? "animate-pulse" : ""} ${callOpen ? "text-[#915EFF] bg-white/5" : "text-white/60 hover:text-white"}`}
+                    className={`${iconBtn} border disabled:cursor-not-allowed disabled:opacity-40 ${!voiceReady && serverStatus === "warming" ? "animate-pulse" : ""} ${callOpen ? "border-accent bg-accent text-ink" : "border-white/10 text-accent hover:border-accent/60"}`}
                     title={voiceHint}
                     aria-label={voiceHint}
+                    aria-pressed={callOpen}
                     data-testid="open-call"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="2" width="6" height="12" rx="3" /><path d="M5 10a7 7 0 0 0 14 0" /><path d="M12 19v3" /></svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3" /><path d="M5 10a7 7 0 0 0 14 0" /><path d="M12 19v3" /></svg>
                   </button>
                 )}
-
                 <button
+                  type="button"
                   onClick={toggleChat}
-                  className="p-2.5 rounded-full text-white/60 hover:text-white transition-colors"
-                  title="Close chat"
+                  className={`${iconBtn} border border-white/10 text-white hover:bg-white/5`}
+                  aria-label={t('chat.close')}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
                 </button>
               </div>
             </div>
@@ -341,24 +344,24 @@ const ChatWidget = () => {
               </Suspense>
             ) : (
             <>
-            {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-[#915EFF] scrollbar-track-transparent">
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto px-4 py-5 flex flex-col gap-3.5" aria-live="polite">
               {messages.map((msg, idx) => (
                 <motion.div
-                  initial={{ opacity: 0, y: 10 }}
+                  initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   key={idx}
                   className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                 >
                   <div
-                    className={`max-w-[85%] rounded-2xl p-3 text-[14px] leading-relaxed overflow-hidden ${msg.role === "user"
-                        ? "bg-[#915EFF] text-white rounded-tr-sm"
-                        : "bg-[rgba(255,255,255,0.05)] text-[#aaa6c3] border border-[rgba(255,255,255,0.05)] rounded-tl-sm shadow-sm"
+                    className={`max-w-[85%] px-3.5 py-2.5 text-[14px] leading-[1.55] overflow-hidden ${msg.role === "user"
+                        ? "bg-accent text-ink rounded-[16px_4px_16px_16px]"
+                        : "bg-surface-2 text-white/90 rounded-[4px_16px_16px_16px]"
                       }`}
                   >
                     {msg.content ? (
                       msg.role === "assistant" ? (
-                        <div className="flex flex-col gap-2 [&>p]:m-0 [&>ul]:list-disc [&>ul]:ml-4 [&>ol]:list-decimal [&>ol]:ml-4 [&_a]:text-[#915EFF] [&_a]:underline [&_strong]:text-white [&_code]:bg-[rgba(255,255,255,0.1)] [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded">
+                        <div className="flex flex-col gap-2 [&>p]:m-0 [&>ul]:list-disc [&>ul]:ml-4 [&>ol]:list-decimal [&>ol]:ml-4 [&_a]:text-accent [&_a]:underline [&_strong]:text-white [&_code]:bg-white/10 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_code]:font-mono [&_code]:text-[12px]">
                           <ReactMarkdown remarkPlugins={[remarkGfm]}>
                             {msg.content}
                           </ReactMarkdown>
@@ -367,61 +370,76 @@ const ChatWidget = () => {
                         msg.content
                       )
                     ) : (isLoading && idx === messages.length - 1 ? (
-                      <span className="flex items-center gap-1 h-5">
-                        <span className="animate-bounce inline-block w-1.5 h-1.5 rounded-full bg-white/60"></span>
-                        <span className="animate-bounce inline-block w-1.5 h-1.5 rounded-full bg-white/60 delay-75"></span>
-                        <span className="animate-bounce inline-block w-1.5 h-1.5 rounded-full bg-white/60 delay-150"></span>
+                      <span className="flex items-center gap-1 h-5" aria-label={t('call.thinking')}>
+                        <span className="animate-bounce inline-block w-1.5 h-1.5 rounded-full bg-accent/80"></span>
+                        <span className="animate-bounce inline-block w-1.5 h-1.5 rounded-full bg-accent/80 [animation-delay:120ms]"></span>
+                        <span className="animate-bounce inline-block w-1.5 h-1.5 rounded-full bg-accent/80 [animation-delay:240ms]"></span>
                       </span>
                     ) : null)}
                   </div>
                 </motion.div>
               ))}
+
+              {showSuggestions && (
+                // Hidden on very short screens (phone landscape): optional, and they would need scrolling.
+                <div className="mt-1 flex flex-col gap-2 h-sm:hidden">
+                  <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-dim">{t('chat.suggestionsLabel')}</span>
+                  <div className="flex flex-wrap gap-2">
+                    {['s1', 's2', 's3'].map((k) => (
+                      <button
+                        key={k}
+                        type="button"
+                        onClick={() => sendMessage(undefined, t(`chat.suggestions.${k}`))}
+                        disabled={serverStatus === "error"}
+                        className="min-h-[36px] px-3 py-1.5 rounded-full border border-white/15 text-left text-[13px] text-soft hover:text-white hover:border-accent/60 transition-colors disabled:opacity-40"
+                      >
+                        {t(`chat.suggestions.${k}`)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Input Area */}
-            <form onSubmit={sendMessage} className="p-4 bg-[rgba(0,0,0,0.3)] border-t border-[rgba(255,255,255,0.05)]">
-              <div className="relative flex items-center gap-2">
-
-                {/* Hidden File Input */}
+            {/* Composer */}
+            <form onSubmit={sendMessage} className="shrink-0 flex items-center gap-1.5 xs:gap-2 p-2.5 xs:p-3 border-t border-white/10">
+              <input
+                type="file"
+                accept=".txt,.md,.pdf"
+                ref={fileInputRef}
+                onChange={handleFileUpload}
+                className="hidden"
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploading || isLoading}
+                className={`${iconBtn} border border-white/10 text-soft hover:text-white hover:bg-white/5 disabled:opacity-40`}
+                aria-label={t('chat.attach')}
+                title={t('chat.attach')}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48" /></svg>
+              </button>
+              <div className="flex-1 min-w-0">
                 <input
-                  type="file"
-                  accept=".txt,.md,.pdf"
-                  ref={fileInputRef}
-                  onChange={handleFileUpload}
-                  className="hidden"
+                  type="text"
+                  aria-label={t('chat.placeholder')}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder={t('chat.placeholder')}
+                  className="w-full h-11 px-3 xs:px-4 rounded-full bg-ink border border-white/10 text-white placeholder:text-dim text-[16px] sm:text-[14px] outline-none focus:border-accent/70 transition-colors"
+                  disabled={isLoading || isUploading}
                 />
-
-                {/* Attachment Button */}
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isUploading || isLoading}
-                  className="p-2 text-[#aaa6c3] hover:text-white bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.1)] rounded-full transition-colors disabled:opacity-50"
-                  title="Upload Document (.pdf, .txt, .md)"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48" /></svg>
-                </button>
-
-                {/* Text Field */}
-                <div className="relative flex-1 flex items-center">
-                  <input
-                    type="text"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    placeholder={t('chat.placeholder')}
-                    className="w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-full text-[#aaa6c3] px-4 py-3 pr-12 focus:outline-none focus:border-[#915EFF] transition-colors text-[14px]"
-                    disabled={isLoading || isUploading}
-                  />
-                  <button
-                    type="submit"
-                    disabled={!input.trim() || isLoading || isUploading}
-                    className="absolute right-2 p-2 bg-[#915EFF] hover:bg-[#804dee] text-white rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z" /><path d="M22 2 11 13" /></svg>
-                  </button>
-                </div>
               </div>
+              <button
+                type="submit"
+                disabled={!input.trim() || isLoading || isUploading}
+                className={`${iconBtn} bg-accent text-ink hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed`}
+                aria-label={t('chat.send')}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+              </button>
             </form>
             </>
             )}
@@ -429,21 +447,23 @@ const ChatWidget = () => {
         )}
       </AnimatePresence>
 
-      {/* Floating Button / Bubble */}
+      {/* Launcher */}
       <motion.button
+        type="button"
         onClick={toggleChat}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className={`relative w-14 h-14 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(145,94,255,0.4)] transition-colors ${isOpen ? 'bg-[#151030] text-white' : 'bg-[#915EFF] text-white'}`}
+        aria-label={isOpen ? t('chat.close') : t('chat.open')}
+        aria-expanded={isOpen}
+        className={`relative w-14 h-14 rounded-full flex items-center justify-center shadow-[0_10px_30px_-8px_rgba(45,226,230,0.5)] transition-colors ${isOpen ? 'bg-surface-2 text-white border border-white/10' : 'bg-accent text-ink'}`}
       >
-        {/* Warm-up ring: pulsates while server is waking up */}
         {serverStatus === "warming" && !isOpen && (
-          <span className="absolute inset-0 rounded-full animate-ping bg-[#915EFF] opacity-40 pointer-events-none" />
+          <span className="absolute inset-0 rounded-full animate-ping bg-accent opacity-30 pointer-events-none" />
         )}
         {isOpen ? (
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
         ) : (
-          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z" /></svg>
         )}
       </motion.button>
     </div>
