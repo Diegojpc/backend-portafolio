@@ -8,6 +8,8 @@ import { createNoise3D } from 'simplex-noise';
 import WebGLGuard from './WebGLGuard';
 import useLazyCanvas from '../../hooks/useLazyCanvas';
 import { clamp, maxSphereRadius, softClampRadius } from './sphereMath';
+import { getAudioGraph, SpectrumFollower } from '../../utils/audioGraph';
+import { cycleColors } from '../../utils/palette';
 
 // Helper functions
 const fractionate = (val, minVal, maxVal) => {
@@ -29,16 +31,10 @@ const max = (arr) => {
   return arr.reduce((a, b) => Math.max(a, b));
 };
 
-const retroWaveColors = ["#2de2e6", "#035ee8", "#f6019d", "#d40078", "#9700cc", "#ffd319", "#ff901f", "#ff2975", "#c700b5", "#b000ff"];
-
-// FIX: Reusable THREE.Color instances — no allocations per frame
-const _c1 = new THREE.Color();
-const _c2 = new THREE.Color();
-const interpolateColor = (color1, color2, factor) => {
-  _c1.set(color1);
-  _c2.set(color2);
-  return _c1.lerp(_c2, factor);
-};
+// Same colour cycle as the hero mesh (utils/palette.js): belts lifted by the sound get a brighter tint.
+const BASE_COLOR = new THREE.Color();
+const PEAK_COLOR = new THREE.Color();
+const _mixColor = new THREE.Color();
 
 // FIX: Reusable Vector3 — avoids heap allocation per vertex per frame
 const _vertex = new THREE.Vector3();
@@ -75,8 +71,22 @@ const createWaterGeometry = () => {
   return welded;
 };
 
+// Spectral sphere (wire look): latitude = frequency. The equator (the widest ring, where the music has
+// most energy) carries the bass, and the bands climb log-spaced toward both poles (highs), so every part
+// of the spectrum sculpts its own belt of the sphere and the whole range is visible at once.
+const SPECTRAL_COLS = 64;
+const SPECTRAL_AMP = 14;     // world units a fully driven band pushes its belt outward
+const SPECTRAL_BASE = 4;     // extra resting radius, keeps the old on-screen size
+const BASS_COLS = 8;         // first columns averaged as "bass" for the global swell
+const HIGH_COLS = 16;        // last columns averaged as "highs" for the surface shimmer
+const REST_RADIUS = 20 + SPECTRAL_BASE;          // icosahedron radius + resting offset
+const REST_VALUES = new Float32Array(SPECTRAL_COLS); // silence: the surface only breathes with the noise
+const DEFAULT_FREQ_RANGE = [35, 12500];
+
 // material: "wire" (retro wireframe, default) | "water" (glossy liquid sphere)
-export const Sphere = ({ analyser, material = 'wire' }) => {
+// fit: keep the sphere inside its canvas however loud it gets (small panels, e.g. the voice call).
+// freqRange: [fMin, fMax] in Hz mapped from equator to poles (voice uses a narrower range than music).
+export const Sphere = ({ analyser, material = 'wire', fit = false, freqRange = DEFAULT_FREQ_RANGE }) => {
   const isWater = material === 'water';
   const waterGeometry = useMemo(() => (isWater ? createWaterGeometry() : null), [isWater]);
   useEffect(() => () => waterGeometry?.dispose(), [waterGeometry]);
@@ -84,8 +94,8 @@ export const Sphere = ({ analyser, material = 'wire' }) => {
   const meshRef = useRef();
   const materialRef = useRef();
   const noise3D = useRef(createNoise3D());
-  const clock = useMemo(() => new THREE.Clock(), []);
   const dataArrayRef = useRef(null);
+  const spectralRef = useRef(null);
   const [isAudioConnected, setIsAudioConnected] = useState(false);
 
   useEffect(() => {
@@ -125,38 +135,82 @@ export const Sphere = ({ analyser, material = 'wire' }) => {
     mesh.geometry.computeVertexNormals();
   };
 
-  useFrame((state) => {
+  // Wire look: each vertex is pushed out by the spectrum value of its latitude band.
+  const warpSpectral = (mesh, values, maxRadius = Infinity) => {
+    const geo = mesh.geometry;
+    const pos = geo.attributes.position;
+    if (!geo.attributes.color) geo.setAttribute('color', new THREE.BufferAttribute(new Float32Array(pos.count * 3), 3));
+    const col = geo.attributes.color;
+    const radius = mesh.geometry.parameters.radius;
+    const last = SPECTRAL_COLS - 1;
+    let bass = 0;
+    for (let c = 0; c < BASS_COLS; c++) bass += values[c];
+    bass /= BASS_COLS;
+    let high = 0;
+    for (let c = SPECTRAL_COLS - HIGH_COLS; c < SPECTRAL_COLS; c++) high += values[c];
+    high /= HIGH_COLS;
+    const t = window.performance.now() * 0.00004;
+    cycleColors(window.performance.now() / 1000, BASE_COLOR, PEAK_COLOR);
+
+    for (let i = 0; i < pos.count; i++) {
+      _vertex.fromBufferAttribute(pos, i).normalize();
+      // 0 at the equator (bass) → 1 at either pole (highs), interpolated between bands.
+      const x = Math.abs(_vertex.y) * last;
+      const i0 = x | 0;
+      const fr = x - i0;
+      const band = values[i0] * (1 - fr) + values[Math.min(i0 + 1, last)] * fr;
+      const nz = noise3D.current(_vertex.x * 1.5 + t, _vertex.y * 1.5 + t * 1.3, _vertex.z * 1.5 + t * 1.7);
+      // Noise breaks the belts up along the longitude so they read as terrain, not rings.
+      const raw = radius + SPECTRAL_BASE + bass * 3 + band * SPECTRAL_AMP * (0.75 + 0.25 * nz) + nz * (0.5 + high * 2.5);
+      const r = softClampRadius(raw, REST_RADIUS, maxRadius);
+      _vertex.multiplyScalar(r);
+      pos.setXYZ(i, _vertex.x, _vertex.y, _vertex.z);
+      // Only the strongest belts reach the bright tint, as in the hero mesh.
+      const hot = THREE.MathUtils.smoothstep(band, 0.45, 0.95);
+      _mixColor.copy(BASE_COLOR).lerp(PEAK_COLOR, hot);
+      col.setXYZ(i, _mixColor.r, _mixColor.g, _mixColor.b);
+    }
+    pos.needsUpdate = true; // wireframe + basic material: no normals needed
+    col.needsUpdate = true;
+  };
+
+  useFrame((state, delta) => {
     if (!meshRef.current) return;
     // The water sphere must never leave its canvas, however loud the audio is.
     let maxRadius = Infinity;
-    if (isWater) {
+    if (isWater || fit) {
       const fits = maxSphereRadius(state.camera.position.z, state.camera.fov, state.size.width / state.size.height);
       // Very narrow canvases cannot even hold the resting sphere: shrink it, and bound the swell in local units.
-      const fit = Math.min(1, fits / (WATER_RADIUS * 1.25));
-      meshRef.current.scale.setScalar(fit);
-      maxRadius = fits / fit;
+      const rest = isWater ? WATER_RADIUS : REST_RADIUS;
+      const scale = Math.min(1, fits / (rest * 1.25));
+      meshRef.current.scale.setScalar(scale);
+      maxRadius = fits / scale;
     }
 
-    // Always rotate (and, for the wire look, cycle color)
     meshRef.current.rotation.x += 0.001;
     meshRef.current.rotation.y += 0.003;
     meshRef.current.rotation.z += 0.005;
 
-    if (!isWater) {
-      const time = clock.getElapsedTime() * 0.1;
-      const colorIndex1 = Math.floor(time % retroWaveColors.length);
-      const colorIndex2 = (colorIndex1 + 1) % retroWaveColors.length;
-      const color = interpolateColor(retroWaveColors[colorIndex1], retroWaveColors[colorIndex2], time % 1);
-      if (materialRef.current) materialRef.current.color = color;
-    }
-
     // Frequency-driven deformation only when audio is active
     if (!analyser || !isAudioConnected) {
-      // Water keeps a gentle ripple at rest so it reads as a living liquid, not a frozen ball.
+      // At rest both looks keep breathing so the sphere never reads as frozen.
       if (isWater) warpSphere(meshRef.current, 0, 0.1, 0.06, maxRadius, WATER_AMP);
+      else warpSpectral(meshRef.current, REST_VALUES, maxRadius);
       return;
     }
 
+    if (!isWater) {
+      if (!spectralRef.current || spectralRef.current.analyser !== analyser) {
+        spectralRef.current = new SpectrumFollower(analyser, analyser.context.sampleRate, SPECTRAL_COLS, {
+          blurPasses: 1, attack: 22, release: 6, fMin: freqRange[0], fMax: freqRange[1],
+        });
+        console.info('[AudioVisualizer] Spectral sphere active', { bands: SPECTRAL_COLS, freqRange });
+      }
+      warpSpectral(meshRef.current, spectralRef.current.update(Math.min(delta, 0.1)), maxRadius);
+      return;
+    }
+
+    // Water sphere (voice call avatar): original band behaviour, unchanged.
     const bufferLength = analyser.frequencyBinCount;
 
     if (!dataArrayRef.current || dataArrayRef.current.length !== bufferLength) {
@@ -173,16 +227,15 @@ export const Sphere = ({ analyser, material = 'wire' }) => {
     const midAvgFr   = avg(midRange)  / midRange.length;
     const upperAvgFr = avg(upperHalf) / upperHalf.length;
 
-    // modulate() extrapolates past its range for loud input; bound each band to its intended range
-    // for the water sphere (the wireframe one keeps its original behaviour).
-    const bound = (v, hi) => (isWater ? clamp(v, 0, hi) : v);
+    // modulate() extrapolates past its range for loud input; bound each band to its intended range.
+    const bound = (v, hi) => clamp(v, 0, hi);
     warpSphere(
       meshRef.current,
       bound(modulate(lowerMaxFr * 2, 0, 1, 0, 5), 5),
       bound(modulate(midAvgFr   * 1.6, 0, 1, 0, 4), 4),
       bound(modulate(upperAvgFr * 1.4, 0, 1, 0, 3), 3),
       maxRadius,
-      isWater ? WATER_AMP : 1
+      WATER_AMP
     );
   });
 
@@ -214,11 +267,13 @@ export const Sphere = ({ analyser, material = 'wire' }) => {
 
   return (
     <mesh ref={meshRef}>
-      <icosahedronGeometry args={[20, 12]} />
+      {/* Small fitted panels (voice call) get a coarser mesh so the wire still reads as wire */}
+      <icosahedronGeometry args={[20, fit ? 6 : 12]} />
       <meshBasicMaterial
         ref={materialRef}
         wireframe={true}
         wireframeLinewidth={1}
+        vertexColors
       />
     </mesh>
   );
@@ -228,71 +283,20 @@ export const AudioVisualizer = ({ audioElement }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [viewRef, mounted, visible] = useLazyCanvas({ rootMargin: '800px', warmupMs: 7500 });
   const contextRef = useRef(null);
-  const sourceRef = useRef(null);
   const analyserRef = useRef(null);
   const [isAudioReady, setIsAudioReady] = useState(false);
 
+  // The analyser comes from the shared graph (utils/audioGraph.js): the hero waves read the same one,
+  // and an <audio> element can be wired into Web Audio only once. The graph lives for the whole page,
+  // so it is not closed on unmount; it also resumes its own AudioContext on play / first interaction.
   useEffect(() => {
     if (!audioElement) return;
-
-    const initializeAudio = async () => {
-      // Guard: don't double-connect the same element
-      if (sourceRef.current) {
-        console.warn("[AudioVisualizer] Audio source already connected, skipping.");
-        return;
-      }
-
-      try {
-        // FIX: Set crossOrigin BEFORE any audio context operations
-        audioElement.crossOrigin = "anonymous";
-
-        contextRef.current = new AudioContext();
-        analyserRef.current = contextRef.current.createAnalyser();
-        sourceRef.current = contextRef.current.createMediaElementSource(audioElement);
-        sourceRef.current.connect(analyserRef.current);
-        analyserRef.current.connect(contextRef.current.destination);
-        analyserRef.current.fftSize = 1024;
-        setIsAudioReady(true);
-        console.info("[AudioVisualizer] Audio context initialized successfully.");
-      } catch (error) {
-        console.error('[AudioVisualizer] Error initializing audio:', error);
-      }
-    };
-
-    initializeAudio();
-
-    return () => {
-      if (contextRef.current) {
-        contextRef.current.close().catch((err) => {
-          console.warn("[AudioVisualizer] Error closing AudioContext:", err);
-        });
-        contextRef.current = null;
-        sourceRef.current = null;
-      }
-    };
-  }, [audioElement]);
-
-  // FIX: Use { once: true } to avoid stacking listeners on every re-render
-  useEffect(() => {
-    if (!contextRef.current) return;
-
-    const handleUserInteraction = async () => {
-      if (!contextRef.current || contextRef.current.state === 'running') return;
-      try {
-        await contextRef.current.resume();
-        console.info("[AudioVisualizer] Audio context resumed after user interaction.");
-      } catch (error) {
-        console.error('[AudioVisualizer] Error resuming audio context:', error);
-      }
-    };
-
-    window.addEventListener('click', handleUserInteraction, { once: true });
-    window.addEventListener('touchstart', handleUserInteraction, { once: true });
-
-    return () => {
-      window.removeEventListener('click', handleUserInteraction);
-      window.removeEventListener('touchstart', handleUserInteraction);
-    };
+    const graph = getAudioGraph(audioElement);
+    if (!graph) return;
+    contextRef.current = graph.context;
+    analyserRef.current = graph.analyser;
+    setIsAudioReady(true);
+    console.info("[AudioVisualizer] Audio context initialized successfully (shared graph).");
   }, [audioElement]);
 
   useEffect(() => {
