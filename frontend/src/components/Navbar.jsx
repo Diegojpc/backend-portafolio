@@ -29,7 +29,7 @@ const Navbar = memo(({ setAudioElement }) => {
             window.scrollTo(0, 0);
           }}
         >
-          <img src="/favicon.svg" alt="" width="32" height="32" className="w-8 h-8 rounded-[9px]" />
+          <img src="/favicon.svg?v=2" alt="" width="32" height="32" className="w-8 h-8 rounded-[9px]" />
           <span className="hidden sm:block font-display font-semibold text-[16px] tracking-[-0.01em] text-white">Diego J. Peña C.</span>
         </Link>
 
