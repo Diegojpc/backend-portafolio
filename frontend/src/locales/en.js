@@ -9,9 +9,9 @@ export const en = {
   hero: {
     eyebrow: "AI Engineer · Data Scientist · Software Developer",
     titleA: "Hi, I'm Diego.",
-    titleB: "I build AI that works",
-    titleHighlight: "for people",
-    subtitle: "From Colombia, I ship RAG systems, LLM voice assistants and real-time recommendation engines to production. I come from sound engineering: signal processing is my foundation.",
+    titleB: "From idea to",
+    titleHighlight: "product",
+    subtitle: "I build the way software is built today: AI agents, skills and MCP-connected tools that take an idea to a system in production. RAG, voice assistants and real-time ML, from Colombia. My foundation: sound engineering.",
     ctaProjects: "View projects",
     ctaAI: "Talk to my AI",
     ctaCv: "Download resume",
@@ -19,7 +19,7 @@ export const en = {
       f1: { value: "100+", label: "Power BI dashboards shipped" },
       f2: { value: "Triton · GCP", label: "real-time recommendations in production" },
       f3: { value: "RAG + Voice", label: "conversational assistants with LLMs" },
-      f4: { value: "ES / EN", label: "bilingual site and assistant" },
+      f4: { value: "Agents · MCP", label: "development with AI agents and skills" },
     },
   },
   about: {

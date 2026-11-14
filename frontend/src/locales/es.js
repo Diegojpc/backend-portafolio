@@ -9,9 +9,9 @@ export const es = {
   hero: {
     eyebrow: "Ingeniero de IA · Científico de Datos · Desarrollador de Software",
     titleA: "Hola, soy Diego.",
-    titleB: "Construyo IA que trabaja",
-    titleHighlight: "para la gente",
-    subtitle: "Desde Colombia, llevo a producción sistemas RAG, asistentes de voz con LLMs y motores de recomendación en tiempo real. Vengo de la ingeniería de sonido: el procesamiento de señales es mi base.",
+    titleB: "De la idea al",
+    titleHighlight: "producto",
+    subtitle: "Construyo como se construye hoy: agentes de IA, skills y herramientas conectadas por MCP que llevan una idea a un sistema en producción. RAG, asistentes de voz y ML en tiempo real, desde Colombia. Mi base: la ingeniería de sonido.",
     ctaProjects: "Ver proyectos",
     ctaAI: "Hablar con mi IA",
     ctaCv: "Descargar CV",
@@ -19,7 +19,7 @@ export const es = {
       f1: { value: "100+", label: "dashboards de Power BI desplegados" },
       f2: { value: "Triton · GCP", label: "recomendación en tiempo real en producción" },
       f3: { value: "RAG + Voz", label: "asistentes conversacionales con LLMs" },
-      f4: { value: "ES / EN", label: "sitio y asistente bilingües" },
+      f4: { value: "Agentes · MCP", label: "desarrollo con agentes de IA y skills" },
     },
   },
   about: {
