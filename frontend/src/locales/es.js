@@ -7,26 +7,41 @@ export const es = {
     contact: "Contacto"
   },
   hero: {
-    titlePrefix: "Hola, soy",
-    name: "Diego",
-    subtitle: "Ingeniero Acústico, Científico de Datos y Desarrollador de Software"
+    eyebrow: "Ingeniero Acústico → IA aplicada · Colombia",
+    titleA: "Hola, soy Diego.",
+    titleB: "Convierto señales en",
+    titleHighlight: "sistemas de IA",
+    subtitle: "Ingeniero Acústico, Científico de Datos y Desarrollador de Software. Motores de recomendación en tiempo real, sistemas RAG y asistentes de voz en producción.",
+    ctaProjects: "Ver proyectos",
+    ctaAI: "Hablar con mi IA",
+    ctaCv: "Descargar CV",
+    facts: {
+      f1: { value: "100+", label: "dashboards de Power BI desplegados" },
+      f2: { value: "Triton · GCP", label: "recomendación en tiempo real en producción" },
+      f3: { value: "RAG + Voz", label: "asistentes conversacionales con LLMs" },
+      f4: { value: "ES / EN", label: "sitio y asistente bilingües" },
+    },
   },
   about: {
-    intro: "Introducción",
-    overview: "Visión General.",
-    text1: "Soy Diego — un Ingeniero Acústico que cruzó al mundo de la IA y nunca volvió la vista atrás. Ese trasfondo no es un desvío; es una ventaja competitiva. Entiendo el procesamiento de señales, los sistemas complejos y el modelado matemático a una profundidad que la mayoría de los ingenieros no tiene, y aplico todo eso para construir soluciones de ML en producción que realmente funcionan.",
-    text2: "Trabajo en todo el stack de ML: <strong>motores de recomendación en tiempo real en GCP</strong> con <strong>NVIDIA Triton Inference Server</strong>, <strong>sistemas RAG con LangChain</strong>, <strong>asistentes de voz conversacionales con IA</strong>, y aplicaciones full-stack con <strong>FastAPI</strong> y <strong>React</strong>. No construyo demos — construyo sistemas diseñados para operar bajo presión real y entregar resultados medibles."
+    intro: "01 — Sobre mí",
+    overview: "No construyo demos. Construyo sistemas que aguantan presión real.",
+    text1: "Soy Diego — un Ingeniero Acústico que cruzó al mundo de la IA y nunca volvió la vista atrás. Ese trasfondo no es un desvío; es una ventaja: procesamiento de señales, sistemas complejos y modelado matemático aplicados a soluciones de ML en producción.",
+    text2: "Trabajo en todo el stack de ML: <strong>motores de recomendación en tiempo real en GCP</strong> con <strong>NVIDIA Triton Inference Server</strong>, <strong>sistemas RAG con LangChain</strong>, <strong>asistentes de voz conversacionales con IA</strong> y aplicaciones full-stack con <strong>FastAPI</strong> y <strong>React</strong>.",
+    chip1: "Ing. de Sonido · USB",
+    chip2: "Científico de Datos · Virtualsoft",
+    chip3: "IBM AI Engineering (en curso)",
   },
   contact: {
-    subtitle: "Ponte en contacto",
-    title: "Contacto.",
+    subtitle: "06 — Contacto",
+    title: "Hablemos.",
+    lead: "Escríbeme, o pregúntale a mi asistente de IA por chat o por voz.",
     nameLabel: "Tu Nombre",
     namePlaceholder: "¿Cuál es tu nombre?",
     emailLabel: "Tu Correo",
     emailPlaceholder: "¿A dónde podría responderte?",
     msgLabel: "Tu Mensaje",
     msgPlaceholder: "¿Qué deseas decirme?",
-    btnSend: "Enviar",
+    btnSend: "Enviar mensaje",
     btnSending: "Enviando...",
     alertSuccess: "Gracias por escribirme. Me pondré en contacto contigo lo antes posible.",
     alertError: "Ahh, algo salió mal. Inténtalo de nuevo, por favor.",
@@ -34,14 +49,11 @@ export const es = {
     downloadCvAria: "Descargar la hoja de vida de Diego en PDF"
   },
   projects: {
-    subtitle: "Mi Trabajo",
-    title: "Proyectos.",
-    text1: "Mi portafolio es una colección curada de proyectos en la intersección de la <strong>Inteligencia Artificial</strong>, <strong>Ciencia de Datos</strong> y <strong>Desarrollo Full-Stack</strong>. Aquí verás cómo traduzco desafíos técnicos complejos en soluciones prácticas y de alto impacto.",
-    text2: "Estos proyectos demuestran:",
-    li1: "<strong>IA Generativa y LLMs</strong>: Aplicaciones construidas con herramientas de vanguardia como <strong>LangChain</strong> para crear sofisticados sistemas RAG e Integencia Artificial conversacional.",
-    li2: "<strong>Machine Learning y Data Science</strong>: Desde modelos predictivos construidos con <strong>Scikit-learn</strong> y <strong>TensorFlow</strong>, hasta scripts de automatización que optimizan procesos estadísticos complejos en <strong>Python</strong>.",
-    li3: "<strong>VIsualización e Inteligencia de Negocios</strong>: Paneles visuales (Dashboards) dinámicos desarrollados en <strong>Power BI</strong> que transforman datos crudos en visiones estratégicas limpias para la toma de decisiones.",
-    text3: "Cada proyecto refleja mi compromiso de construir tecnología robusta, escalable y eficiente para generar resultados tangibles. Explora todo mi trabajo a continuación."
+    subtitle: "05 — Proyectos",
+    title: "IA generativa, ML y datos",
+    intro: "Proyectos en la intersección de IA generativa, ciencia de datos y desarrollo full-stack.",
+    allGithub: "Todo en GitHub",
+    viewCode: "Ver código",
   },
   projectsData: {
     p1: {
@@ -83,9 +95,19 @@ export const es = {
   },
   chat: {
     title: "Asistente Virtual",
-    cloud: "Nube",
-    local: "CPU Local",
-    placeholder: "Pregúntame algo...",
+    subtitle: "IA · Gemini",
+    online: "en línea",
+    open: "Abrir asistente virtual",
+    close: "Cerrar chat",
+    attach: "Adjuntar documento (.pdf, .txt, .md)",
+    send: "Enviar mensaje",
+    suggestionsLabel: "Prueba con",
+    suggestions: {
+      s1: "¿Qué hizo Diego con NVIDIA Triton?",
+      s2: "¿Qué proyectos tiene con RAG?",
+      s3: "¿Cuál es su stack en la nube?",
+    },
+    placeholder: "Pregunta algo…",
     uploading: "Adjuntando documento:",
     errorParse: "Lo lamento, no pude procesar",
     successParse: "He terminado de leer el documento",
@@ -97,8 +119,8 @@ export const es = {
     offline: "sin conexión"
   },
   experience: {
-    subtitle: "Lo que he hecho hasta ahora",
-    title: "Experiencia Laboral.",
+    subtitle: "03 — Experiencia",
+    title: "Lo que he hecho hasta ahora",
     jobs: {
       j1: {
         title: "Científico de Datos",
@@ -125,8 +147,8 @@ export const es = {
     },
   },
   education: {
-    subtitle: "Mi formación académica",
-    title: "Educación.",
+    subtitle: "04 — Educación",
+    title: "Formación académica",
     inProgress: "En Progreso",
     types: {
       degree: "Título",
@@ -145,12 +167,27 @@ export const es = {
     },
   },
   skills: {
-    subtitle: "Mi caja de herramientas técnica",
+    label: "02 — Stack",
+    title: "Mi caja de herramientas",
+    hint: "Los modelos 3D giran al pasar el cursor; debajo, el stack completo por área.",
     cat: {
       languages: "Lenguajes de Programación",
       mlai: "Machine Learning e IA",
       cloud: "Cloud, DevOps y MLOps",
       data: "Datos y Bases de Datos",
     },
+  },
+  player: {
+    idle: "Música ambiente",
+    play: "Reproducir música",
+    pause: "Pausar música",
+    next: "Siguiente pista",
+    prev: "Pista anterior",
+    openPanel: "Abrir reproductor",
+    closePanel: "Cerrar reproductor",
+    seek: "Posición de la pista",
+    volume: "Volumen",
+    upNext: "A continuación",
+    visualizerHint: "Mientras suena, la esfera de Contacto reacciona a esta pista.",
   },
 };

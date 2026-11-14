@@ -77,15 +77,15 @@ const App = () => {
 
   return (
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-      <div className="relative z-0 bg-primary">
-        <div className="bg-primary bg-cover bg-no-repeat bg-center relative">
+      <div className="relative z-0 bg-ink">
+        <div className="bg-ink bg-cover bg-no-repeat bg-center relative">
           <Navbar setAudioElement={setAudioElement} />
           <Hero isLoaded={wavesLoaded} />
           <div className="absolute inset-0 flex flex-col justify-between">
             <Suspense fallback={null}>
-              <WaveCanvas onReady={handleWavesReady} />
+              <WaveCanvas onReady={handleWavesReady} audioElement={audioElement} />
             </Suspense>
-            <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-transparent to-black pointer-events-none">
+            <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-transparent to-ink pointer-events-none">
             </div>
           </div>
         </div>

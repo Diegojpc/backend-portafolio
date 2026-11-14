@@ -5,6 +5,7 @@ import { useGSAP } from "@gsap/react";
 import TechIconCardExperience from "../components/canvas/TechIconCardExperience";
 import { techStackIcons, skillCategories } from "../constants";
 import { useLanguage } from "../context/LanguageContext";
+import { styles } from "../styles";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -34,7 +35,7 @@ const TechStack = () => {
         opacity: 1,
         duration: 0.6,
         ease: "power2.out",
-        scrollTrigger: { trigger: "#skills", start: "center center" },
+        scrollTrigger: { trigger: "#skills", start: "top center" },
       }
     );
 
@@ -54,54 +55,58 @@ const TechStack = () => {
   });
 
   return (
-    <div id="skills" className="flex-center section-padding">
-      <div className="w-full h-full md:px-10 px-5">
-        <div className="tech-grid flex flex-row flex-wrap justify-center gap-5">
-          {techStackIcons.map((techStackIcon) => (
+    <section id="skills" className="sm:px-16 px-6 pb-16 sm:pb-24">
+      <div className="max-w-7xl mx-auto flex flex-col gap-10">
+        <div className="flex flex-wrap justify-between items-end gap-4">
+          <div>
+            <p className={styles.sectionSubText}>{t('skills.label')}</p>
+            <h2 className={styles.sectionHeadText}>{t('skills.title')}</h2>
+          </div>
+          <p className="skills-subtitle max-w-[360px] text-[15px] leading-[1.6] text-muted">{t('skills.hint')}</p>
+        </div>
+
+        {/* 3D GLB models (TechIconCardExperience) — unchanged, only the card around them */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          {techStackIcons.map((techStackIcon, i) => (
             <div
               key={techStackIcon.name}
-              className="card-border tech-card overflow-hidden group xl:rounded-full rounded-lg"
+              className="tech-card relative h-[260px] rounded-[20px] border border-white/10 bg-surface hover:border-accent/40 transition-colors flex flex-col justify-between p-5 overflow-hidden"
             >
-              <div className="tech-card-animated-bg" />
-              <div className="tech-card-content">
-                <div className="tech-icon-wrapper">
-                  <TechIconCardExperience model={techStackIcon} />
-                </div>
-                <div className="padding-x text-center w-full">
-                  <p>{techStackIcon.name}</p>
-                </div>
+              <div className="flex-1 -mx-5 flex items-center justify-center">
+                <TechIconCardExperience model={techStackIcon} />
+              </div>
+              <div className="flex justify-between items-center gap-3">
+                <span className="font-display text-[17px] font-semibold text-white">{techStackIcon.name}</span>
+                <span className="font-mono text-[11px] text-dim">{String(i + 1).padStart(2, '0')}</span>
               </div>
             </div>
           ))}
         </div>
 
-        <p className="skills-subtitle text-center text-secondary text-[13px] uppercase tracking-widest mt-16 mb-6">
-          {t('skills.subtitle')}
-        </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
           {skillCategories.map((cat) => (
             <div
               key={cat.categoryKey}
-              className="skill-category bg-tertiary rounded-2xl p-5 border border-[#915EFF]/20"
+              className="skill-category rounded-[20px] border border-white/10 p-5 flex flex-col gap-4"
             >
-              <h4 className="text-white font-semibold text-[13px] uppercase tracking-wider mb-4">
+              <h3 className="font-mono font-medium text-[12px] uppercase tracking-[0.08em] text-soft">
                 {t(cat.categoryKey)}
-              </h4>
-              <div className="flex flex-wrap gap-2">
+              </h3>
+              <ul className="flex flex-wrap gap-1.5">
                 {cat.skills.map((skill) => (
-                  <span
+                  <li
                     key={skill}
-                    className="px-2.5 py-1 text-[11px] text-white-100 bg-black-100 rounded-full border border-white/10 hover:border-[#915EFF]/50 transition-colors cursor-default"
+                    className="px-2.5 py-1.5 rounded-lg bg-surface-2 text-[13px] text-white border border-transparent hover:border-accent/40 transition-colors cursor-default"
                   >
                     {skill}
-                  </span>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </div>
           ))}
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

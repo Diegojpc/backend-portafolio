@@ -1,106 +1,118 @@
-import React, { useState, memo } from 'react';
+import { useState, memo } from 'react';
 import { Link } from 'react-router-dom';
 
-
-import { styles } from '../styles';
 import { getNavLinks } from '../constants';
-import { logo, menu, close } from '../assets';
 import { LocalAudioPlayer } from './canvas';
 import { useLanguage } from '../context/LanguageContext';
 
+// No backdrop-filter on the bar: it would become the containing block for the
+// player's position:fixed mini-player and panel on mobile.
 const Navbar = memo(({ setAudioElement }) => {
   const [active, setActive] = useState('');
   const [toggle, setToggle] = useState(false);
   const { t, language, toggleLanguage } = useLanguage();
   const navLinks = getNavLinks(t);
+  const nextLangLabel = language === 'en' ? 'Cambiar a español' : 'Switch to English';
 
   return (
-    <nav
-      className={`${styles.paddingX} w-full flex items-center py-5 fixed top-0 z-20 bg-navbar-gradient`}
-    >
-      <div className="w-full flex justify-between items-center max-w-7xl mx-auto -mt-2">
+    <header className="fixed top-0 inset-x-0 z-20 px-3 sm:px-6 pt-3 sm:pt-5">
+      <nav
+        aria-label="Main"
+        className="max-w-[1200px] mx-auto flex items-center justify-between gap-3 pl-3 sm:pl-4 pr-1.5 py-1.5 rounded-full border border-white/10 bg-[rgba(14,14,21,0.85)]"
+      >
         <Link
           to="/"
-          className="flex items-center gap-2"
+          aria-label="Diego J. Peña C."
+          className="flex items-center gap-2.5 shrink-0 min-h-[44px] min-w-[44px]"
           onClick={() => {
-            setActive("");
-            window.scrollTo(0, 0)
+            setActive('');
+            window.scrollTo(0, 0);
           }}
         >
-          <img src={logo} alt="logo" className="w-9 h-9 object-contain" />
-          <p className='text-white text-[18px] font-bold cursor-pointer md:block hidden'>Diego J. Peña C.</p>
+          <img src="/favicon.svg" alt="" width="32" height="32" className="w-8 h-8 rounded-[9px]" />
+          <span className="hidden sm:block font-display font-semibold text-[16px] tracking-[-0.01em] text-white">Diego J. Peña C.</span>
         </Link>
 
-        <div className="flex min-w-0 flex-1 justify-center items-center mt-[-10px] mx-2 sm:mx-6">
-          <LocalAudioPlayer setAudioElement={setAudioElement} />
-        </div>
-
-        <div className="hidden xl:flex flex-row items-center gap-10">
-          <ul className='list-none flex flex-row gap-10'>
-            {navLinks.map((link) => (
-              <li
-                key={link.id}
-                className={`${active === link.title
-                    ? "text-secondary"
-                    : "text-white"
-                  } hover:text-secondary text-[18px] font-medium cursor-pointer`}
+        <ul className="hidden xl:flex list-none items-center gap-1 text-[14px]">
+          {navLinks.map((link) => (
+            <li key={link.id}>
+              <a
+                href={`#${link.id}`}
                 onClick={() => setActive(link.title)}
+                className={`block px-3.5 py-2.5 rounded-full transition-colors ${active === link.title ? 'text-white bg-white/5' : 'text-soft hover:text-white'}`}
               >
-                <a href={`#${link.id}`}>{link.title}</a>
-              </li>
-            ))}
-          </ul>
+                {link.title}
+              </a>
+            </li>
+          ))}
+        </ul>
+
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <LocalAudioPlayer setAudioElement={setAudioElement} />
 
           <button
+            type="button"
             onClick={toggleLanguage}
-            className="flex items-center justify-center font-bold text-[14px] px-2 py-1 border border-white/20 rounded hover:bg-white/10 transition-colors text-white"
-            title="Toggle Language"
+            aria-label={nextLangLabel}
+            className="hidden xl:flex h-11 min-w-[44px] px-3 items-center justify-center rounded-full border border-white/10 font-mono text-[12px] text-white hover:bg-white/5 transition-colors"
           >
-            {language === 'en' ? 'ES' : 'EN'}
+            {language.toUpperCase()} <span className="text-dim">&nbsp;/ {language === 'en' ? 'ES' : 'EN'}</span>
           </button>
-        </div>
-        <div className='xl:hidden relative flex shrink-0 justify-end items-center gap-4'>
-          <img
-            src={toggle ? close : menu}
-            alt="menu"
-            className='w-[28px] h-[28px] object-contain cursor-pointer'
-            onClick={() => setToggle(!toggle)}
-          />
-          <div className={`${!toggle ? 'hidden' : 'flex'} p-6 bg-black absolute top-full right-0 mt-2 min-w-[140px] z-10 rounded-xl shadow-lg`}>
-            <ul className='list-none flex justify-end items-start flex-col gap-4'>
-              {navLinks.map((link) => (
-                <li
-                  key={link.id}
-                  className={`${active === link.title
-                      ? "text-secondary"
-                      : "text-white"
-                    } hover:text-secondary font-poppins font-medium cursor-pointer text-[16px]`}
-                  onClick={() => {
-                    setToggle(!toggle)
-                    setActive(link.title)
-                  }}
-                >
-                  <a href={`#${link.id}`}>{link.title}</a>
-                </li>
-              ))}
-              <li className="w-full mt-2">
-                <button
-                  onClick={() => {
-                    toggleLanguage();
-                    setToggle(false);
-                  }}
-                  className="flex items-center justify-center font-bold text-[14px] px-4 py-2 border border-white/20 rounded hover:bg-white/10 transition-colors text-white w-full"
-                  title="Toggle Language"
-                >
-                  {language === 'en' ? 'ESPAÑOL' : 'ENGLISH'}
-                </button>
-              </li>
-            </ul>
+
+          <div className="xl:hidden relative">
+            <button
+              type="button"
+              onClick={() => setToggle(!toggle)}
+              aria-label={toggle ? 'Close menu' : 'Open menu'}
+              aria-expanded={toggle}
+              className="w-11 h-11 rounded-full bg-white text-ink flex items-center justify-center"
+            >
+              {toggle ? (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+              ) : (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M4 8h16M4 16h16" /></svg>
+              )}
+            </button>
+
+            {toggle && (
+              <div className="absolute top-full right-0 mt-3 min-w-[220px] p-2 rounded-2xl border border-white/10 bg-[#0E0E15] shadow-[0_30px_80px_-20px_rgba(0,0,0,0.8)] z-10">
+                <ul className="list-none flex flex-col">
+                  {navLinks.map((link) => (
+                    <li key={link.id}>
+                      <a
+                        href={`#${link.id}`}
+                        onClick={() => {
+                          setToggle(false);
+                          setActive(link.title);
+                        }}
+                        className={`block px-4 py-3 rounded-xl text-[15px] transition-colors ${active === link.title ? 'text-white bg-white/5' : 'text-soft hover:text-white hover:bg-white/5'}`}
+                      >
+                        {link.title}
+                      </a>
+                    </li>
+                  ))}
+                  <li className="mt-1 pt-1 border-t border-white/10">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        toggleLanguage();
+                        setToggle(false);
+                      }}
+                      className="w-full text-left px-4 py-3 rounded-xl font-mono text-[13px] text-white hover:bg-white/5 transition-colors"
+                    >
+                      {language === 'en' ? 'ESPAÑOL' : 'ENGLISH'}
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            )}
           </div>
         </div>
-      </div>
-    </nav>
-  )
+      </nav>
+    </header>
+  );
 });
+
+Navbar.displayName = 'Navbar';
 
 export default Navbar;

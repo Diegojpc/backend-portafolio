@@ -1,5 +1,5 @@
 // src/components/Contact.jsx
-import React, { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import emailjs from '@emailjs/browser';
 import { AudioVisualizer } from './canvas';
@@ -85,73 +85,80 @@ const Contact = ({ audioElement }) => {
             );
     };
 
+    const cvHref = language === 'en' ? '/resume/Diego_Pena_Resume_EN.pdf' : '/resume/Diego_Pena_Resume_ES.pdf';
+    const inputClass = 'h-12 px-4 rounded-xl border border-white/10 bg-ink text-white text-[15px] placeholder:text-dim outline-none focus:border-accent/70 transition-colors';
+
     return (
-        <div className={`xl:mt-12 flex xl:flex-row flex-col-reverse gap-10 overflow-hidden`}>
+        <div className="flex xl:flex-row flex-col-reverse gap-10 xl:gap-12 overflow-hidden">
             <motion.div
                 variants={slideIn('left', 'tween', 0.2, 1)}
-                className='flex-[0.75] bg-[transparent] p-8 rounded-2xl'
+                className="xl:flex-[0.9] flex flex-col gap-8 p-6 sm:p-9 rounded-3xl border border-white/10 bg-[rgba(11,11,17,0.85)]"
             >
-                <p className={styles.sectionSubText}>{t('contact.subtitle')}</p>
-                <h3 className={styles.sectionHeadText}>{t('contact.title')}</h3>
+                <div>
+                    <p className={styles.sectionSubText}>{t('contact.subtitle')}</p>
+                    <h3 className={styles.sectionHeadText}>{t('contact.title')}</h3>
+                    <p className="mt-3 text-[15px] text-muted">{t('contact.lead')}</p>
+                </div>
 
-                <form
-                    ref={formRef}
-                    onSubmit={handleSubmit}
-                    className='mt-12 flex flex-col gap-8'
-                >
-                    <label className='flex flex-col'>
-                        <span className='text-white font-medium mb-4'>{t('contact.nameLabel')}</span>
-                        <input
-                            type='text'
-                            name='name'
-                            value={form.name}
-                            onChange={handleChange}
-                            placeholder={t('contact.namePlaceholder')}
-                            className='bg-grey py-4 px-6 placeholder:text-secondary text-white rounded-lg outline-none border-none font-medium'
-                        />
-                    </label>
-                    <label className='flex flex-col'>
-                        <span className='text-white font-medium mb-4'>{t('contact.emailLabel')}</span>
-                        <input
-                            type='email'
-                            name='email'
-                            value={form.email}
-                            onChange={handleChange}
-                            placeholder={t('contact.emailPlaceholder')}
-                            className='bg-grey py-4 px-6 placeholder:text-secondary text-white rounded-lg outline-none border-none font-medium'
-                        />
-                    </label>
-                    <label className='flex flex-col'>
-                        <span className='text-white font-medium mb-4'>{t('contact.msgLabel')}</span>
+                <form ref={formRef} onSubmit={handleSubmit} className="flex flex-col gap-5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <label className="flex flex-col gap-2 text-[13px] text-soft">
+                            {t('contact.nameLabel')}
+                            <input
+                                type="text"
+                                name="name"
+                                required
+                                value={form.name}
+                                onChange={handleChange}
+                                placeholder={t('contact.namePlaceholder')}
+                                className={inputClass}
+                            />
+                        </label>
+                        <label className="flex flex-col gap-2 text-[13px] text-soft">
+                            {t('contact.emailLabel')}
+                            <input
+                                type="email"
+                                name="email"
+                                required
+                                value={form.email}
+                                onChange={handleChange}
+                                placeholder={t('contact.emailPlaceholder')}
+                                className={inputClass}
+                            />
+                        </label>
+                    </div>
+                    <label className="flex flex-col gap-2 text-[13px] text-soft">
+                        {t('contact.msgLabel')}
                         <textarea
-                            rows={7}
-                            name='message'
+                            rows={6}
+                            name="message"
+                            required
                             value={form.message}
                             onChange={handleChange}
                             placeholder={t('contact.msgPlaceholder')}
-                            className='bg-grey py-4 px-6 placeholder:text-secondary text-white rounded-lg outline-none border-none font-medium'
+                            className={`${inputClass} h-auto py-3.5 resize-y`}
                         />
                     </label>
 
-                    <div className="flex flex-wrap items-center gap-4">
+                    <div className="flex flex-wrap items-center gap-3">
                         <button
                             type="submit"
-                            className="relative flex items-center justify-center cursor-pointer py-3 px-8 rounded-xl font-bold text-white bg-neutral-900 transition-all duration-300 ease-in-out transform hover:scale-[1.02] shadow-md shadow-primary outline-none w-fit hover:animate-wave"
+                            disabled={loading}
+                            className="h-[50px] px-7 rounded-full bg-accent text-ink font-semibold text-[15px] hover:brightness-110 transition disabled:opacity-60 disabled:cursor-wait"
                         >
                             {loading ? t('contact.btnSending') : t('contact.btnSend')}
-                            <span className="absolute inset-0 border border-primary rounded-xl opacity-0 transition-opacity duration-300 hover:opacity-100"></span>
                         </button>
 
                         <a
-                            href={language === 'en' ? '/resume/Diego_Pena_Resume_EN.pdf' : '/resume/Diego_Pena_Resume_ES.pdf'}
+                            href={cvHref}
                             download
                             target="_blank"
                             rel="noopener noreferrer"
                             aria-label={t('contact.downloadCvAria')}
-                            className="cv-download-btn group relative flex items-center gap-2 cursor-pointer py-3 px-6 rounded-xl font-bold text-white transition-all duration-300 ease-in-out transform hover:scale-[1.02] outline-none w-fit"
+                            className="cv-download-btn group h-[50px] inline-flex items-center gap-2 px-6 rounded-full text-white text-[15px] transition-all duration-300"
                         >
                             <svg
-                                className="w-5 h-5 transition-transform duration-300 group-hover:translate-y-[2px]"
+                                className="w-4 h-4 transition-transform duration-300 group-hover:translate-y-[2px]"
                                 fill="none"
                                 stroke="currentColor"
                                 strokeWidth="2"
@@ -166,9 +173,10 @@ const Contact = ({ audioElement }) => {
                 </form>
             </motion.div>
 
+            {/* 3D sphere: reacts to the navbar player through the shared <audio> element */}
             <motion.div
                 variants={slideIn('right', 'tween', 0.2, 1)}
-                className='xl:flex-1 xl:h-auto md:h-[550px] h-[350px]'
+                className="xl:flex-1 xl:h-auto md:h-[550px] h-[350px]"
             >
                 <AudioVisualizer audioElement={audioElement} />
             </motion.div>

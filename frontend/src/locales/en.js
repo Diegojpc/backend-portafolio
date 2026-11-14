@@ -7,26 +7,41 @@ export const en = {
     contact: "Contact"
   },
   hero: {
-    titlePrefix: "Hey, I'm",
-    name: "Diego",
-    subtitle: "I'm a Acoustic Engineer, Data Scientist and Software Developer"
+    eyebrow: "Acoustic Engineer → applied AI · Colombia",
+    titleA: "Hi, I'm Diego.",
+    titleB: "I turn signals into",
+    titleHighlight: "AI systems",
+    subtitle: "Acoustic Engineer, Data Scientist and Software Developer. Real-time recommendation engines, RAG systems and voice assistants in production.",
+    ctaProjects: "View projects",
+    ctaAI: "Talk to my AI",
+    ctaCv: "Download resume",
+    facts: {
+      f1: { value: "100+", label: "Power BI dashboards shipped" },
+      f2: { value: "Triton · GCP", label: "real-time recommendations in production" },
+      f3: { value: "RAG + Voice", label: "conversational assistants with LLMs" },
+      f4: { value: "ES / EN", label: "bilingual site and assistant" },
+    },
   },
   about: {
-    intro: "Introduction",
-    overview: "Overview.",
-    text1: "I'm Diego — an Acoustic Engineer who crossed into AI and never looked back. That background is not a detour; it's a competitive edge. I understand signal processing, complex systems, and mathematical modeling at a depth most engineers don't, and I apply all of it to build production-grade ML solutions that actually ship.",
-    text2: "I work across the full ML stack: real-time <strong>recommendation engines on GCP</strong> with <strong>NVIDIA Triton Inference Server</strong>, <strong>RAG systems with LangChain</strong>, conversational <strong>AI voice assistants</strong>, and full-stack applications with <strong>FastAPI</strong> and <strong>React</strong>. I don't build demos — I build systems designed to run under real-world pressure and deliver measurable results."
+    intro: "01 — About me",
+    overview: "I don't build demos. I build systems that hold up under real pressure.",
+    text1: "I'm Diego — an Acoustic Engineer who crossed into AI and never looked back. That background is not a detour; it's an edge: signal processing, complex systems and mathematical modeling applied to production ML.",
+    text2: "I work across the full ML stack: real-time <strong>recommendation engines on GCP</strong> with <strong>NVIDIA Triton Inference Server</strong>, <strong>RAG systems with LangChain</strong>, conversational <strong>AI voice assistants</strong>, and full-stack applications with <strong>FastAPI</strong> and <strong>React</strong>.",
+    chip1: "Sound Engineer · USB",
+    chip2: "Data Scientist · Virtualsoft",
+    chip3: "IBM AI Engineering (in progress)",
   },
   contact: {
-    subtitle: "Get in touch",
-    title: "Contact.",
+    subtitle: "06 — Contact",
+    title: "Let's talk.",
+    lead: "Write to me, or ask my AI assistant by chat or voice.",
     nameLabel: "Your Name",
     namePlaceholder: "What's your good name?",
     emailLabel: "Your email",
     emailPlaceholder: "What's your email address?",
     msgLabel: "Your Message",
     msgPlaceholder: "What you want to say?",
-    btnSend: "Send",
+    btnSend: "Send message",
     btnSending: "Sending...",
     alertSuccess: "Thank you. I will get back to you as soon as possible.",
     alertError: "Ahh, something went wrong. Please try again.",
@@ -34,14 +49,11 @@ export const en = {
     downloadCvAria: "Download Diego's resume as PDF"
   },
   projects: {
-    subtitle: "My work",
-    title: "Projects.",
-    text1: "My portfolio is a curated collection of projects at the intersection of <strong>Artificial Intelligence</strong>, <strong>Data Science</strong>, and <strong>Full-Stack Development</strong>. Here, you will see how I translate complex technical challenges into practical, high-impact solutions.",
-    text2: "The projects showcase:",
-    li1: "<strong>Generative AI & LLMs</strong>: Applications built with cutting-edge tools like <strong>LangChain</strong> to create sophisticated Retrieval-Augmented Generation (RAG) systems and intelligent conversational AI.",
-    li2: "<strong>Data Science & Machine Learning</strong>: From predictive models built with <strong>Scikit-learn</strong> and <strong>TensorFlow</strong> to data automation scripts that streamline complex statistical processes in <strong>Python</strong>.",
-    li3: "<strong>Business Intelligence & Visualization</strong>: Dynamic dashboards developed in <strong>Power BI</strong> that transform raw data into clear, strategic insights for decision-making.",
-    text3: "Each project reflects my commitment to building robust, scalable, and efficient technology that delivers tangible results. Dive in to explore my work."
+    subtitle: "05 — Projects",
+    title: "Generative AI, ML and data",
+    intro: "Projects at the intersection of generative AI, data science and full-stack development.",
+    allGithub: "Everything on GitHub",
+    viewCode: "View code",
   },
   projectsData: {
     p1: {
@@ -83,9 +95,19 @@ export const en = {
   },
   chat: {
     title: "Virtual Assistant",
-    cloud: "Cloud",
-    local: "Local CPU",
-    placeholder: "Ask me anything...",
+    subtitle: "AI · Gemini",
+    online: "online",
+    open: "Open virtual assistant",
+    close: "Close chat",
+    attach: "Attach document (.pdf, .txt, .md)",
+    send: "Send message",
+    suggestionsLabel: "Try asking",
+    suggestions: {
+      s1: "What did Diego build with NVIDIA Triton?",
+      s2: "Which projects use RAG?",
+      s3: "What is his cloud stack?",
+    },
+    placeholder: "Ask anything…",
     uploading: "Uploading document:",
     errorParse: "Sorry, I couldn't process",
     successParse: "I have successfully read the document",
@@ -97,8 +119,8 @@ export const en = {
     offline: "no connection"
   },
   experience: {
-    subtitle: "What I have done so far",
-    title: "Work Experience.",
+    subtitle: "03 — Experience",
+    title: "What I have done so far",
     jobs: {
       j1: {
         title: "Data Scientist",
@@ -125,8 +147,8 @@ export const en = {
     },
   },
   education: {
-    subtitle: "My academic background",
-    title: "Education.",
+    subtitle: "04 — Education",
+    title: "Academic background",
     inProgress: "In Progress",
     types: {
       degree: "Degree",
@@ -145,12 +167,27 @@ export const en = {
     },
   },
   skills: {
-    subtitle: "My technical toolkit",
+    label: "02 — Stack",
+    title: "My toolbox",
+    hint: "Hover the 3D models to spin them; below, the full stack by area.",
     cat: {
       languages: "Programming Languages",
       mlai: "Machine Learning & AI",
       cloud: "Cloud, DevOps & MLOps",
       data: "Data & Databases",
     },
+  },
+  player: {
+    idle: "Ambient music",
+    play: "Play music",
+    pause: "Pause music",
+    next: "Next track",
+    prev: "Previous track",
+    openPanel: "Open player",
+    closePanel: "Close player",
+    seek: "Track position",
+    volume: "Volume",
+    upNext: "Up next",
+    visualizerHint: "While it plays, the sphere in Contact reacts to this track.",
   },
 };

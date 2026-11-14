@@ -13,6 +13,21 @@ module.exports = {
         "white-100": "#f3f3f3",
         "neutral-1": "#2e2e2e",
         "neutral-2": "#1a1a1a",
+        // ── Rediseño "Señal" ──
+        ink: "#06060A",
+        surface: "#0B0B11",
+        "surface-2": "#12121A",
+        "surface-3": "#1A1A24",
+        accent: "#2DE2E6",
+        muted: "#A4A4B4",
+        soft: "#B6B6C4",
+        dim: "#8A8A9A",
+        line: "rgba(255,255,255,0.08)",
+      },
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        display: ['"Space Grotesk"', 'Inter', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
       },
       boxShadow: {
         card: "0px 35px 120px -15px #211e35",
