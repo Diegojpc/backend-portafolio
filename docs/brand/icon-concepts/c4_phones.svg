@@ -1,0 +1,27 @@
+<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="1024" height="1024">
+  <title>Listening machine</title>
+  <rect width="1024" height="1024" rx="180" fill="#06060A" />
+  <g id="circuit-headband" fill="none" stroke="#2DE2E6" stroke-width="36" stroke-linejoin="round">
+    <path d="M171 357C209 222 329 135 478 135M546 135C696 135 816 222 854 357" />
+    <path d="M165 417V515M856 417V515" />
+    <path d="M202 370L295 278H352M672 278H729L822 370" stroke-width="30" />
+    <circle cx="512" cy="138" r="36" stroke-width="27" />
+    <circle cx="175" cy="387" r="33" stroke-width="26" />
+    <circle cx="847" cy="387" r="33" stroke-width="26" />
+    <circle cx="384" cy="268" r="31" stroke-width="25" />
+    <circle cx="640" cy="268" r="31" stroke-width="25" />
+  </g>
+  <g id="ear-cups" fill="#2DE2E6">
+    <path d="M214 482C128 478 52 548 52 640V708C52 796 124 872 214 868C209 859 207 849 207 835V515C207 502 209 491 214 482Z" />
+    <rect x="227" y="473" width="73" height="399" rx="36.5" />
+    <path d="M810 483C897 478 972 548 972 640V708C972 797 900 873 809 869C815 859 817 848 817 835V516C817 502 815 491 810 483Z" />
+    <rect x="724" y="473" width="74" height="399" rx="37" />
+  </g>
+  <g id="audio-pulse" fill="none" stroke="#FF2975" stroke-width="55" stroke-linecap="round">
+    <path d="M356 632V691" />
+    <path d="M434 571V743" />
+    <path d="M512.5 502V808" />
+    <path d="M591 571V743" />
+    <path d="M669 632V691" />
+  </g>
+</svg>

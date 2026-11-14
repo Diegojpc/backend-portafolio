@@ -1,0 +1,34 @@
+<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="1024" height="1024">
+<title>Sound sculpts the landscape</title>
+<defs>
+<linearGradient id="sun-gradient" x1="0" y1="76" x2="0" y2="485" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#FF2975" />
+<stop offset=".45" stop-color="#CB4DBC" />
+<stop offset="1" stop-color="#2DE2E6" />
+</linearGradient>
+<linearGradient id="ridge-gradient" x1="0" y1="490" x2="0" y2="896" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#FF2975" />
+<stop offset=".28" stop-color="#DA49DD" />
+<stop offset=".52" stop-color="#9F78F5" />
+<stop offset=".76" stop-color="#4CB5EF" />
+<stop offset="1" stop-color="#2DE2E6" />
+</linearGradient>
+<clipPath id="sun-clip">
+<circle cx="512" cy="411" r="335" />
+</clipPath>
+</defs>
+<rect width="1024" height="1024" rx="224" fill="#06060A" />
+<g id="sliced-sun" fill="url(#sun-gradient)" clip-path="url(#sun-clip)">
+<path d="M160 76H864V246H160Z" />
+<path d="M160 265H864V333H160Z" />
+<path d="M160 353H864V412H160Z" />
+<path d="M160 432H864V482H160Z" />
+</g>
+<g id="spectrogram-terrain" fill="#06060A" stroke="url(#ridge-gradient)" stroke-width="22" stroke-linejoin="round" stroke-linecap="round">
+<path id="far-ridge" d="M114 591H168C197 591 210 555 235 557C258 559 269 573 289 550C309 527 318 494 339 496C359 498 368 523 390 508C427 482 456 417 487 418C523 419 548 481 577 491C595 498 602 482 623 494C646 508 659 539 682 529C707 518 722 481 743 483C771 485 788 541 817 550C842 558 857 577 887 591H910" />
+<path id="rear-ridge" d="M94 665H155C184 665 197 642 223 645C247 647 266 615 285 593C309 564 326 539 346 542C378 546 400 588 432 588C463 588 482 555 505 562C537 571 564 501 596 505C627 507 650 559 678 580C703 599 725 599 745 622C768 649 787 665 820 665H930" />
+<path id="middle-ridge" d="M73 733H122C151 733 181 694 213 679C248 661 267 677 293 686C330 699 351 682 379 655C405 630 429 602 452 610C489 620 509 665 550 666C592 669 627 622 660 596C688 574 708 568 732 586C767 611 784 651 814 651C837 651 858 626 880 637C904 650 923 687 950 700" />
+<path id="near-ridge" d="M69 801H116C149 801 173 768 206 750C235 733 260 744 284 752C317 763 343 746 365 726C387 707 406 708 428 730C451 754 471 774 494 757C520 738 531 747 550 751C586 760 617 727 647 702C677 676 698 651 724 661C762 674 783 719 812 735C839 751 857 731 875 737C899 746 920 782 951 791" />
+<path id="front-ridge" d="M61 902C111 875 153 824 187 801C222 777 239 802 272 807C309 813 333 776 358 741C379 712 395 694 416 700C447 708 470 752 498 787C533 833 569 862 611 861C657 860 687 818 722 792C749 771 771 772 797 793C822 814 837 844 868 864C900 884 929 896 963 906" />
+</g>
+</svg>

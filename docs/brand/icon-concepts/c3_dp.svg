@@ -1,0 +1,40 @@
+<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="1024" height="1024">
+  <title>DP equalizer monogram</title>
+  <defs>
+    <linearGradient id="spectrum" x1="0" y1="206" x2="0" y2="814" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2DE2E6" />
+      <stop offset="0.28" stop-color="#41CBDF" />
+      <stop offset="0.53" stop-color="#A484CE" />
+      <stop offset="0.78" stop-color="#E83B9B" />
+      <stop offset="1" stop-color="#FF2975" />
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" rx="205" fill="#06060A" />
+  <g id="monogram" fill="url(#spectrum)">
+    <g id="letter-d">
+      <path d="M83 283H117V771H83Z" />
+      <path d="M128 264H162V794H128Z" />
+      <path d="M173 243H207V814H173Z" />
+      <path d="M218 220L224 219H252V374H218ZM218 661H252V814H218Z" />
+      <path d="M263 206H297V374H263ZM263 661H297V814H263Z" />
+      <path d="M308 222L332 221L342 225V389Q325 381 308 378ZM308 657Q326 654 342 646V807Q326 812 308 813Z" />
+      <path d="M353 246H379L386 249V431Q372 409 353 397ZM353 640Q373 624 386 603V788L378 793H353Z" />
+      <path d="M397 272L422 271L429 276V759L422 766H397V582Q401 563 400 541V490Q400 470 397 453Z" />
+      <path d="M439 304L461 303L469 311V720L462 730H439Z" />
+      <path d="M479 347H495L506 365V664L496 684H479Z" />
+      <path d="M515 405H524Q541 455 541 515Q541 576 524 626H515Z" />
+    </g>
+    <g id="letter-p">
+      <path d="M550 279H584V813H550Z" />
+      <path d="M595 251L601 250H629V813H595Z" />
+      <path d="M640 224H673V813H640Z" />
+      <path d="M683 206H717V374H683ZM683 505H717V634H683Z" />
+      <path d="M727 224H754L760 226V374H727ZM727 505H760V634H727Z" />
+      <path d="M770 245H794L803 248V384Q788 375 770 374ZM770 505Q788 504 803 495V628Q787 632 770 633Z" />
+      <path d="M813 267H834L847 272V614L820 624H813V482Q823 469 822 447V428Q822 407 813 394Z" />
+      <path d="M857 289H869L889 301V589L866 604L857 606Z" />
+      <path d="M899 324H913L927 341V550L911 572H899Z" />
+      <path d="M937 371H945Q960 404 960 445Q960 486 944 524H937Z" />
+    </g>
+  </g>
+</svg>

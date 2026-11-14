@@ -1,0 +1,25 @@
+<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="1024" height="1024">
+  <title>Signal becomes intelligence</title>
+  <defs>
+    <linearGradient id="signal-grad" x1="49" y1="512" x2="970" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2DE2E6" />
+      <stop offset="0.29" stop-color="#2DE2E6" />
+      <stop offset="0.52" stop-color="#BF40EE" />
+      <stop offset="0.75" stop-color="#F428AE" />
+      <stop offset="1" stop-color="#FF2975" />
+    </linearGradient>
+  </defs>
+  <rect id="background" width="1024" height="1024" rx="180" fill="#06060A" />
+  <g id="signal-to-network" fill="url(#signal-grad)" stroke="url(#signal-grad)" stroke-linecap="round" stroke-linejoin="round">
+    <path id="wave" d="M50 516H106C149 516 151 404 192 404C235 404 235 643 278 643C321 643 323 345 377 345C430 345 428 572 474 572C499 572 512 502 537 502" fill="none" stroke-width="40" />
+    <path id="connections" d="M537 502 698 326H917L746 502 919 675H698L537 502H746L698 326M746 502 698 675" fill="none" stroke-width="28" />
+    <g id="nodes" stroke="none">
+      <circle cx="537" cy="502" r="49" />
+      <circle cx="698" cy="326" r="50" />
+      <circle cx="746" cy="502" r="50" />
+      <circle cx="698" cy="675" r="50" />
+      <circle cx="917" cy="328" r="51" />
+      <circle cx="919" cy="674" r="53" />
+    </g>
+  </g>
+</svg>

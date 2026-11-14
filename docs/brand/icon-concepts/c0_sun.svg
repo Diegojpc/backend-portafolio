@@ -1,0 +1,24 @@
+<svg viewBox="0 0 1024 1024" width="1024" height="1024" xmlns="http://www.w3.org/2000/svg">
+  <title>Synthwave sliced sunset</title>
+  <defs>
+    <linearGradient id="sun-gradient" x1="0" y1="100" x2="0" y2="796" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2DE2E6" />
+      <stop offset="0.23" stop-color="#2DE2E6" />
+      <stop offset="0.49" stop-color="#868BE5" />
+      <stop offset="0.69" stop-color="#D33BBE" />
+      <stop offset="0.85" stop-color="#FF2975" />
+      <stop offset="1" stop-color="#FF2975" />
+    </linearGradient>
+    <clipPath id="sun-slices">
+      <path d="M160 100H864V324H160ZM160 350H864V444H160ZM160 470H864V554H160ZM160 578H864V659H160ZM160 683H864V800H160Z" />
+    </clipPath>
+  </defs>
+  <rect id="background" width="1024" height="1024" rx="248" fill="#06060A" />
+  <g id="sun" clip-path="url(#sun-slices)">
+    <circle cx="512" cy="448" r="348" fill="url(#sun-gradient)" />
+  </g>
+  <g id="perspective-grid" fill="none" stroke="#2DE2E6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M88 934 296 789H728L936 934Z" stroke-width="16" />
+    <path d="M231 834H793M161 883H863M400 789 298 934M512 789V934M624 789 726 934" stroke-width="12" />
+  </g>
+</svg>
