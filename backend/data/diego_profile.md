@@ -1,7 +1,7 @@
 # Diego José Peña Casadiegos — perfil actualizado (noviembre 2026)
 
 > **Prioridad:** este documento es la fuente más reciente. Si los CV en PDF dicen algo distinto
-> (por ejemplo "Ingeniero de Sonido" o un curso marcado "en curso"), lo correcto es lo que dice aquí.
+> (por ejemplo "Ingeniero de Sonido"), lo correcto es lo que dice aquí.
 
 ## Quién es Diego
 Diego es **Ingeniero de IA**, **Científico de Datos** y **Desarrollador de Software**, de Medellín, Colombia.
@@ -18,9 +18,15 @@ Su forma de trabajar: convierte ideas en productos que funcionan, trabajando com
 Cree en la tecnología abierta y en una IA que amplíe las capacidades de la gente, no que las concentre.
 
 ## Trabajo actual
-- **Dyaboo** (www.dyaboo.com) — Ingeniero de IA, actualmente. Dyaboo es una marca colombiana de moda femenina con sede
-  en Medellín (tienda en línea, tiendas físicas en el Valle de Aburrá y canal mayorista).
-  Si preguntan por los detalles de sus proyectos en Dyaboo, di que no tienes esos detalles y sugiere escribirle a Diego.
+- **Dyaboo** (www.dyaboo.com) — **Ingeniero de IA / Científico de Datos** (junio 2026 – presente). Dyaboo es una marca
+  colombiana de moda femenina con sede en Medellín (tienda en línea, tiendas físicas en el Valle de Aburrá y canal mayorista).
+  - Lidera el desarrollo de software asistido por IA, orquestando agentes de IA en todo el ciclo de vida (diseño, código,
+    pruebas y despliegue) para acelerar la entrega y la productividad.
+  - Construye desde cero una plataforma centralizada de analítica en GCP que unifica los datos de la empresa, pensada para
+    integrar modelos de machine learning en fases futuras.
+  - Aprovisiona y gestiona toda la infraestructura en la nube con Terraform (Infraestructura como Código).
+  - Desarrolló un bot de reportes en tiempo real para asesores comerciales que genera y envía un resumen en audio de cada
+    interacción con el cliente, para dar trazabilidad al proceso comercial.
 
 ## Experiencia anterior
 - **Virtualsoft — Científico de Datos** (agosto 2025 – mayo 2026)
@@ -37,7 +43,7 @@ Cree en la tecnología abierta y en una IA que amplíe las capacidades de la gen
 
 ## Formación
 - **Bootcamp de Arquitectura en la Nube – Nivel Avanzado (Innovador Avanzado)**, MinTIC – Talento Tech con IU Training
-  (Universidad de Antioquia, Universidad de Caldas y Ubicua Technology). **Terminado y certificado en 2026** (159 horas).
+  (Universidad de Antioquia, Universidad de Caldas y Ubicua Technology). **Terminado y certificado en julio de 2026** (159 horas).
   Cubrió AWS (EC2, VPC, EKS), contenedores y Kubernetes, arquitecturas escalables y resilientes, seguridad (IAM, RBAC,
   redes seguras), observabilidad con Prometheus y Grafana, IaC con Terraform y CloudFormation, y DevOps con GitHub Actions
   y Azure DevOps.
@@ -56,7 +62,7 @@ Cree en la tecnología abierta y en una IA que amplíe las capacidades de la gen
   Azure DevOps, Prometheus/Grafana, NVIDIA Triton Inference Server.
 - **Datos:** Qdrant (bases vectoriales), PostgreSQL, MySQL, SQLite, Pandas, NumPy, Power BI.
 - **Web:** React, Three.js (react-three-fiber), Vite, Tailwind CSS.
-- **Idiomas:** español nativo, inglés intermedio (B1).
+- **Idiomas:** español nativo, inglés intermedio-alto (B2).
 
 ## Proyectos
 - **Este portafolio (diegojpc.com):** sitio 3D interactivo (React + Three.js) con un asistente de IA por chat y por

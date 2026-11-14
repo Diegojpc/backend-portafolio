@@ -25,10 +25,10 @@ export const en = {
   about: {
     intro: "01 — About me",
     overview: "I don't build demos. I build systems that hold up under real pressure.",
-    text1: "I'm Diego: an acoustic engineer by training, with a postgraduate specialization in Software Development from EAFIT, now working as an AI engineer. Acoustics gave me signal processing, mathematics and systems thinking; the postgraduate program, the discipline of building software that can be maintained. I believe in open technology and in AI that expands what people can do instead of concentrating it.",
+    text1: "I'm Diego: an acoustic engineer by training, with a postgraduate specialization in Software Development from EAFIT, now working as an AI engineer at Dyaboo. Acoustics gave me signal processing, mathematics and systems thinking; the postgraduate program, the discipline of building software that can be maintained. I believe in open technology and in AI that expands what people can do instead of concentrating it.",
     text2: "I work across the full ML stack: real-time <strong>recommendation engines on GCP</strong> with <strong>NVIDIA Triton Inference Server</strong>, <strong>RAG systems with LangChain</strong>, conversational <strong>AI voice assistants</strong>, and full-stack applications with <strong>FastAPI</strong> and <strong>React</strong>.",
     chip1: "Software Development Specialization · EAFIT",
-    chip2: "Data Scientist · Virtualsoft",
+    chip2: "AI Engineer · Dyaboo",
     chip3: "Acoustic Engineer · USB",
     chip4: "IBM AI Engineering (in progress)",
   },
@@ -123,6 +123,14 @@ export const en = {
     subtitle: "03 — Experience",
     title: "What I have done so far",
     jobs: {
+      j0: {
+        title: "AI Engineer / Data Scientist",
+        period: "June 2026 – Present",
+        p1: "Lead AI-assisted software development, orchestrating AI agents across the full life-cycle (design, coding, testing and deployment) to speed up delivery and productivity.",
+        p2: "Building from scratch a centralized analytics platform on Google Cloud Platform (GCP) that unifies company data and is designed to integrate machine learning models.",
+        p3: "Provision and manage all cloud infrastructure with Terraform, following Infrastructure as Code (IaC) practices.",
+        p4: "Built a real-time reporting bot for sales advisors that generates and sends an audio summary of each client interaction, giving the sales process full traceability.",
+      },
       j1: {
         title: "Data Scientist",
         period: "August 2025 – May 2026",

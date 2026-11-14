@@ -8,6 +8,7 @@ import { useLanguage } from '../context/LanguageContext';
 
 import { styles } from '../styles';
 import { slideIn } from '../utils/motion';
+import { RESUME } from '../constants';
 
 const Contact = ({ audioElement }) => {
     const formRef = useRef();
@@ -85,7 +86,7 @@ const Contact = ({ audioElement }) => {
             );
     };
 
-    const cvHref = language === 'en' ? '/resume/Diego_Pena_Resume_EN.pdf' : '/resume/Diego_Pena_Resume_ES.pdf';
+    const cv = RESUME[language] ?? RESUME.es;
     const inputClass = 'h-12 px-4 rounded-xl border border-white/10 bg-ink text-white text-[15px] placeholder:text-dim outline-none focus:border-accent/70 transition-colors';
 
     return (
@@ -150,8 +151,8 @@ const Contact = ({ audioElement }) => {
                         </button>
 
                         <a
-                            href={cvHref}
-                            download
+                            href={cv.href}
+                            download={cv.name}
                             target="_blank"
                             rel="noopener noreferrer"
                             aria-label={t('contact.downloadCvAria')}

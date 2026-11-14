@@ -25,10 +25,10 @@ export const es = {
   about: {
     intro: "01 — Sobre mí",
     overview: "No construyo demos. Construyo sistemas que aguantan presión real.",
-    text1: "Soy Diego, ingeniero acústico de formación, especialista en Desarrollo de Software por EAFIT y hoy ingeniero de IA. De la acústica traigo el procesamiento de señales, las matemáticas y el pensamiento de sistemas; del posgrado, la disciplina de construir software que se puede mantener. Creo en la tecnología abierta y en una IA que amplíe las capacidades de la gente, no que las concentre.",
+    text1: "Soy Diego, ingeniero acústico de formación, especialista en Desarrollo de Software por EAFIT y hoy ingeniero de IA en Dyaboo. De la acústica traigo el procesamiento de señales, las matemáticas y el pensamiento de sistemas; del posgrado, la disciplina de construir software que se puede mantener. Creo en la tecnología abierta y en una IA que amplíe las capacidades de la gente, no que las concentre.",
     text2: "Trabajo en todo el stack de ML: <strong>motores de recomendación en tiempo real en GCP</strong> con <strong>NVIDIA Triton Inference Server</strong>, <strong>sistemas RAG con LangChain</strong>, <strong>asistentes de voz conversacionales con IA</strong> y aplicaciones full-stack con <strong>FastAPI</strong> y <strong>React</strong>.",
     chip1: "Esp. en Desarrollo de Software · EAFIT",
-    chip2: "Científico de Datos · Virtualsoft",
+    chip2: "Ingeniero de IA · Dyaboo",
     chip3: "Ingeniero Acústico · USB",
     chip4: "IBM AI Engineering (en curso)",
   },
@@ -123,6 +123,14 @@ export const es = {
     subtitle: "03 — Experiencia",
     title: "Lo que he hecho hasta ahora",
     jobs: {
+      j0: {
+        title: "Ingeniero de IA / Científico de Datos",
+        period: "Junio 2026 – Presente",
+        p1: "Lidero el desarrollo de software asistido por IA, orquestando agentes de IA en todo el ciclo de vida (diseño, código, pruebas y despliegue) para acelerar la entrega y la productividad.",
+        p2: "Construyo desde cero una plataforma centralizada de analítica en Google Cloud Platform (GCP) que unifica los datos de la empresa y está pensada para integrar modelos de machine learning.",
+        p3: "Aprovisiono y gestiono toda la infraestructura en la nube con Terraform, siguiendo prácticas de Infraestructura como Código (IaC).",
+        p4: "Desarrollé un bot de reportes en tiempo real para asesores comerciales que genera y envía un resumen en audio de cada interacción con el cliente, para dar trazabilidad al proceso comercial.",
+      },
       j1: {
         title: "Científico de Datos",
         period: "Agosto 2025 – Mayo 2026",

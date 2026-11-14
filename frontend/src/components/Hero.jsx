@@ -1,12 +1,13 @@
 import { styles } from '../styles';
 import { useLanguage } from '../context/LanguageContext';
 import { OPEN_CHAT_EVENT } from '../utils/events';
+import { RESUME } from '../constants';
 
 const FACTS = ['f1', 'f2', 'f3', 'f4'];
 
 const Hero = ({ isLoaded }) => {
   const { t, language } = useLanguage();
-  const cvHref = language === 'en' ? '/resume/Diego_Pena_Resume_EN.pdf' : '/resume/Diego_Pena_Resume_ES.pdf';
+  const cv = RESUME[language] ?? RESUME.es;
 
   const openChat = () => {
     console.info('[Hero] "Talk to my AI" clicked, opening chat widget.');
@@ -66,8 +67,8 @@ const Hero = ({ isLoaded }) => {
             {t('hero.ctaAI')}
           </button>
           <a
-            href={cvHref}
-            download
+            href={cv.href}
+            download={cv.name}
             target="_blank"
             rel="noopener noreferrer"
             className="h-[52px] inline-flex items-center justify-center gap-2 px-3 text-soft text-[15px] hover:text-white transition-colors"

@@ -121,7 +121,25 @@ export const getProjects = (t) => [
   },
 ];
 
+// CV files live in public/resume/ (uploaded to Hostinger separately, not in the code ZIP).
+// `name` is the file name the visitor's browser saves, so the spaces in the source names never show.
+export const RESUME = {
+  es: { href: encodeURI('/resume/CV ES - 2026.pdf'), name: 'Diego_Pena_CV_ES.pdf' },
+  en: { href: encodeURI('/resume/CV EN - 2026.pdf'), name: 'Diego_Pena_CV_EN.pdf' },
+};
+
 export const getExperiences = (t) => [
+  {
+    company: 'Dyaboo',
+    title: t('experience.jobs.j0.title'),
+    period: t('experience.jobs.j0.period'),
+    points: [
+      t('experience.jobs.j0.p1'),
+      t('experience.jobs.j0.p2'),
+      t('experience.jobs.j0.p3'),
+      t('experience.jobs.j0.p4'),
+    ],
+  },
   {
     company: 'Virtualsoft',
     title: t('experience.jobs.j1.title'),
@@ -159,7 +177,7 @@ export const getEducation = (t) => [
   {
     degree: t('education.items.e1.degree'),
     institution: 'Talento Tech (MinTIC) · IU Training',
-    period: '2026',
+    period: 'Jul 2026',
     type: 'certification',
   },
   {
