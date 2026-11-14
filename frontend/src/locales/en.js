@@ -7,11 +7,11 @@ export const en = {
     contact: "Contact"
   },
   hero: {
-    eyebrow: "Acoustic Engineer → applied AI · Colombia",
+    eyebrow: "AI Engineer · Data Scientist · Software Developer",
     titleA: "Hi, I'm Diego.",
-    titleB: "I turn signals into",
-    titleHighlight: "AI systems",
-    subtitle: "Acoustic Engineer, Data Scientist and Software Developer. Real-time recommendation engines, RAG systems and voice assistants in production.",
+    titleB: "I build AI that works",
+    titleHighlight: "for people",
+    subtitle: "From Colombia, I ship RAG systems, LLM voice assistants and real-time recommendation engines to production. I come from sound engineering: signal processing is my foundation.",
     ctaProjects: "View projects",
     ctaAI: "Talk to my AI",
     ctaCv: "Download resume",
@@ -25,11 +25,11 @@ export const en = {
   about: {
     intro: "01 — About me",
     overview: "I don't build demos. I build systems that hold up under real pressure.",
-    text1: "I'm Diego — an Acoustic Engineer who crossed into AI and never looked back. That background is not a detour; it's an edge: signal processing, complex systems and mathematical modeling applied to production ML.",
+    text1: "I'm Diego, an AI engineer. I trained as a sound engineer, and that is where the tools I use every day come from: signal processing, mathematics and systems thinking applied to production machine learning. I believe in open technology and in AI that expands what people can do instead of concentrating it.",
     text2: "I work across the full ML stack: real-time <strong>recommendation engines on GCP</strong> with <strong>NVIDIA Triton Inference Server</strong>, <strong>RAG systems with LangChain</strong>, conversational <strong>AI voice assistants</strong>, and full-stack applications with <strong>FastAPI</strong> and <strong>React</strong>.",
-    chip1: "Sound Engineer · USB",
+    chip1: "IBM AI Engineering (in progress)",
     chip2: "Data Scientist · Virtualsoft",
-    chip3: "IBM AI Engineering (in progress)",
+    chip3: "Background: Sound Engineering · USB",
   },
   contact: {
     subtitle: "06 — Contact",

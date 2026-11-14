@@ -7,11 +7,11 @@ export const es = {
     contact: "Contacto"
   },
   hero: {
-    eyebrow: "Ingeniero Acústico → IA aplicada · Colombia",
+    eyebrow: "Ingeniero de IA · Científico de Datos · Desarrollador de Software",
     titleA: "Hola, soy Diego.",
-    titleB: "Convierto señales en",
-    titleHighlight: "sistemas de IA",
-    subtitle: "Ingeniero Acústico, Científico de Datos y Desarrollador de Software. Motores de recomendación en tiempo real, sistemas RAG y asistentes de voz en producción.",
+    titleB: "Construyo IA que trabaja",
+    titleHighlight: "para la gente",
+    subtitle: "Desde Colombia, llevo a producción sistemas RAG, asistentes de voz con LLMs y motores de recomendación en tiempo real. Vengo de la ingeniería de sonido: el procesamiento de señales es mi base.",
     ctaProjects: "Ver proyectos",
     ctaAI: "Hablar con mi IA",
     ctaCv: "Descargar CV",
@@ -25,11 +25,11 @@ export const es = {
   about: {
     intro: "01 — Sobre mí",
     overview: "No construyo demos. Construyo sistemas que aguantan presión real.",
-    text1: "Soy Diego — un Ingeniero Acústico que cruzó al mundo de la IA y nunca volvió la vista atrás. Ese trasfondo no es un desvío; es una ventaja: procesamiento de señales, sistemas complejos y modelado matemático aplicados a soluciones de ML en producción.",
+    text1: "Soy Diego, ingeniero de IA. Me formé como ingeniero de sonido, y de ahí traigo lo que hoy uso a diario: procesamiento de señales, matemáticas y pensamiento de sistemas aplicados a machine learning en producción. Creo en la tecnología abierta y en una IA que amplíe las capacidades de la gente, no que las concentre.",
     text2: "Trabajo en todo el stack de ML: <strong>motores de recomendación en tiempo real en GCP</strong> con <strong>NVIDIA Triton Inference Server</strong>, <strong>sistemas RAG con LangChain</strong>, <strong>asistentes de voz conversacionales con IA</strong> y aplicaciones full-stack con <strong>FastAPI</strong> y <strong>React</strong>.",
-    chip1: "Ing. de Sonido · USB",
+    chip1: "IBM AI Engineering (en curso)",
     chip2: "Científico de Datos · Virtualsoft",
-    chip3: "IBM AI Engineering (en curso)",
+    chip3: "Base: Ing. de Sonido · USB",
   },
   contact: {
     subtitle: "06 — Contacto",

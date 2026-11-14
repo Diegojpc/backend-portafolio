@@ -26,9 +26,17 @@ const Hero = ({ isLoaded }) => {
         className="relative z-10 w-full max-w-[1200px] mx-auto flex flex-col gap-6 sm:gap-7 transition-opacity duration-1000 ease-in-out"
         style={{ opacity: isLoaded ? 1 : 0, pointerEvents: isLoaded ? 'auto' : 'none' }}
       >
-        <p className="flex items-center gap-2.5 font-mono text-[11px] sm:text-[13px] tracking-[0.04em] text-soft">
-          <span className="w-2 h-2 rounded-full bg-accent" aria-hidden="true" />
-          {t('hero.eyebrow')}
+        {/* Roles separated by " · ": each one is kept on a single line so narrow screens wrap between roles, not inside one. */}
+        <p className="flex items-start gap-2.5 font-mono text-[11px] sm:text-[13px] tracking-[0.04em] text-soft">
+          <span className="w-2 h-2 mt-[0.4em] shrink-0 rounded-full bg-accent" aria-hidden="true" />
+          <span className="flex flex-wrap gap-x-2">
+            {t('hero.eyebrow').split(' · ').map((role, i) => (
+              <span key={role} className="whitespace-nowrap">
+                {i > 0 && <span className="text-dim" aria-hidden="true">·&nbsp;</span>}
+                {role}
+              </span>
+            ))}
+          </span>
         </p>
 
         <h1 className={`${styles.heroHeadText} max-w-[1000px]`}>
