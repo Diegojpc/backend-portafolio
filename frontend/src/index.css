@@ -12,6 +12,15 @@
   color-scheme: dark;
 }
 
+/* Pin the rem base. Tailwind spacing/sizing is rem-based but the type scale uses px, so a browser
+   default font size other than 16px (e.g. Brave set to "Very large" = 24px) inflated every padding,
+   height and gap by 1.5x while the text stayed the same, which pushed the navbar items (language
+   toggle, music player) out of the bar. Fixing the base keeps the layout as designed everywhere.
+   Proper scaling with the user's font preference needs px text → rem and em breakpoints. */
+html {
+  font-size: 16px;
+}
+
 html, body {
   font-family: "Inter", system-ui, sans-serif;
   background: #06060A;

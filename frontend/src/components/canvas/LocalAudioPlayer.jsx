@@ -372,7 +372,7 @@ const LocalAudioPlayer = ({ setAudioElement }) => {
               onClick={() => setPanelOpen((o) => !o)}
               aria-label={t('player.openPanel')}
               aria-expanded={panelOpen}
-              className="w-[150px] lg:w-[180px] h-8 text-left truncate text-[13px] font-medium text-white hover:text-accent transition-colors"
+              className="w-[130px] h-8 text-left truncate text-[13px] font-medium text-white hover:text-accent transition-colors"
             >
               {track.title}
             </button>
@@ -386,7 +386,7 @@ const LocalAudioPlayer = ({ setAudioElement }) => {
             data-player-toggle
             onClick={() => setPanelOpen((o) => !o)}
             aria-expanded={panelOpen}
-            className="pr-3 h-8 font-mono text-[12px] text-soft hover:text-white transition-colors"
+            className="pr-3 h-8 whitespace-nowrap font-mono text-[12px] text-soft hover:text-white transition-colors"
           >
             {t('player.idle')}
           </button>

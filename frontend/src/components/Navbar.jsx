@@ -33,13 +33,13 @@ const Navbar = memo(({ setAudioElement }) => {
           <span className="hidden sm:block font-display font-semibold text-[16px] tracking-[-0.01em] text-white">Diego J. Peña C.</span>
         </Link>
 
-        <ul className="hidden xl:flex list-none items-center gap-1 text-[14px]">
+        <ul className="hidden xl:flex min-w-0 list-none items-center gap-0.5 text-[14px]">
           {navLinks.map((link) => (
             <li key={link.id}>
               <a
                 href={`#${link.id}`}
                 onClick={() => setActive(link.title)}
-                className={`block px-3.5 py-2.5 rounded-full transition-colors ${active === link.title ? 'text-white bg-white/5' : 'text-soft hover:text-white'}`}
+                className={`block whitespace-nowrap px-3 py-2.5 rounded-full transition-colors ${active === link.title ? 'text-white bg-white/5' : 'text-soft hover:text-white'}`}
               >
                 {link.title}
               </a>
@@ -47,14 +47,14 @@ const Navbar = memo(({ setAudioElement }) => {
           ))}
         </ul>
 
-        <div className="flex items-center gap-1.5 sm:gap-2">
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
           <LocalAudioPlayer setAudioElement={setAudioElement} />
 
           <button
             type="button"
             onClick={toggleLanguage}
             aria-label={nextLangLabel}
-            className="hidden xl:flex h-11 min-w-[44px] px-3 items-center justify-center rounded-full border border-white/10 font-mono text-[12px] text-white hover:bg-white/5 transition-colors"
+            className="hidden xl:flex shrink-0 whitespace-nowrap h-11 min-w-[44px] px-3 items-center justify-center rounded-full border border-white/10 font-mono text-[12px] text-white hover:bg-white/5 transition-colors"
           >
             {language.toUpperCase()} <span className="text-dim">&nbsp;/ {language === 'en' ? 'ES' : 'EN'}</span>
           </button>
