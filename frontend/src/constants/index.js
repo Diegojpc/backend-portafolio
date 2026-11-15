@@ -3,6 +3,7 @@ import {
   linkedin,
   projectImages,
 } from "../assets";
+import { CLAUDE_CODE_PATH, MCP_PATH } from "../components/canvas/logoPaths";
 
 export const getNavLinks = (t) => [
   { id: "about", title: t("nav.about") },
@@ -25,30 +26,44 @@ const socialLinks = [
   },
 ];
 
+// The 3D cards of the Stack section. `modelPath` = a GLB in public/models; `svgPath` = a logo outline extruded
+// in real time (components/canvas/ExtrudedLogo.jsx). Claude and MCP lead: they are how the code gets written now.
 const techStackIcons = [
   {
-    name: "React Developer",
-    modelPath: "models/react_logo-transformed.glb",
-    scale: 1,
+    name: "Claude Code",
+    labelKey: "skills.icons.claude",
+    svgPath: CLAUDE_CODE_PATH,
+    color: "#D97757",
+    scale: 0.18,
+    depth: 4,
+    // Pixel art: square edges, so only a hairline bevel.
+    bevel: 0.08,
+    rotation: [0, 0, 0],
+    // Three agents (site palette) orbiting the model.
+    orbiters: ["#2DE2E6", "#9700CC", "#F6019D"],
+    orbitRadius: 15.5,
+  },
+  {
+    name: "MCP",
+    labelKey: "skills.icons.mcp",
+    svgPath: MCP_PATH,
+    color: "#E8E8F0",
+    scale: 0.19,
     rotation: [0, 0, 0],
   },
   {
-    name: "Python Developer",
+    name: "Python",
+    labelKey: "skills.icons.python",
     modelPath: "models/python-transformed.glb",
     scale: 0.8,
     rotation: [0, 0, 0],
   },
   {
-    name: "Interactive Developer",
-    modelPath: "models/three.js-transformed.glb",
-    scale: 0.05,
+    name: "React",
+    labelKey: "skills.icons.react",
+    modelPath: "models/react_logo-transformed.glb",
+    scale: 1,
     rotation: [0, 0, 0],
-  },
-  {
-    name: "Knowledge in Git",
-    modelPath: "models/git-svg-transformed.glb",
-    scale: 0.05,
-    rotation: [0, -Math.PI / 4, 0],
   },
 ];
 

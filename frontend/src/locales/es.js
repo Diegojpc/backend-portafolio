@@ -223,7 +223,13 @@ export const es = {
   skills: {
     label: "02 — Stack",
     title: "Mi caja de herramientas",
-    hint: "Los modelos 3D giran al pasar el cursor; debajo, el stack completo por área.",
+    hint: "Así se programa hoy: agentes de IA que escriben, prueban y despliegan código, conectados a herramientas por MCP. Arrastra los modelos para girarlos.",
+    icons: {
+      claude: "Claude Code · agentes",
+      mcp: "MCP · herramientas",
+      python: "Python · IA y datos",
+      react: "React · interfaces",
+    },
     cat: {
       languages: "Lenguajes de Programación",
       mlai: "Machine Learning e IA",

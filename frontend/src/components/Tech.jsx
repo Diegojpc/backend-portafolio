@@ -65,7 +65,7 @@ const TechStack = () => {
           <p className="skills-subtitle max-w-[360px] text-[15px] leading-[1.6] text-muted">{t('skills.hint')}</p>
         </div>
 
-        {/* 3D GLB models (TechIconCardExperience) — unchanged, only the card around them */}
+        {/* 3D cards: GLB models, or logo outlines extruded in real time (Claude, MCP) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
           {techStackIcons.map((techStackIcon, i) => (
             <div
@@ -76,7 +76,7 @@ const TechStack = () => {
                 <TechIconCardExperience model={techStackIcon} />
               </div>
               <div className="flex justify-between items-center gap-3">
-                <span className="font-display text-[17px] font-semibold text-white">{techStackIcon.name}</span>
+                <span className="font-display text-[17px] font-semibold text-white">{t(techStackIcon.labelKey)}</span>
                 <span className="font-mono text-[11px] text-dim">{String(i + 1).padStart(2, '0')}</span>
               </div>
             </div>

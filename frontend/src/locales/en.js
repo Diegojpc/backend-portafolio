@@ -223,7 +223,13 @@ export const en = {
   skills: {
     label: "02 — Stack",
     title: "My toolbox",
-    hint: "Hover the 3D models to spin them; below, the full stack by area.",
+    hint: "This is how code gets written today: AI agents that write, test and ship code, connected to tools through MCP. Drag the models to spin them.",
+    icons: {
+      claude: "Claude Code · agents",
+      mcp: "MCP · tools",
+      python: "Python · AI & data",
+      react: "React · interfaces",
+    },
     cat: {
       languages: "Programming Languages",
       mlai: "Machine Learning & AI",

@@ -1,29 +1,17 @@
 import { Environment, Float, OrbitControls, useGLTF } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
-import { Suspense, useEffect } from "react";
-import * as THREE from "three";
+import { Suspense } from "react";
 import WebGLGuard from "./WebGLGuard";
 import useLazyCanvas from "../../hooks/useLazyCanvas";
 import { techStackIcons } from "../../constants";
+import ExtrudedLogo from "./ExtrudedLogo";
 
 // Download the models in the background as soon as this chunk loads, without suspending any UI.
-techStackIcons.forEach((m) => useGLTF.preload(m.modelPath));
+techStackIcons.filter((m) => m.modelPath).forEach((m) => useGLTF.preload(m.modelPath));
 
 // Rendered INSIDE the <Canvas>: loading the GLB suspends only the Suspense boundary below, never the page.
 const TechModel = ({ model }) => {
   const scene = useGLTF(model.modelPath);
-
-  useEffect(() => {
-    if (model.name === "Interactive Developer") {
-      scene.scene.traverse((child) => {
-        if (child.isMesh) {
-          if (child.name === "Object_5") {
-            child.material = new THREE.MeshStandardMaterial({ color: "white" });
-          }
-        }
-      });
-    }
-  }, [scene, model.name]);
 
   return (
     <Float speed={5.5} rotationIntensity={1.5} floatIntensity={0.9}>
@@ -80,7 +68,7 @@ const TechIconCardExperience = ({ model }) => {
                 collapses and the browser throws the visitor back to the top of the page. */}
             <Suspense fallback={null}>
               <Environment preset="city" />
-              <TechModel model={model} />
+              {model.svgPath ? <ExtrudedLogo model={model} /> : <TechModel model={model} />}
             </Suspense>
             <OrbitControls enableZoom={false} />
           </Canvas>
