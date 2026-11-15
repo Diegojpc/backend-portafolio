@@ -21,8 +21,10 @@ const buildGeometry = (pathData, depth, bevel) => {
       curveSegments: 24,
     });
     geometry.center();
-    // SVG y grows downward; flip so the logo is not upside down.
-    geometry.scale(1, -1, 1);
+    // SVG y grows downward, so the shape arrives upside down. Turn it 180° around X instead of mirroring it:
+    // a mirror (scale y = -1) reverses every triangle's winding, three.js then culls the outer faces as
+    // back faces and the logo renders hollow. A rotation flips it and keeps the faces pointing outward.
+    geometry.rotateX(Math.PI);
     geometry.computeVertexNormals();
     console.info("[ExtrudedLogo] Geometry built", { shapes: shapes.length, vertices: geometry.attributes.position.count });
     return geometry;
