@@ -1,5 +1,5 @@
 // src/components/Contact.jsx
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import emailjs from '@emailjs/browser';
 import { AudioVisualizer } from './canvas';
@@ -9,6 +9,19 @@ import { useLanguage } from '../context/LanguageContext';
 import { styles } from '../styles';
 import { slideIn } from '../utils/motion';
 import { RESUME } from '../constants';
+import ContactToast from './ContactToast';
+
+const CONTACT_EMAIL = 'diegojosepc3@hotmail.com';
+
+// Maps an EmailJS failure to a reason the visitor can act on. EmailJS rejects with { status, text }.
+const classifyError = (error) => {
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) return 'network';
+    const status = error?.status;
+    if (!status) return 'network';
+    if (status === 429) return 'rate';
+    if (status >= 400 && status < 500) return 'config';
+    return 'generic';
+};
 
 const Contact = ({ audioElement }) => {
     const formRef = useRef();
@@ -18,6 +31,8 @@ const Contact = ({ audioElement }) => {
         message: '',
     });
     const [loading, setLoading] = useState(false);
+    const [toast, setToast] = useState(null);
+    const closeToast = useCallback(() => setToast(null), []);
     const { t, language } = useLanguage();
 
     useEffect(() => {
@@ -49,41 +64,68 @@ const Contact = ({ audioElement }) => {
         });
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
+    const mailtoHref = () => {
+        const subject = encodeURIComponent(t('contact.toast.mailSubject'));
+        const body = encodeURIComponent(`${form.message}\n\n— ${form.name} (${form.email})`);
+        return `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
+    };
+
+    const sendMessage = () => {
+        const { VITE_APP_EMAILJS_SERVICE_ID: serviceId, VITE_APP_EMAILJS_TEMPLATE_ID: templateId, VITE_APP_EMAILJS_PUBLIC_KEY: publicKey } = import.meta.env;
         setLoading(true);
+        setToast(null);
+        console.info('[Contact] Sending message', { nameLength: form.name.length, messageLength: form.message.length });
+
+        if (!serviceId || !templateId || !publicKey) {
+            console.error('[Contact] EmailJS keys missing from the build (VITE_APP_EMAILJS_*). Cannot send.');
+            setLoading(false);
+            setToast({ kind: 'error', title: t('contact.toast.errorTitle'), body: t('contact.toast.errorConfig'), mailtoHref: mailtoHref() });
+            return;
+        }
 
         emailjs
             .send(
-                import.meta.env.VITE_APP_EMAILJS_SERVICE_ID,
-                import.meta.env.VITE_APP_EMAILJS_TEMPLATE_ID,
+                serviceId,
+                templateId,
                 {
                     from_name: form.name,
                     to_name: 'Diego Peña',
                     from_email: form.email,
-                    to_email: 'diegojosepc3@hotmail.com',
+                    to_email: CONTACT_EMAIL,
                     message: form.message,
                 },
-                import.meta.env.VITE_APP_EMAILJS_PUBLIC_KEY
+                publicKey
             )
             .then(
-                () => {
+                (response) => {
+                    console.info('[Contact] Message sent', { status: response?.status });
                     setLoading(false);
-                    alert(t('contact.alertSuccess'));
-
-                    setForm({
-                        name: '',
-                        email: '',
-                        message: '',
+                    setToast({
+                        kind: 'success',
+                        title: t('contact.toast.successTitle'),
+                        body: t('contact.toast.successBody').replace('{name}', form.name.trim().split(' ')[0]).replace('{email}', form.email),
                     });
+                    setForm({ name: '', email: '', message: '' });
                 },
                 (error) => {
+                    const reason = classifyError(error);
+                    console.error('[Contact] Message failed', { reason, status: error?.status, text: error?.text, error });
                     setLoading(false);
-                    console.error(error);
-
-                    alert(t('contact.alertError'));
+                    // The form keeps its contents so a retry costs the visitor nothing.
+                    setToast({
+                        kind: 'error',
+                        title: t('contact.toast.errorTitle'),
+                        body: t(`contact.toast.error${reason[0].toUpperCase()}${reason.slice(1)}`),
+                        mailtoHref: mailtoHref(),
+                    });
                 }
             );
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        if (loading) return;
+        sendMessage();
     };
 
     const cv = RESUME[language] ?? RESUME.es;
@@ -181,6 +223,13 @@ const Contact = ({ audioElement }) => {
             >
                 <AudioVisualizer audioElement={audioElement} />
             </motion.div>
+
+            <ContactToast
+                toast={toast}
+                onClose={closeToast}
+                onRetry={sendMessage}
+                labels={{ retry: t('contact.toast.retry'), emailInstead: t('contact.toast.emailInstead'), close: t('contact.toast.close') }}
+            />
         </div>
     );
 };
