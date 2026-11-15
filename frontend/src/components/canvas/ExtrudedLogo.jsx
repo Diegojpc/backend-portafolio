@@ -43,7 +43,7 @@ const Orbiters = ({ colors, radius }) => {
       tilt: [0.5 + i * 0.55, i * 1.1, 0.2 * i],
       speed: 0.9 + i * 0.25,
       phase: (i / colors.length) * Math.PI * 2,
-      r: radius * (1 + i * 0.08),
+      r: radius * (1 + i * 0.04),
     })),
     [colors, radius]
   );
@@ -85,7 +85,8 @@ const ExtrudedLogo = ({ model }) => {
   if (!geometry) return null;
 
   return (
-    <Float speed={4} rotationIntensity={1.1} floatIntensity={0.8}>
+    // Logos with orbiting agents float less, so the orbits never drift past the card edges.
+    <Float speed={4} rotationIntensity={model.orbiters ? 0.6 : 1.1} floatIntensity={model.orbiters ? 0.35 : 0.8}>
       <group scale={model.scale} rotation={model.rotation}>
         <mesh geometry={geometry}>
           <meshStandardMaterial color={model.color} emissive={model.color} emissiveIntensity={0.12} metalness={0.25} roughness={0.32} envMapIntensity={1.2} />

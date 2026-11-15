@@ -34,14 +34,15 @@ const techStackIcons = [
     labelKey: "skills.icons.claude",
     svgPath: CLAUDE_CODE_PATH,
     color: "#D97757",
-    scale: 0.18,
+    scale: 0.16,
     depth: 4,
     // Pixel art: square edges, so only a hairline bevel.
     bevel: 0.08,
     rotation: [0, 0, 0],
     // Three agents (site palette) orbiting the model.
     orbiters: ["#2DE2E6", "#9700CC", "#F6019D"],
-    orbitRadius: 15.5,
+    // Kept inside the 300x150 card canvas (visible height ≈ 7.7 units): 13 × 0.16 ≈ 2.1 units.
+    orbitRadius: 13,
   },
   {
     name: "MCP",
